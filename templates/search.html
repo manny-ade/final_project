@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Search
+{% endblock %}
+
+{% block main %}
+
+    <div id="search_form">
+
+        <h2>Search</h2>
+
+        <h6 id="search_instruction">Search for a song or album (choose one field)!</h6>
+        <h6 id="search_tip1">Including the artist name can be helpful as well.</h6>
+        
+        <br>
+
+        <form action="/search" method="post">
+
+            <div class="mb-3">
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="query" placeholder="Search" type="text">
+            </div>
+            <div class="form-check form-check-inline">
+                <input autocomplete="off" class="form-check-input" name="query_type" type="radio" value="song">
+                <label>Song</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input autocomplete="off" class="form-check-input" name="query_type" type="radio" value="album">
+                <label>Album</label>
+            </div>
+            <div class="mb-3">
+                <br>
+                <button class="btn btn-primary mx-auto w-auto" type="submit">Search</button>
+            </div> 
+        </form>
+    </div>
+
+
+{% endblock %}

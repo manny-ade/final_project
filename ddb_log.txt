@@ -1,0 +1,256 @@
+July 7th, 2024
+you
+Hey Duck -- I forgot to save my work to a Git repository and I ran into some computer issues. I reset my computer (specifying to keep files) but failed to realized that WSL2 doesn't get saved, so I lost all the files pertaining to the project. I'm restarting my SongDiary final project and I had a question about what the username table should have, since users can add songs to their collection as well as notes to each song. I think the user id and the username are essential but are there other fields/colums I'm not thinking of?
+
+ddb
+In addition to the user id and username, you might want to consider including a password field for authentication purposes. If you plan to implement a feature where users can reset their passwords, you might also need fields for a password reset token and a timestamp for when the token was issued.
+
+If users can add notes to each song, you might want to create a separate table for songs and another for notes, each with a foreign key referencing the user id. This way, you can keep track of which user added which song or note.
+
+Remember, it's important to think about what features you want your application to have, as this will determine what data you need to store.
+
+you
+Right -- the password column was there too.
+
+ddb
+It seems like you're on the right track with your database design. If you have any more questions or need further clarification, feel free to ask!
+
+you
+How come I'm getting an apology saying there's no such table when I register?
+
+ddb
+It sounds like you're having trouble with your database. The error message you're seeing usually means that the program is trying to access a table in your database that doesn't exist.
+
+Here are a few things you could check:
+
+Did you create the table in your database? If not, you'll need to do so before you can interact with it.
+Are you sure you're connecting to the correct database? It's possible to accidentally connect to a different database than the one you intended.
+Is the table name spelled correctly? Remember, SQL is case-sensitive.
+Try to check these points and see if it helps resolve your issue.
+
+you
+Wouldn't it be smarter to use radio buttons for choosing the type of query and then having one input field for the song/album the user is looking for?
+
+ddb
+Your suggestion of using radio buttons for choosing the type of query and then having one input field for the song/album is indeed a good one. It can make the user interface more intuitive and less cluttered. However, the implementation would depend on the specific requirements of your project. If your project requires separate input fields for different types of queries, then you might need to stick with that. But if there's flexibility, your idea could certainly improve the user experience.
+
+you
+There aren't any particular specifications -- I guess the question is, would I be able to store the value of the query type through either of those two buttons and pass it along?
+
+ddb
+Yes, you can definitely store the value of the selected radio button and use it for your query. When a radio button is selected, its value can be accessed using JavaScript or the backend language you're using. This value can then be used to determine the type of query to perform. Remember to ensure that your form is set up correctly to capture this value when the form is submitted.
+
+you
+Sweet. I'm gonna try and rearrange the search page. Any pointers on how I should set it up? I'm thinking I place the input first and then the radio buttons, followed by the Search button.
+
+ddb
+That sounds like a good plan! The order of elements in a form can certainly impact user experience. Here are a few pointers:
+
+Make sure the purpose of each input field is clear. You can use labels or placeholders for this.
+Group related elements together. In your case, the radio buttons for query type can be grouped together.
+The 'Search' button should be placed at a location where it's easily visible once the user has filled out the necessary information.
+Remember, the goal is to make the form intuitive and easy to use. You might want to test different arrangements and see which one works best.
+
+you
+Hey Duck! How do you make radio buttons unselected when another one is selected?
+
+ddb
+Hello! In HTML, radio buttons with the same name attribute behave such that when one is selected, the others are automatically deselected. This is the default behavior. If you're not seeing this, make sure your radio buttons share the same name attribute. If you're working with a different language or framework, the approach might be different.
+
+you
+I see. How would I differentiate between the query type besides the name?
+
+ddb
+You can use the value attribute to differentiate between different radio buttons within the same group (i.e., those with the same name). When a form is submitted, the value of the selected radio button is the one that gets sent. So, for example, if you have three radio buttons for different colors, you might have something like:
+
+<input type="radio" name="color" value="red">
+<input type="radio" name="color" value="green">
+<input type="radio" name="color" value="blue">
+Then, in your server-side code, you can check the value of color to see which color was selected.
+
+you
+Right!
+
+ddb
+I'm glad you found the information helpful! If you have any more questions or need further clarification, feel free to ask.
+
+July 9th, 2024
+12:40-1:00 AM
+
+you
+For the construction of the list of dicts, do I need two for loops? the way the data is constructed from the Spotify API request has a dictionary that contains a list of dicts, but the loop I have now just goes through the items list and unpacks each dictionary in it.
+
+ddb
+It sounds like you're dealing with nested data structures. If the data from the Spotify API is a dictionary that contains a list of dictionaries, you might indeed need two loops: one to iterate over the list, and another to access the data within each dictionary in the list. However, the exact structure of your loops will depend on what you're trying to achieve with the data. Can you show me the code you have so far and explain what you're trying to do with the data?
+
+you
+What I have right now is the start of constructing a list of dictionaries that has the key information I'm interested in:
+info_dicts = []
+
+        if type == "song":
+            results = sp.search(q=q, type="track", limit=limit, offset=offset, market="US")
+
+            for item in results["tracks"]["items"]:
+
+                info_dicts["song_name"] = item["name"]
+
+ddb
+It seems like you're trying to create a list of dictionaries where each dictionary contains information about a song. However, you're currently trying to assign a value to a key in info_dicts, which is a list, not a dictionary.
+
+Instead, you might want to create a new dictionary for each song inside your loop, add the song information to that dictionary, and then append the dictionary to your list. Here's a general idea of how you might do that:
+
+for item in results["tracks"]["items"]:
+    song_info = {}  # create a new dictionary for this song
+    song_info["song_name"] = item["name"]
+    # add more song information here if needed
+    info_dicts.append(song_info)  # add the dictionary to your list
+Does this help you move forward with your task?
+
+you
+Yes! I forgot that what I'm doing is to make a dictionary for each item and then append it to the list.
+
+ddb
+I'm glad to hear that you found the advice helpful! If you have any more questions or run into any other issues, feel free to ask. Happy coding!
+
+you
+Another question I had was whether or not I should shift gears to creating the tables I need again after losing my data or building out this lookup function further.
+
+ddb
+It sounds like you're trying to decide between two tasks: rebuilding your tables after a data loss, or further developing a lookup function.
+
+Both tasks seem important, but the order in which you tackle them might depend on their interdependencies. If your lookup function relies on the data in your tables, it might make sense to rebuild your tables first. On the other hand, if your lookup function can be developed independently or if it's more urgent, you might choose to work on that first.
+
+Ultimately, the decision might come down to which task you feel is more critical or urgent at this moment. Remember, it's okay to switch between tasks as needed, especially when working on complex projects.
+
+you
+So at the juncture I was before the data loss, I hadn't yet begun doing any operations that required the manipulation of those tables, so maybe I should stick to building out the lookup function and using JavaScript to display the results in a table as I was doing before the loss.
+
+ddb
+It sounds like a reasonable plan. If your lookup function and the JavaScript display don't rely on the data in the lost tables, you can continue developing those parts. This way, you can make progress while figuring out how to recover or rebuild your tables. Just remember to test your function with some mock data to ensure it's working as expected. If you encounter any issues or have any questions while working on this, feel free to ask.
+
+you
+Sounds good.
+
+ddb
+Great! If you have any more questions or need further clarification as you work on your project, don't hesitate to ask. Happy coding!
+
+1:00-1:10 AM
+you
+I guess the only dependency was that I used the columns I made for the tables as a guide for remembering what information I wanted to make the lookup function return,but I can think on the fly and then refine it after I construct the tables again.
+
+ddb
+That sounds like a good approach. Using the structure of your tables as a guide for your lookup function can help ensure consistency in your data. As you said, you can refine it later once your tables are reconstructed. Remember, iterative development is a common practice in programming. It's perfectly fine to make an initial version of a function and then refine it over time as your needs become clearer. If you have any questions during this process, feel free to ask.
+
+3:00-3:50 AM
+you
+Hey Duck -- after modifying my lookup function, when calling it in app.py I'm running into a TypeError and I don't know why -- the function definitely seems to return data but I'm not getting a page that shows the list.
+
+ddb
+It sounds like you're having trouble with your lookup function in your Flask application. A TypeError usually means that you're trying to perform an operation on a data type that doesn't support it.
+
+Here are a few things you could check:
+
+Are you sure that the lookup function is returning the correct type of data? It should return a dictionary.
+Are you trying to access a key in the dictionary that doesn't exist?
+Are you passing the correct arguments to the lookup function?
+Try to print out the return value of the lookup function to see what it's actually returning. This might give you a clue as to what's going wrong.
+
+you
+Apologies, the function isn't returning data but the Flask terminal is showing that it's successfully pulling data from the API.
+
+ddb
+It sounds like your function is successfully retrieving data from the API, but not returning it correctly. Could you show me the part of your code where you're trying to return the data? Remember, your function should return a dictionary.
+
+you
+elif request.form.get("query") and request.form.get("query_type"):
+
+            query = request.form.get("query")
+            query_type = request.form.get("query_type")
+            
+            query_return = lookup(query, query_type)
+
+        return query_return
+
+ddb
+It seems like your lookup function is being called correctly. However, the return statement is outside the elif block. This means that if the condition in the elif statement is not met, your function will try to return query_return which hasn't been defined yet, leading to an error.
+
+Try moving the return statement inside the elif block, like this:
+
+elif request.form.get("query") and request.form.get("query_type"):
+    query = request.form.get("query")
+    query_type = request.form.get("query_type")
+    query_return = lookup(query, query_type)
+    return query_return
+This way, query_return will only be returned if it has been defined.
+
+you
+Okay, so printing out query_return revealed that the lookup function is returning None. I'm not sure why that is.
+
+ddb
+If your lookup function is returning None, it could be due to a few reasons:
+
+There might be a path in your function where no value is returned. In Python, if a function doesn't hit a return statement, it will return None by default.
+The API call might be failing, or not returning the data you expect. You could add some error checking to handle this case.
+You might be trying to access a key in the API response that doesn't exist.
+Try adding some print statements in your lookup function to see where it's going wrong. For example, you could print out the API response before you try to process it.
+
+you
+I think my return statements were messed up in the lookup function -- I'll rearrange them but if that doesn't work I'll try your suggestions.
+
+ddb
+That sounds like a good plan! Rearranging your return statements might solve the issue. If you still encounter problems, don't hesitate to ask for further assistance. Remember to test your function thoroughly to ensure it behaves as expected.
+
+you
+None is still getting returned -- it may be the way I'm accessing the items inside the results dictionary.
+
+ddb
+It sounds like you might be having trouble accessing the data in the dictionary returned by the API.
+
+When you're dealing with nested data structures like dictionaries, it's important to make sure you're accessing each level correctly.
+
+Here are a few things to check:
+
+Are you sure the key you're trying to access exists in the dictionary? You can use the in keyword to check this.
+If the value associated with a key is another dictionary (or a list), are you accessing the nested data correctly?
+Are you handling the case where the API might return an empty dictionary?
+Try printing out the dictionary and its keys to see what data you're working with. This might help you figure out how to access the data correctly.
+
+you
+Okay, I removed all my previous code except for creating the dictionary from the API call, and I'm now getting back the jsonified results dictionary.
+
+ddb
+That's great progress! Now that you have the JSON data, you can start to parse it. Remember, JSON data is essentially a dictionary in Python, so you can access the data by using the appropriate keys. If you're unsure about the structure of the data, you can print it out or use a tool like a JSON viewer to help visualize it. Keep going, you're on the right track!
+
+you
+Should I use jsonify inside the helpers function first?
+
+ddb
+Whether you need to use jsonify depends on what you're trying to achieve. If you're trying to send the JSON data as a response from a Flask route, then yes, you would use jsonify to convert the Python dictionary to a JSON response. However, if you're just trying to work with the data within your Python code, you can use the dictionary directly without needing to convert it to JSON.
+
+you
+I think the problem was that I was trying to do the operations within the same conditionals I was using to create the initial results dictionary.
+
+ddb
+It sounds like you're making progress in understanding your issue. If you're trying to perform operations on the data while also building the dictionary, it might be easier to separate those steps. First, build your dictionary with the data from the API. Then, once you have all the data, you can perform any necessary operations on it. This separation can make your code easier to understand and debug. Would you like to show me some code that implements this approach?
+
+you
+Yeah! Here's what I did instead:
+results_dict = json.loads(json.dumps(results, sort_keys=True, indent=4))
+
+        for result in results_dict["tracks"]["items"]:
+
+            if type == "song":
+
+                track_info = {}
+                track_info["song_name"] = result["name"]
+                track_info["artist_name"] = result["artists"][0]["name"]
+                track_info["album_name"] = result["album"]["name"]
+
+                info_dicts.append(track_info)
+
+then later at the end I return that list of dicts.
+
+ddb
+Your approach seems solid! You're correctly iterating over the items in the "tracks" list and extracting the necessary information for each track. Just make sure that the type variable is correctly set to "song" when you want to extract song information. Also, remember to initialize info_dicts as an empty list before the loop. Keep up the good work!
+
+
