@@ -55,7 +55,13 @@ def search():
             query_type = request.form.get("query_type")
             
             query_return = lookup(query, query_type)
-            return query_return
+            
+            if query_return != None:
+                return query_return
+            else:
+                print(query_return)
+                return apology("no results found", 400)
+        
     
     else:
         if request.method == "GET":

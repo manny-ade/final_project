@@ -254,3 +254,345 @@ ddb
 Your approach seems solid! You're correctly iterating over the items in the "tracks" list and extracting the necessary information for each track. Just make sure that the type variable is correctly set to "song" when you want to extract song information. Also, remember to initialize info_dicts as an empty list before the loop. Keep up the good work!
 
 
+you
+The problems started to happen again after trying to iterate over each dictionary. Something might be wrong with how I'm calling the for loop.
+
+ddb
+It sounds like you're having trouble iterating over the dictionaries in your list. When you're iterating over a list of dictionaries, you should be able to access each dictionary in a for loop like this:
+
+for dict in info_dicts:
+    # You can now access the data in `dict`
+If you're having trouble, it might be helpful to print out each dictionary in the loop to see what data you're working with. Could you show me the code where you're trying to iterate over the dictionaries?
+
+you
+for result in results_dict["tracks"]["items"]:
+
+            if type == "song":
+
+                track_info = {}
+                track_info["song_name"] = result["name"]
+                track_info["artist_name"] = result["artists"][0]["name"]
+                track_info["artist_id"] = result["artists"][0]["id"]
+                track_info["album_name"] = result["album"]["name"]
+                track_info["album_art"] = result["album"]["images"][1]["URL"]
+
+that's just a bit of the loop.
+
+ddb
+It seems like you're on the right track. However, I noticed that you're trying to access the "URL" key in the "images" list. Are you sure that's the correct key? Usually, it's "url" in lowercase. Also, remember that the "images" key is a list, so make sure the index you're using (1 in this case) is within the range of the list. Could you verify these points in your code?
+
+you
+it is lowercase in VSCode -- i guess autocorrect capitalized it before I sent it in chat.
+
+ddb
+That's good to know! Autocorrect can sometimes be a bit tricky. If you're still having issues with the loop, could you please show me the updated code or describe the problem in more detail?
+
+you
+I get a Flask error page with this error:
+TypeError: The view function for 'search' did not return a valid response. The function either returned None or ended without a return statement.
+
+ddb
+This error typically occurs when a Flask route handler function doesn't return a response or ends without a return statement. Every Flask route handler function should return a response, which could be a string, a tuple, or a Flask Response object.
+
+In your case, it seems like your 'search' function might not be returning anything under certain conditions. You should check your function to ensure that it has a return statement in every possible execution path. If there are any conditions under which the function could end without hitting a return statement, you'll need to add one.
+
+you
+I do have return statements for my search route.
+
+ddb
+If you have return statements in your route, then the issue might be with the conditions that lead to those return statements. It's possible that there's a specific condition where none of the return statements are being reached, causing the function to end without returning anything. Could you show me the structure of your 'search' function, particularly where you have placed your return statements?
+
+you
+if request.method == "POST":
+
+        if not request.form.get("query"):
+            return apology("must provide query", 400)
+        
+        elif not request.form.get("query_type"):
+            return apology("must provide search type", 400)
+        
+        elif request.form.get("query") and request.form.get("query_type"):
+
+            query = request.form.get("query")
+            query_type = request.form.get("query_type")
+            
+            query_return = lookup(query, query_type)
+            return query_return
+
+ddb
+From the code you've shown, it seems like your return statements are correctly placed within the conditions of your POST request handling. However, the error might be coming from the lookup function. If lookup doesn't return a valid response or if it ends without a return statement, it could cause the 'search' function to also not return a valid response. Could you check the lookup function to ensure it always returns a valid response?
+
+you
+The lookup function returns None if there's an error/exception and the list of dicts otherwise.
+
+ddb
+If the lookup function returns None in case of an error, that could be the source of your problem. When None is returned from lookup, it's also being returned from your 'search' route, which is causing the error you're seeing.
+
+You might want to handle the case where lookup returns None separately in your 'search' route. For example, you could return an error message to the user when lookup fails. This way, your 'search' route will always return a valid response.
+
+you
+Okay, so the lookup function is returning None.
+
+ddb
+Since the lookup function is returning None, you might want to add a check in your 'search' route to handle this. For example:
+
+query_return = lookup(query, query_type)
+if query_return is None:
+    return apology("lookup failed", 400)
+else:
+    return query_return
+This way, your 'search' route will always return a valid response, even when lookup fails.
+
+you
+I've added that, but now I've gotta figure out why it's returning None.
+
+ddb
+To figure out why the lookup function is returning None, you might want to check the conditions under which it does so. It's likely that an error or exception is occurring within the lookup function. You could add some print statements in the lookup function to print out variable values and error messages. This might help you understand what's going wrong.
+
+you
+this is the condition:
+except (KeyError, IndexError, requests.RequestException, ValueError):
+        return None
+
+ddb
+The condition you've shown is catching a variety of exceptions and returning None when any of them occur. This means that if a KeyError, IndexError, requests.RequestException, or ValueError is raised within the try block of your lookup function, it will return None.
+
+To figure out which exception is being raised, you could modify your except block to print out the exception before returning None. This would look something like this:
+
+except (KeyError, IndexError, requests.RequestException, ValueError) as e:
+    print(e)
+    return None
+This way, when an exception is raised, you'll see a message printed to the console that can help you understand what's going wrong.
+
+you
+What I'm doing now is having the function return this:
+if type == "song":
+            results = sp.search(q=q, type="track", limit=limit, offset=offset, market="US")
+        elif type == "album":
+            results = sp.search(q=q, type="album", limit=limit, offset=offset, market="US")
+        else:
+            results = None
+        
+        results_dict = json.loads(json.dumps(results, sort_keys=True, indent=4))
+
+        return results_dict
+
+ddb
+From the code you've provided, it seems like you're using the Spotify Web API to search for songs or albums. If the type is not "song" or "album", you're setting results to None. This could potentially be a problem if type is something other than "song" or "album", as json.dumps(results) would then be trying to dump None, which might not be what you want.
+
+Also, you're converting the results to JSON and then immediately loading them back into a dictionary. This is unnecessary, as the sp.search method should already return a dictionary.
+
+If you're still having issues, could you provide more context or specify what the problem is?
+
+you
+The problem I'm having is that when I'm trying to loop through the tracks in the dictionary, access the relevant fields, and create a dictionary for each to spit into a new list -- I keep getting None.
+
+ddb
+It sounds like you're having trouble accessing the tracks in the dictionary returned by the lookup function. If you're getting None, it could be that the key you're trying to access doesn't exist in the dictionary.
+
+When you're looping through the tracks, are you sure that the keys you're trying to access exist in the dictionary? You might want to print out the dictionary to see its structure. Also, remember that dictionary keys are case-sensitive in Python.
+
+If you're still having trouble, could you show me the part of your code where you're trying to access the tracks?
+
+you
+here's some of it:
+for result in results_dict["tracks"]["items"]:
+
+            if type == "song":
+
+                track_info = {}
+                track_info["song_name"] = result["name"]
+                track_info["artist_name"] = result["artists"][0]["name"]
+                track_info["artist_id"] = result["artists"][0]["id"]
+                track_info["album_name"] = result["album"]["name"]
+
+ddb
+From the code snippet you've provided, it seems like you're trying to access the "tracks" and "items" keys in the results_dict dictionary. If you're getting None, it could be that one of these keys doesn't exist in the dictionary, or the list at results_dict["tracks"]["items"] is empty.
+
+You might want to add checks to ensure that these keys exist and the list is not empty before you try to access them. For example:
+
+if "tracks" in results_dict and "items" in results_dict["tracks"] and results_dict["tracks"]["items"]:
+    for result in results_dict["tracks"]["items"]:
+        # rest of your code
+This way, you'll only try to access the keys and loop through the items if they exist and the list is not empty.
+
+you
+The last time I did this I didn't have to check that these keys didn't exist -- but then again I don't know that I remember looping like this
+
+ddb
+It's possible that the structure of the data you're working with has changed, or that there's a difference in the way you're handling the data this time. Checking for the existence of keys in a dictionary is a good practice to avoid KeyErrors.
+
+As for the looping, it's a common way to iterate over lists in Python. If you're unsure about it, I'd recommend reviewing the Python documentation or CS50 materials on loops and data structures.
+
+Remember, the goal is to understand why your code works, not just to make it work. If you're still having trouble, could you show me more of your code or explain what you're trying to achieve in more detail?
+
+you
+Okay, so basically the idea is that I'd get the dictionary returned by the API, and based on the type of search, I'd then access the relevant information, especially in accordance with the columns for the songs/albums table.
+
+ddb
+It sounds like you're on the right track! You're correctly using the API to fetch data and then processing it based on the type of search.
+
+If you're having trouble accessing the data, remember that the structure of the data returned by an API can sometimes be complex, with nested dictionaries and lists. Make sure you understand this structure so you can access the data correctly.
+
+You might find it helpful to print out the entire dictionary and examine its structure. You can also use the type() function to check the type of a variable, which can help you understand what kind of data you're dealing with.
+
+If you're still having trouble, could you provide more details about the specific issue you're encountering?
+
+you
+I must be accessing it incorrectly because I keep running into errors after coding the accessing of the data.
+
+ddb
+It sounds like you're having trouble accessing the data in the dictionary. Could you please show me the code where you're trying to access the data and the error message you're getting? This will help me understand what might be going wrong.
+
+you
+I'll try searching again and show you.
+
+ddb
+Sure, take your time. Once you've done that, please share the code and the error message you're getting. I'll be here to help.
+
+you
+Okay, so I'm not getting an error anymore because I handled it with an apology as you suggested earlier. When I print out what query_return is though, it's None. I'm not sure if it's the except block that's getting triggered or if the actual list of dicts I'm making is returning none for some reason.
+
+ddb
+It's great that you're not getting an error anymore, but it's important to understand why query_return is None.
+
+If query_return is None, it could be because the function that's supposed to return a value isn't doing so, or it's returning None explicitly.
+
+You mentioned an except block - if an exception is being raised in your function, the function will stop executing at that point and jump to the except block. If your return statement is after the point where the exception is raised, it won't be executed.
+
+To figure out what's going on, you could add print statements in your function to see if it's executing as expected. For example, you could print a message before the return statement to see if the function is reaching that point. You could also print the exception in the except block to see if an exception is being raised.
+
+Remember, the goal is to understand why your code works, not just to make it work. If you're still having trouble, could you show me the part of your code where you're defining and calling the function that's supposed to return query_return?
+
+you
+elif request.form.get("query") and request.form.get("query_type"):
+
+            query = request.form.get("query")
+            query_type = request.form.get("query_type")
+            
+            query_return = lookup(query, query_type)
+            
+            if query_return != None:
+                return query_return
+            else:
+                print(query_return)
+                return apology("no results found", 400)
+
+ddb
+It seems like you're correctly checking if query_return is None and returning an apology if it is. If query_return is None and you're seeing the print statement, it means that the lookup function is returning None.
+
+You might want to check the lookup function to see why it's returning None. It could be that it's not finding any results for the query and query type, or there could be an error in the function that's causing it to return None.
+
+You could add print statements in the lookup function to see what's happening. For example, you could print the query and query type at the start of the function, and print the result before returning it. This will help you understand what the function is doing and why it might be returning None.
+
+you
+you mentioned that I don't need to load the results back into a dictionary. Could you refresh my memory on what json.loads and json.dumps does? in the video tutorial about the Spotipy library, the creator used json.dumps, and I remember asking you about it before and you said dumps makes the dictionary a string, but loads makes it a dictionary again.
+
+ddb
+Yes, you're correct. json.dumps() is a Python method that converts a Python object into a JSON string. This can be useful when you want to serialize your data (convert it into a format that can be stored or transmitted and then reconstructed later).
+
+On the other hand, json.loads() is used to parse a JSON string and convert it back into a Python object, like a dictionary. This is known as deserialization.
+
+In the context of APIs, you might use json.dumps() to send data to an API, and json.loads() to process the data you receive from an API. However, many libraries, including requests in Python, handle this conversion for you, so you don't need to use these methods directly unless you have a specific reason to.
+
+you
+I had used these because in the terminal it was hard to read the data. however, I could just use the results variable straight?
+
+ddb
+Yes, you're correct. If the results variable is a dictionary (which it should be if it's the parsed JSON response from an API), you can access the data directly without needing to convert it to a string and back.
+
+The json.dumps() function is often used for pretty-printing JSON data to the console, because it allows you to indent the data for easier reading. But in your actual code, you should be able to work with the results dictionary directly.
+
+Remember, the key to working with any complex data structure is understanding its structure. You might find it helpful to print out the entire results dictionary, or parts of it, to understand how it's structured and how to access the data you need.
+
+you
+would i need nested loops?
+
+ddb
+Whether you need nested loops or not depends on the problem you're trying to solve. If you're dealing with multi-dimensional data structures like a 2D array or a list of lists, then yes, you might need nested loops to access each element. Could you provide more context or details about the problem you're working on?
+
+you
+So what I want to do is to extract the relevant information from the results dictionary into a list of dictionaries to make it easier to display the information on a results page.
+
+ddb
+If you're trying to extract specific information from a complex dictionary and put it into a list of simpler dictionaries, you might indeed need to use nested loops.
+
+For example, if your results dictionary contains a list of dictionaries, and each of those dictionaries contains the information you want to extract, you would need one loop to iterate over the list, and another loop (or loops) to access the information in each dictionary.
+
+However, the exact structure of your loops will depend on the structure of your results dictionary. If you're not sure how to proceed, it might be helpful to print out the results dictionary (or a part of it) and examine its structure. Once you understand the structure, you can plan out how to extract the information you need.
+
+you
+So the spotify results is a big dictionary that has a dictionary called tracks, and in that dictionary is another one called items, and each track is an item in items, where each item has different dictionaries/lists based on the field.
+
+ddb
+Based on your description, it sounds like you're dealing with a nested dictionary structure. If you want to extract information from each track (which is an item in the 'items' list), you would likely need to use a loop to iterate over the 'items' list.
+
+Here's a general idea of how you might do this:
+
+1. Access the 'tracks' dictionary from the main dictionary.
+2. Access the 'items' list from the 'tracks' dictionary.
+3. Loop over the 'items' list. Each item in this list is a dictionary representing a track.
+4. For each track dictionary, access the information you need and add it to your new list of dictionaries.
+Remember, the exact keys you need to use to access this information will depend on the structure of your data. If you're not sure, it might be helpful to print out one of the track dictionaries to see what keys it has and what information each key corresponds to.
+
+you
+part of me remembers using i somewhere in the looping process before the data loss -- I might have used for i in range(len(results)).
+
+ddb
+Using for i in range(len(results)) is a common way to loop over a list in Python when you need to know the index of each item. However, if you're just iterating over a list and you don't need to know the index of each item, you can use a simpler loop: for item in results.
+
+In your case, if results is a dictionary, you would first need to access the 'tracks' dictionary and then the 'items' list. Once you have the 'items' list, you can loop over it using a for loop. Each item in the 'items' list is a dictionary representing a track, and you can access the information in this dictionary directly.
+
+Remember, the exact keys and indices you need to use will depend on the structure of your data. If you're not sure, it might be helpful to print out the 'items' list or one of the track dictionaries to see what they look like.
+
+you
+so I'd do for item in results["tracks"]["items"].
+
+ddb
+Yes, that's correct! Using for item in results["tracks"]["items"]: would allow you to loop over each track (represented as a dictionary) in the 'items' list. Inside the loop, item would be a dictionary from which you can extract the information you need. Remember to check the structure of item to know which keys to use.
+
+you
+I also originally used conditionals to make sure that the right kind of dictionary gets created for the corresponding search.
+
+ddb
+That's a good approach! Using conditionals can help ensure that you're handling each type of search correctly. Depending on the type of search, you might need to access different keys in the item dictionary.
+
+Remember, the key to working with complex data structures is understanding their structure. If you're not sure which keys to use, it might be helpful to print out one of the item dictionaries and examine its structure.
+
+Keep in mind that it's important to handle any potential errors that might occur if a key is not present in the dictionary. You can use the dict.get() method, which allows you to specify a default value to return if the key is not found.
+
+you
+I'll seeif that works.
+
+ddb
+Great! Feel free to ask if you have any more questions or run into any issues. I'm here to help. Good luck with your coding!
+
+you
+Yeah -- I think I just have to be careful with the indexes. I'll print out an example of the plain results dictionary and get a good idea of how to access each piece of data.
+
+ddb
+That sounds like a solid plan! Understanding the structure of your data is a crucial step in being able to manipulate it effectively. Printing out your data is a great way to visualize this structure. If you have any more questions or need further clarification as you proceed, don't hesitate to ask. Happy coding!
+
+you
+I see the problem -- I was trying to access genre when that's not a field for tracks. I forgot I used another artist search to fill in the genres associated with it.
+
+ddb
+Ah, I see. It's easy to mix up fields when dealing with complex data structures. It's great that you've identified the issue. Now, you can adjust your code to first perform an artist search to get the genre information. Remember to handle any potential errors that might occur if a key is not present in the dictionary. If you have any more questions or need further clarification, feel free to ask. Happy coding!
+
+you
+So when you try to create a key-value pair in a dictionary where the value doesn't exist, does that change the whole dictionary to None?
+
+ddb
+No, trying to create a key-value pair in a dictionary where the value doesn't exist doesn't change the whole dictionary to None. Instead, it simply adds the new key-value pair to the dictionary. If you try to access a key that doesn't exist in the dictionary, Python will raise a KeyError. However, you can avoid this by using the dictionary's get() method, which allows you to specify a default value to return if the key doesn't exist.
+
+you
+The KeyError was what caused the None to be returned then, since the key I tried to access didn't exist in the tracks dictionary.
+
+ddb
+Yes, you're correct. If you try to access a key that doesn't exist in a dictionary, Python will raise a KeyError. This could cause your function to stop and return None if the error isn't handled properly. To avoid this, you can use the get() method when accessing dictionary keys, which allows you to provide a default value if the key doesn't exist. For example, dictionary.get(key, default_value).
+
+you
+Is the keyword "true" in the data return by the Spotify API just text?
+
+ddb
+In the data returned by the Spotify API, the keyword "true" is not just text, it's a boolean value. In JSON data, which is what the Spotify API returns, "true" and "false" are boolean values, not strings. This means you can use them in your code as you would use any other boolean value, for example in conditional statements.

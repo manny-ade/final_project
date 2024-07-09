@@ -68,36 +68,74 @@ def lookup(q, type):
     # Query API
     try:
         info_dicts = []
-        track_list = []
 
         if type == "song":
             results = sp.search(q=q, type="track", limit=limit, offset=offset, market="US")
+            
+            # loop through results to build dictionary with relevant info
+            for item in results["tracks"]["items"]:
+                
+                track_dict = {}    
+
+                track_dict["song_name"] = item["name"]
+                track_dict["song_link"] = item["external_urls"]["spotify"]
+                track_dict["artist_name"] = item["artists"][0]["name"]
+                track_dict["artist_id"] = item["artists"][0]["id"]
+                track_dict["artist_link"] = item["artists"][0]["external_urls"]["spotify"]
+                track_dict["artists"] = [artist['name'] for artist in item['artists']]
+                track_dict["album_name"] = item["album"]["name"]
+                track_dict["album_link"] = item["album"]["external_urls"]["spotify"]
+                track_dict["track_artwork"] = item["album"]["images"][1]["url"]
+                track_dict["release_date"] = item["album"]["release_date"]
+                track_dict["duration_ms"] = item["duration_ms"]
+                
+                if item["explicit"] == True:
+
+                    track_dict["explicit_status"] = "explicit"
+                
+                elif item["explicit"] == False:
+
+                    track_dict["explicit_status"] = "clean"
+                
+                artist_info = sp.artist(item["artists"][0]["id"])
+                track_dict["genre"] = artist_info["genres"]
+                track_dict["artist_image"] = artist_info["images"][1]["url"]
+                
+        
+                info_dicts.append(track_dict)
+
+
         elif type == "album":
             results = sp.search(q=q, type="album", limit=limit, offset=offset, market="US")
+
+            # loop through results to build dictionary with relevant info
+            for item in results["albums"]["items"]:
+                
+                album_dict = {}
+
+                album_dict["album_name"] = item["name"]
+                album_dict["album_link"] = item["external_urls"]["spotify"]
+                album_dict["album_type"] = item["album_type"]
+                album_dict["total_tracks"] = item["total_tracks"]
+                album_dict["artist_name"] = item["artists"][0]["name"]
+                album_dict["artist_id"] = item["artists"][0]["id"]
+                album_dict["album_artwork"] = item["images"][1]["url"]
+                album_dict["album_release_date"] = item["release_date"]
+                album_dict["artists"] = [artist['name'] for artist in item['artists']]
+               
+                artist_info = sp.artist(item["artists"][0]["id"])
+                album_dict["genre"] = artist_info["genres"]
+                album_dict["artist_image"] = artist_info["images"][1]["url"]
+               
+
+                info_dicts.append(album_dict)
+
+
         else:
             results = None
+            info_dicts.append(results)
         
-        results_dict = json.loads(json.dumps(results, sort_keys=True, indent=4))
-
-        for result in results_dict["tracks"]["items"]:
-
-            if type == "song":
-
-                track = result
-                
-
-                track_list.append(track)
-            
-            elif type == "album":
-
-                album_info = {}
-                album_info["album_name"] = result["name"]
-                album_info["artist_name"] = result["artists"][0]["name"]
-                album_info["album_art"] = result["album"]["images"][0]["url"]
-
-                info_dicts.append(album_info)
-
-        return track_list
+        return info_dicts
             
     except (KeyError, IndexError, requests.RequestException, ValueError):
         return None
