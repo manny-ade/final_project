@@ -82,7 +82,7 @@ def lookup(q, type):
                 track_dict["artist_name"] = item["artists"][0]["name"]
                 track_dict["artist_id"] = item["artists"][0]["id"]
                 track_dict["artist_link"] = item["artists"][0]["external_urls"]["spotify"]
-                track_dict["artists"] = [artist['name'] for artist in item['artists']]
+                track_dict["artists"] = {artist['name']: artist['external_urls']['spotify'] for artist in item["artists"]}
                 track_dict["album_name"] = item["album"]["name"]
                 track_dict["album_link"] = item["album"]["external_urls"]["spotify"]
                 track_dict["track_artwork"] = item["album"]["images"][1]["url"]
@@ -119,10 +119,10 @@ def lookup(q, type):
                 album_dict["total_tracks"] = item["total_tracks"]
                 album_dict["artist_name"] = item["artists"][0]["name"]
                 album_dict["artist_id"] = item["artists"][0]["id"]
+                album_dict["artist_link"] = item["artists"][0]["external_urls"]["spotify"]
+                album_dict["artists"] = {artist['name']: artist['external_urls']['spotify'] for artist in item["artists"]}
                 album_dict["album_artwork"] = item["images"][1]["url"]
                 album_dict["album_release_date"] = item["release_date"]
-                album_dict["artists"] = [artist['name'] for artist in item['artists']]
-               
                 artist_info = sp.artist(item["artists"][0]["id"])
                 album_dict["genre"] = artist_info["genres"]
                 album_dict["artist_image"] = artist_info["images"][1]["url"]
