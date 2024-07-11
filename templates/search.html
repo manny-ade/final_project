@@ -6,7 +6,7 @@
 
 {% block main %}
 
-    <div id="search_form">
+    <div id="search">
 
         <h2>Search</h2>
 
@@ -15,7 +15,7 @@
         
         <br>
 
-        <form action="/search" method="post">
+        <form action="/search" method="post" id="search_form">
 
             <div class="mb-3">
                 <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="query" placeholder="Search" type="text">
@@ -34,6 +34,8 @@
             </div> 
         </form>
     </div>
+
+    <h6 id="search_error"></h6>
 
 
 {% endblock %}

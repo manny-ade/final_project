@@ -62,7 +62,7 @@ def login_required(f):
 def lookup(q, type):
     """Look up song and album info."""
     
-    limit = 5
+    limit = 20
     offset = 0
     
     # Query API

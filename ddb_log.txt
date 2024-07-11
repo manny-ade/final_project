@@ -596,3 +596,1000 @@ Is the keyword "true" in the data return by the Spotify API just text?
 
 ddb
 In the data returned by the Spotify API, the keyword "true" is not just text, it's a boolean value. In JSON data, which is what the Spotify API returns, "true" and "false" are boolean values, not strings. This means you can use them in your code as you would use any other boolean value, for example in conditional statements.
+
+July 10th, 2024
+you
+Hey Duck -- I'm working on making the tables for the song project now, and I'm not sure I remember what the fields I needed were from before the data loss -- I think I started with an albums table and then an artists table, then the songs table, two junction tables (one for the link between songs and albums, and then one between albums and artists), and then a notes table to store the notes users leave for particular albums or songs.
+
+ddb
+It sounds like you're on the right track! Here's a general idea of what each table might need:
+
+albums: album_id (primary key), album_name, release_date
+artists: artist_id (primary key), artist_name
+songs: song_id (primary key), song_name, song_length
+album_song: album_id, song_id
+album_artist: album_id, artist_id
+notes: note_id (primary key), user_id, album_id, song_id, note_content
+Remember, the junction tables (album_song and album_artist) are used to represent many-to-many relationships. Each row in these tables represents a link between an album and a song, or an album and an artist.
+
+Please note that these are just suggestions, and you might need to adjust them based on your specific requirements.
+
+you
+Actually no I think it was the artists table first
+
+ddb
+That's perfectly fine! The order in which you create the tables doesn't matter as much as the relationships between them. You can start with the artists table if you prefer. The important thing is to ensure that the relationships between the tables (artists, albums, songs, etc.) are correctly established. This will allow you to perform complex queries later on.
+
+you
+Here's what I have for the artists table so far:
+CREATE TABLE "artists" (
+"artist_id" INTEGER NOT NULL,
+"artist_name" TEXT NOT NULL,
+"genre" TEXT,
+"artist_image" TEXT,
+PRIMARY KEY("artist_id" AUTOINCREMENT)
+);
+
+ddb
+Your artists table looks good! It has an artist_id as the primary key, which will uniquely identify each artist. The artist_name field is also marked as NOT NULL, which means every artist must have a name. The genre and artist_image fields are optional, which is fine depending on your application's requirements.
+
+Just remember that when you start linking this table with others (like albums or songs), you'll be using the artist_id field to create those relationships.
+
+Do you have any specific questions or concerns about this table?
+
+you
+I have this feeling that I'm forgetting a field or two -- I thought maybe I had a field for a link to the artist's Spotify page?
+
+ddb
+It's possible that you might have had a field for the artist's Spotify link. If you think this information would be useful in your application, you can certainly add a field like spotify_link to your artists table. This could be a TEXT field, similar to your artist_image field. Remember, the structure of your tables should reflect the data you want to store and how you want to use it.
+
+you
+do you have any suggestions for additional fields?
+
+ddb
+Sure, here are a few suggestions for additional fields you might consider:
+
+artist_bio: A brief biography or description of the artist.
+artist_country: The country where the artist is from or primarily operates.
+artist_active_years: The years during which the artist has been active.
+Remember, these are just suggestions. The fields you choose to include should align with the requirements of your project and the data you have available.
+
+you
+is it better to just use "id" instead of "artist_id"?
+
+ddb
+Whether you use "id" or "artist_id" for your primary key largely depends on your personal preference and the complexity of your database schema.
+
+If your queries and joins are simple and you're not dealing with many tables, "id" can be sufficient. However, if your database schema is complex and involves multiple tables, using a more descriptive primary key like "artist_id" can make your SQL queries easier to understand and debug, as it immediately tells you which entity the id is associated with.
+
+In the end, the most important thing is to be consistent in whatever naming convention you choose.
+
+you
+Okay -- I think I'll stick with "artist_id" for now in case things get hairy later on.
+
+ddb
+That sounds like a good plan! Using "artist_id" will indeed make things clearer if your database grows more complex. If you have any more questions or need further clarification, feel free to ask!
+
+you
+Here's my albums table:
+CREATE TABLE "albums" (
+"album_id" INTEGER NOT NULL,
+"album_name" TEXT NOT NULL,
+"artist_id" INTEGER NOT NULL,
+"artist_name" INTEGER,
+"genre" TEXT,
+"release_date" DATE,
+"album_link" TEXT,
+"album_artwork" TEXT,
+PRIMARY KEY("album_id" AUTOINCREMENT),
+FOREIGN KEY("artist_id") REFERENCES "artists"("artist_id")
+
+ddb
+Your albums table looks well-structured! You've correctly set up the album_id as the primary key and artist_id as a foreign key referencing the artists table. This will ensure the integrity of your data across tables.
+
+However, I noticed that artist_name is an INTEGER. If this is meant to store the name of the artist, it should probably be TEXT. Also, consider whether you need the artist_name in the albums table at all, since you can always retrieve it by joining with the artists table using the artist_id.
+
+Do you have any specific questions or concerns about this table?
+
+you
+No-- thank you for those pointers.
+
+ddb
+You're welcome! If you have any more questions in the future, don't hesitate to ask. Happy coding!
+
+you
+I forgot to add a listening status field for the albums table -- but that leads me to a question; I remember researching and finding out SQLite doesn't support the BOOL/BOOLEAN type, but rather represents true and falls by integers. Should I just keep that field an integer or indicate it as BOOL in SQLiteBrowser?
+
+ddb
+In SQLite, as you've mentioned, there is no built-in BOOLEAN type. Instead, it uses integers, with 0 representing false and 1 representing true.
+
+When defining your table, you can indeed use the BOOL keyword for clarity and readability, even though SQLite will ultimately store these as integers. This can make your code more understandable to others (or to yourself, when you look back at it later).
+
+So, you could define your listening status field like this:
+
+listening_status BOOL
+
+Remember, though, when you're querying this field, you'll need to use 0 and 1, not true and false.
+
+you
+so if a user hasn't listened to a song or album, it would be 0 for false, but if they have, it would be 1 for true?
+
+ddb
+Yes, that's correct! In the context of your database, a value of 0 in the listening_status field would indicate that a user hasn't listened to a particular song or album, while a value of 1 would indicate that they have. This is a common way to represent boolean values in databases that don't have a built-in boolean type.
+
+you
+Here's my query for the songs table:
+CREATE TABLE "songs " (
+"song_id" INTEGER NOT NULL,
+"song_name" TEXT NOT NULL,
+"album_id" INTEGER,
+"artist_id" INTEGER,
+"genre" TEXT,
+"release_date" DATE,
+"song_link" TEXT,
+"length" INTEGER,
+"explicit_status" TEXT,
+"listened" BOOL,
+"song_artwork" TEXT,
+PRIMARY KEY("song_id" AUTOINCREMENT),
+FOREIGN KEY("album_id") REFERENCES "albums"("album_id"),
+FOREIGN KEY("artist_id") REFERENCES "artists"("artist_id")
+)
+
+ddb
+Your songs table looks well-structured! You've correctly set up the song_id as the primary key and album_id and artist_id as foreign keys. This will ensure the integrity of your data across tables.
+
+One thing to consider is whether you need both album_id and artist_id in this table. If every album is associated with exactly one artist, you could retrieve the artist for a song by joining the songs table with the albums table.
+
+Also, remember that SQLite doesn't have a built-in BOOLEAN type. So, while you can use BOOL for the listened field for clarity, it will be stored as an integer, with 0 representing false and 1 representing true.
+
+Do you have any specific questions or concerns about this table?
+
+you
+To your point about the joint table, which of the two columns should I keep?
+
+ddb
+It depends on the relationships between your entities. If every song is associated with exactly one album, and every album is associated with exactly one artist, then you could remove the artist_id from the songs table.
+
+You would then be able to find the artist for a song by joining the songs table with the albums table on album_id, and then joining the result with the artists table on artist_id.
+
+However, if a song could potentially be associated with multiple artists (for example, in the case of collaborations), then it would make sense to keep both album_id and artist_id in the songs table.
+
+Remember, the goal is to minimize redundancy and the potential for inconsistencies in your data.
+
+you
+Songs can be singles as well as have an album associated with them -- I just have those fields there in case I need both, because every song is associated with an artist at least.
+
+ddb
+It sounds like you've thought this through! If a song can be a single (not associated with any album) or part of an album, then it makes sense to have an album_id field in your songs table. This field can be NULL for singles.
+
+As for the artist_id, if every song is associated with an artist, then it's appropriate to have this field in your songs table. This way, you can directly link a song to an artist, regardless of whether the song is part of an album or a single.
+
+Remember, the goal is to accurately represent the relationships between your entities in your database schema. It sounds like you're on the right track!
+
+you
+Okay, now it's onto making the junction tables and then the notes tables.
+
+ddb
+That sounds like a good plan! Junction tables are a great way to represent many-to-many relationships in a database. If you have any questions while creating these tables or the notes tables, feel free to ask. Happy coding!
+
+you
+From what I remember  I just need to make a primary key of both columns referenced from the songs and albums table for the song_album table and then a similar way for artists and albums, correct?
+
+ddb
+Yes, you're on the right track! For a junction table like song_album, you would typically have two columns: one for song_id and one for album_id. Each of these would be a foreign key referencing the songs and albums tables respectively.
+
+The primary key of the junction table would typically be a composite of these two foreign keys. This means that each row in the junction table represents a unique combination of a song and an album.
+
+The same concept applies to an artist_album junction table. The primary key would be a composite of artist_id and album_id, each of which is a foreign key referencing the artists and albums tables respectively.
+
+Remember, the purpose of these junction tables is to represent many-to-many relationships between songs and albums, and between artists and albums.
+
+you
+Here's what I've got:
+CREATE TABLE "song_album" (
+"song_id" INTEGER NOT NULL,
+"album_id" INTEGER NOT NULL,
+PRIMARY KEY("album_id","song_id"),
+FOREIGN KEY("album_id") REFERENCES "albums"("album_id"),
+FOREIGN KEY("song_id") REFERENCES "songs "("song_id")
+);
+
+ddb
+Your song_album junction table looks good! You've correctly set up the song_id and album_id as foreign keys, and you've made a composite primary key out of these two fields. This will ensure that each combination of song and album is unique in this table. Well done! Do you have any other questions or is there anything else you'd like to discuss?
+
+you
+Hey Duck, here's the second junction table I made:
+CREATE TABLE "artists_albums" (
+"artist_id" INTEGER NOT NULL,
+"album_id" INTEGER NOT NULL,
+PRIMARY KEY("artist_id","album_id"),
+FOREIGN KEY("album_id") REFERENCES "albums"("album_id"),
+FOREIGN KEY("artist_id") REFERENCES "artists"("artist_id")
+)
+
+ddb
+Your junction table looks well-structured! It correctly establishes many-to-many relationships between artists and albums. Is there a specific issue you're encountering with this table, or do you have any questions about it?
+
+you
+I just wanted some reassurance, that's all. 😂
+
+ddb
+I'm glad to hear that! Your junction table is indeed correctly set up. It's always good to double-check. Keep up the good work! If you have any more questions or need further clarification, feel free to ask.
+
+you
+Could you remind me of the SQL property for the current time and day?
+
+ddb
+In SQL, you can use the CURRENT_TIMESTAMP function to get the current date and time. It's a built-in function that returns the current date and time set for the operating system on which the database resides.
+
+you
+Okay, here's the notes table:
+CREATE TABLE "notes" (
+"note_id" INTEGER NOT NULL,
+"user_id" INTEGER NOT NULL,
+"song_id" INTEGER,
+"album_id" INTEGER,
+"note_content" TEXT,
+"note_created" CURRENT_TIMESTAMP,
+PRIMARY KEY("note_id" AUTOINCREMENT),
+FOREIGN KEY("album_id") REFERENCES "albums"("album_id"),
+FOREIGN KEY("song_id") REFERENCES "songs "("song_id"),
+FOREIGN KEY("user_id") REFERENCES "users"("id")
+
+ddb
+Your "notes" table looks well-structured! It seems like you're creating a music database where users can leave notes on songs and albums. The CURRENT_TIMESTAMP for "note_created" will automatically record the date and time when a note is created, which is a good practice. Is there a specific question or issue you have regarding this table?
+
+you
+I just needed some reassurance again! 😂
+
+ddb
+Your "notes" table is indeed well-structured! It's great to see that you're implementing good practices like using CURRENT_TIMESTAMP for the "note_created" field. Keep up the good work! If you have any more questions or need further clarification, feel free to ask.
+
+you
+Okay, so now that I've built the tables, I do want to make the search results appear on the page instead of loading a new HTML page. This was the point I was at before the data loss, where we used fetch and another route that accepted the form's information and returned the data to JavaScript to populate the page with a table. I'm not sure I entirely remember how I did it but I do remember you mentioning I should replicate the search function in the JavaScript as a starting point.
+
+ddb
+It sounds like you're on the right track! To implement this, you'll need to use JavaScript's fetch function to send a request to your server-side route. This route should accept the form's data, perform the search operation, and then return the results as a JSON object.
+
+In your JavaScript code, you can then use the returned JSON data to dynamically create a table and populate it with the search results. This can be done by creating new HTML elements (like tr and td for table rows and data) and appending them to your table element.
+
+Remember, the key here is to replicate the search functionality you've already implemented on the server-side in your JavaScript code. This means you'll need to extract the form data, send it to the server, and handle the response all within your JavaScript code.
+
+Does this help clarify the process for you?
+
+you
+Yes. So could I use another route and keep GET as the only method for the search route? that's how I remember accomplishing the JavaScript approach.
+
+ddb
+Yes, you can certainly do that. You can create a new route specifically for handling the AJAX requests from your JavaScript code. This route can be similar to your existing search route, but instead of rendering a new page with the results, it should return the results as a JSON object. This way, your original search route can remain a GET route, and you can use the new route for your JavaScript fetch calls.
+
+you
+Sweet. I'll start on replicating the search function in JS.
+
+ddb
+That sounds like a great plan! Remember to take it step by step: extract the form data, send it to the server using fetch, and then handle the response to populate your table. If you run into any issues or have any questions, don't hesitate to ask. Happy coding!
+
+you
+Oh -- I forgot to ask, about the tables, should I be making any indices on each one? I know indexes come with the cost of speed, but I do want to consider it.
+
+ddb
+Creating indexes can indeed improve the speed of data retrieval operations on a database. However, as you mentioned, they come with the cost of slower write operations (INSERT, UPDATE, DELETE) because the index also needs to be updated.
+
+In your case, you might want to consider adding indexes to columns that you frequently use for searching or sorting, especially if those tables have a large amount of data. For example, if you often search for notes by "user_id", "song_id", or "album_id", it might be beneficial to add indexes to these columns.
+
+Remember, the decision to add an index should be based on the specific needs and performance requirements of your application. It's always a good idea to monitor the performance of your application and adjust your indexing strategy as needed.
+
+you
+Sweet. If I need to, I'll go back and make them.
+
+ddb
+That sounds like a good plan! Indexing is something that can be adjusted as your application grows and changes, so it's perfectly fine to add them later if you find that you need them. If you have any more questions or need further clarification, feel free to ask. Happy coding!
+
+you
+does the DOMContentLoaded event apply to every HTML page?
+
+ddb
+Yes, the DOMContentLoaded event is fired when the initial HTML document has been completely loaded and parsed, without waiting for stylesheets, images, and subframes to finish loading. This event can be used in any HTML page and is often used to ensure that scripts don't run until the HTML is fully loaded.
+
+you
+Okay, so I did have functionality where a red h6 would pop up at the bottom of the page to alert the user that they haven't entered the correct/necessary prompts. I forget whether or not I had it there to begin with and adjusted the style accordingly or if I had the JavaScript create it. Now that I think on it, I think I did have it created beforehand.
+
+ddb
+It sounds like you're trying to recall how you implemented an alert feature in your application. Both approaches you mentioned are valid.
+
+If the alert element is created beforehand in the HTML, you can use JavaScript to simply change the style or content of the element based on user input.
+
+On the other hand, if you're creating the element dynamically with JavaScript, you would create the element, set its content and style, and then append it to the DOM when needed.
+
+Both methods have their uses and can be chosen based on the specific needs of your application. If the alert is a standard feature of your page that will always be needed, it might make sense to include it in the HTML. If the alert is only needed under certain circumstances, creating it dynamically with JavaScript might be a better choice.
+
+Does this help clarify things for you?
+
+you
+Yeah! Since this message is going to be on the search page before the results roll in, I think I'll leave the h6 there empty, and change the style and text accordingly.
+
+ddb
+That sounds like a good approach! By leaving the h6 element in your HTML and adjusting its content and style with JavaScript, you can effectively communicate different messages to the user based on their actions. If you have any more questions or need further clarification, feel free to ask. Happy coding!
+
+you
+i know I use event.preventDefault to stop the form from being submitted -- do I need to change the route of the form first to the one that will return the data to fetch?
+
+ddb
+When you use fetch to make a request, you don't need to change the action attribute of the form. Instead, you can prevent the default form submission behavior using event.preventDefault(), then use fetch to make a request to the desired URL.
+
+The URL you pass to fetch does not have to be the same as the form's action attribute. It can be any URL that you want to make a request to. The form's action attribute is only used when the form is submitted in the traditional way, without using fetch or event.preventDefault().
+
+So, in your case, you can leave the form's action attribute as it is, prevent the default form submission, and then use fetch to make a request to the URL that will return the data.
+
+you
+sorry, i guess I need to change the method to just GET.
+
+ddb
+Yes, if you're retrieving data, the HTTP method should be GET. If you're using fetch, you can specify this method like so: fetch(url, {method: 'GET'}). Remember to replace url with the actual URL you're making the request to. If you have any more questions or need further clarification, feel free to ask.
+
+you
+Here's what I meant:
+ <form action="/search" method="get">
+
+            <div class="mb-3">
+                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="query" placeholder="Search" type="text">
+            </div>
+            <div class="form-check form-check-inline">
+                <input autocomplete="off" class="form-check-input" name="query_type" type="radio" value="song">
+                <label>Song</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input autocomplete="off" class="form-check-input" name="query_type" type="radio" value="album">
+                <label>Album</label>
+            </div>
+            <div class="mb-3">
+                <br>
+                <button class="btn btn-primary mx-auto w-auto" type="submit">Search</button>
+            </div> 
+        </form>
+
+ddb
+From your code, it seems like you have a form that sends a GET request to the "/search" route when submitted. If you want to handle this form submission with JavaScript and fetch, you can prevent the default form submission behavior and then use fetch to send a GET request.
+
+In your JavaScript code, you would need to add an event listener to the form's submit event, call event.preventDefault() in the event handler, and then use fetch to send a GET request to the "/search" route.
+
+Remember to extract the form data to include in your fetch request. You can use the FormData object for this.
+
+Does this help clarify things for you?
+
+you
+Hey Duck -- I'm working on making the data from the API search show up in a table on the search page without reloading it -- I know I'll need to use fetch, but I'm not sure if I need to change my search method in app.py to a GET method and route the form's inputs through the other "results" route that I remember you suggested to me before the data loss, or if I can handle all of it in the search method.
+
+ddb
+Hello! You're on the right track. You can indeed use fetch to make a request to your server and then update your page with the results without reloading it. This is a common pattern in modern web development.
+
+As for your server-side code, you don't necessarily need to change your search method to a GET method. You can use either GET or POST, depending on your needs. The important part is that your server-side code should return the data that your client-side code needs to update the page.
+
+Remember, the fetch API can be used to make both GET and POST requests. You can use the method property in the options object to specify the type of request.
+
+As for routing the form's inputs, you can handle this in your fetch call. You can include the form data in the body of the request if you're using a POST method, or in the query string if you're using a GET method.
+
+I hope this helps! Let me know if you have any other questions.
+
+you
+I think the problem is if I used a post method, I'd need to return something -- could the return just be the data getting sent to fetch? and if so, how could that work without returning a new page?
+
+ddb
+Yes, you're correct. When you use a POST method, your server-side code should return a response. However, this doesn't have to be a new page. Instead, you can return the data that your client-side code needs to update the page.
+
+In Flask, you can use the jsonify function to convert your data into JSON format, which can then be returned as a response to your fetch call. Here's a simplified example:
+
+from flask import jsonify
+
+@app.route('/search', methods=['POST'])
+def search():
+    # your search logic here
+    data = {"key": "value"}  # replace with your actual data
+    return jsonify(data)
+Then, in your fetch call, you can use the .json() method to parse the JSON response into a JavaScript object:
+
+fetch('/search', {
+    method: 'POST',
+    // your fetch options here
+})
+.then(response => response.json())
+.then(data => {
+    // use the data to update your page
+});
+This way, you can send data from your server to your client without reloading the page.
+
+you
+Sweet. Can I still do client-side code that prevents the user from submitting an empty query and an unselected query type?
+
+ddb
+Absolutely! You can use JavaScript to validate the form inputs before making the fetch request. If the inputs are not valid, you can prevent the form from being submitted and show an error message to the user. This can be done using an event listener for the form's submit event. Here's a simplified example in pseudocode:
+
+form.addEventListener('submit', function(event) {
+    if (input is not valid) {
+        event.preventDefault();
+        // show error message
+    }
+});
+In this code, event.preventDefault() stops the form from being submitted if the input is not valid. You can replace input is not valid with your own validation logic.
+
+you
+so I don't need to make another results route?
+
+ddb
+No, you don't necessarily need to create a separate "results" route. You can handle the search and return the results all within the same route. When the fetch request is made, your server-side code can process the search, create the data you need to update the page, and then return that data as a JSON response. Your client-side code can then use this data to update the page without needing to navigate to a new route or reload the page.
+
+you
+okay, because when i returned the data initially to check if my helper function and logic was working, it returned a page of the data.
+
+ddb
+That's likely because you were returning the data as a rendered template or as a string. When you want to return data to be processed by JavaScript, you should return it as JSON. Flask has a jsonify function that you can use to convert your data to JSON format.
+
+Here's a simplified example:
+
+from flask import jsonify
+
+@app.route('/search', methods=['POST'])
+def search():
+    # your search logic here
+    data = {"key": "value"}  # replace with your actual data
+    return jsonify(data)
+Then, in your JavaScript code, you can use the response.json() method to parse the JSON response into a JavaScript object:
+
+fetch('/search', {
+    method: 'POST',
+    // your fetch options here
+})
+.then(response => response.json())
+.then(data => {
+    // use the data to update your page
+});
+This way, you're not returning a new page, but data that your JavaScript code can use to update the current page.
+
+you
+So instead of using just the variable that contains the new dictionary I create, I should just return it as a jsonified dictionary?
+ elif request.form.get("query") and request.form.get("query_type"):
+
+            query = request.form.get("query")
+            query_type = request.form.get("query_type")
+            
+            query_return = lookup(query, query_type)
+            
+            if query_return != None:
+                return query_return
+            else:
+                print(query_return)
+                return apology("no results found", 400)
+
+ddb
+Yes, you're on the right track. Instead of returning query_return directly, you should return it as a JSON response. This way, your JavaScript code can process the response and use the data to update the page. Here's how you can modify your code:
+
+if query_return != None:
+    return jsonify(query_return)
+else:
+    print(query_return)
+    return apology("no results found", 400)
+Remember to import the jsonify function from flask at the top of your file:
+
+from flask import jsonify
+This way, when your fetch request is successful, the response will be a JSON object that you can use in your JavaScript code to update your page.
+
+you
+So I can keep this part of my code as well?
+if request.method == "POST":
+
+        if not request.form.get("query"):
+            return apology("must provide query", 400)
+        
+        elif not request.form.get("query_type"):
+            return apology("must provide search type", 400)
+
+ddb
+Yes, you can definitely keep that part of your code. It's good practice to validate the inputs on the server side as well as on the client side. This way, you can ensure that your server-side code only processes valid inputs. If the inputs are not valid, you can return an error message to the client.
+
+you
+So I can get rid of my results route?
+
+ddb
+Yes, if you're handling the search and returning the results all within the same route, you don't necessarily need a separate "results" route. Your server-side code can process the search, create the data you need to update the page, and then return that data as a JSON response. Your client-side code can then use this data to update the page without needing to navigate to a new route or reload the page.
+
+you
+Okay, so how can I make sure my client-side validation prevents the results from being shown? I forget how the conditionals I used stopped a new page from loading. I tried using event.preventDefault and then showing the h6 but the page loads before then.
+
+ddb
+To prevent the form from submitting and the page from reloading, you can use event.preventDefault() in your form's submit event listener. This should be the first thing you do in your event handler function. Here's a simplified example:
+
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    // your validation logic here
+    if (input is not valid) {
+        // show error message
+    } else {
+        // make fetch request
+    }
+});
+In this code, event.preventDefault() stops the form from being submitted and the page from reloading. Then, you can perform your validation. If the input is not valid, you can show an error message. If the input is valid, you can make the fetch request.
+
+Remember, the fetch request should be made inside the else block of your validation logic. This way, the fetch request is only made if the input is valid.
+
+you
+Okay, so with the first part of my client-side validation, when I test it, it doesn't stop the page from loading and sends me to one that says Method Not Allowed.
+
+ddb
+It sounds like you're having trouble with form validation. "Method Not Allowed" usually means that the HTTP method (like GET or POST) you're using isn't supported for the route you're trying to access.
+
+Are you sure you're using the correct method for your form? Also, are you preventing the default form submission behavior in your JavaScript validation function? If not, the form might be submitting before your validation code has a chance to run.
+
+you
+should the method only be GET?
+
+ddb
+Not necessarily. The method you use (GET or POST) depends on what you're trying to achieve. If you're retrieving data, you'd typically use GET. If you're sending data to be processed to a server, you'd use POST. In the context of form submission, POST is often used as it doesn't display the form data in the URL.
+
+you
+That's kind of why I asked the question before -- from what I remember I just kept the search page as a GET method that just returns the page, and then had a results route that sent the data over to the JavaScript but I'm not sure.
+
+ddb
+Could you please show me some code that implements the advice I gave you earlier? It would be helpful to see how you're handling the form submission and the routes in your server-side code.
+
+you
+This is the method so far:
+ if request.method == "POST":
+
+        if not request.form.get("query"):
+            return apology("must provide query", 400)
+        
+        elif not request.form.get("query_type"):
+            return apology("must provide search type", 400)
+        
+        elif request.form.get("query") and request.form.get("query_type"):
+
+            query = request.form.get("query")
+            query_type = request.form.get("query_type")
+            
+            query_return = lookup(query, query_type)
+            
+            if query_return != None:
+                return jsonify(query_return)
+            else:
+                print(query_return)
+                return apology("no results found", 400)
+        
+    
+
+    if request.method == "GET":
+        return render_template("search.html")
+
+ddb
+Your code seems to be handling both GET and POST requests correctly. When a GET request is made, it returns the search page, and when a POST request is made, it processes the form data.
+
+However, you mentioned earlier that you're getting a "Method Not Allowed" error. This error typically occurs when a route is accessed with an HTTP method that it doesn't support.
+
+Are you sure that the route you're using for your form's action attribute supports POST requests? Also, are you sure that your JavaScript isn't trying to send a GET request to this route?
+
+you
+The attribute is as follows:
+<form action="/search" method="post">
+
+ddb
+Your form seems to be set up correctly to send a POST request to the "/search" route.
+
+Are you sure that the "/search" route in your server-side code is set up to handle POST requests? It should look something like this:
+
+@app.route("/search", methods=["GET", "POST"])
+def search():
+    # Your code here
+The methods=["GET", "POST"] part is important. It tells Flask that this route should accept both GET and POST requests. If you only have methods=["GET"], then you would get a "Method Not Allowed" error when you try to send a POST request to this route.
+
+you
+You're right -- I forgot I got rid of it when trying to remember how I had it before the data loss. I'll see if the first part of my client-side validation works now.
+
+ddb
+...
+you
+You're right -- I forgot I got rid of "POST" when trying to remember how I had it before the data loss. I'll see if the first part of my client-side validation works now.
+
+ddb
+That sounds like a good plan! Please go ahead and try it out. If you encounter any more issues or have further questions, feel free to ask. I'm here to help!
+
+you
+I think I forgot to add the script.🤦🏿‍♂️
+
+ddb
+No worries, it happens to the best of us! If you're trying to add a script for client-side validation, make sure you link it correctly in your HTML file. If you're still having trouble, could you please provide more details about the issue?
+
+you
+Okay, I added a link to the script in layout.html but the server side validation is taking precedence and throwing the apology before I get the chance to stop it from going through and alerting the user with the h6.
+
+ddb
+It sounds like your client-side validation isn't preventing the form from being submitted when the validation fails.
+
+In your JavaScript, are you using event.preventDefault() to stop the form from being submitted when the validation fails? This should be inside an event listener for the form's submit event.
+
+Here's a general idea of what it might look like:
+
+document.querySelector('form').addEventListener('submit', function(event) {
+    if (/* validation fails */) {
+        event.preventDefault();
+        // Show error message
+    }
+});
+This will prevent the form from being submitted (and thus prevent the server-side validation from running) if the client-side validation fails.
+
+you
+So the server-side validation isn't allowing my client-side validation to stop the user before a new page is loaded and prevent them from submitting anything yet.
+
+ddb
+It sounds like you're having trouble with form validation. Remember, client-side validation is primarily for user experience - it can provide immediate feedback and prevent unnecessary server requests. However, it can be bypassed, so server-side validation is necessary for security.
+
+If your server-side validation is interfering with your client-side validation, it might be because the form is being submitted before the client-side validation can complete. Are you using JavaScript for your client-side validation? If so, you might want to look into preventing the default form submission event until your validation checks have passed.
+
+you
+I am using event.preventDefault() but I guess the form is still getting submitted before the validation can complete -- I think I remember before the data loss, I actually validated all on the client-side first to prevent any bad entries and then had another route that did a bit of validation and then sent the data back to the JavaScript.
+
+ddb
+It sounds like you're on the right track with using event.preventDefault(). If the form is still being submitted, it might be that the event listener isn't correctly attached to the form submission event, or the validation function isn't correctly preventing the default action.
+
+Here are a few things you could check:
+
+Is your JavaScript code placed in the right location? If it's in the head of your HTML, it might not be able to find the form element because it hasn't been loaded yet.
+
+Are you sure that your event listener is attached to the correct form? You might want to log something to the console in your event handler to make sure it's being triggered.
+
+Is your validation function correctly returning false or calling event.preventDefault() when validation fails?
+
+Remember, without seeing your code, these are just general suggestions. If you're still having trouble, you might want to share a snippet of your code.
+
+you
+I think I see the problem -- the id I'm using was assigned to the div containing the form. I changed the form to have that id so now the client-side validation should start working.
+
+ddb
+That sounds like a good catch! HTML element IDs should be unique within a page, and if you were targeting the div instead of the form with your JavaScript, that could certainly cause issues. Now that you've corrected the ID, your client-side validation should indeed start working as expected. Keep going, and don't hesitate to ask if you have more questions!
+
+you
+okay, the apology still gets thrown before the page can stop the user from submitting and showing them what they're doing wrong.
+
+ddb
+It seems like the form is still being submitted before your client-side validation can complete. Could you please show me some code that implements the advice I gave you earlier? This will help me understand the issue better and provide more targeted guidance.
+
+you
+this is part of the code:
+  if (query === '' || query_type === '') {
+        
+        event.preventDefault();
+        search_error.textContent = 'You must enter both a query and a query type.';
+        search_error.style.color = 'red';
+        search_error.style.display = 'block';
+    }
+
+ddb
+From the code snippet you've shared, it seems like you're correctly using event.preventDefault() to stop the form submission when the query or query type is empty.
+
+However, it's important to ensure that this validation code is being executed when the form is submitted. This code should be inside a function that's attached to the form's 'submit' event.
+
+Here's a general structure of how it might look:
+
+formElement.addEventListener('submit', function(event) {
+    // Your validation code here
+});
+Make sure that formElement correctly refers to your form, and that this event listener is set up after the form has loaded on the page.
+
+you
+this is what I have for referring to the form:
+var search_form = document.getElementById('search_form');
+
+search_form.addEventListener('submit', function(event) {
+
+ddb
+It looks like you're correctly getting a reference to the form and setting up an event listener for the 'submit' event. If the form is still being submitted before your validation can run, there might be an issue elsewhere in your code.
+
+Here are a few things you could check:
+
+Is there any other JavaScript code that might be causing the form to submit? For example, another event listener on the 'submit' event that doesn't prevent the default action.
+
+Are there any errors in your JavaScript console that might be causing your script to stop running before it gets to the validation?
+
+Is your JavaScript code running after the form element has loaded? If your script is in the head of your HTML, it might run before the form element exists on the page.
+
+Remember, these are just general suggestions. If you're still having trouble, you might want to share more of your code.
+
+you
+Part of me feels like it has to do with these lines -- maybe the JavaScript isn't picking up on the values of these parts of the form:
+var query = document.getElementById('query').value;
+    var query_type = document.querySelector('input[name="query_type"]:checked').value;
+
+ddb
+It's possible that the issue lies with how you're getting the values of query and query_type.
+
+If these lines of code are not inside the event listener function, they will only be run once when the page loads, not every time the form is submitted. This means they would only get the initial values of the form fields, not any changes made by the user.
+
+Try moving these lines inside your 'submit' event listener function, so they get the current values of the form fields each time the form is submitted. Here's a general idea of how it might look:
+
+search_form.addEventListener('submit', function(event) {
+    var query = document.getElementById('query').value;
+    var query_type = document.querySelector('input[name="query_type"]:checked').value;
+    // Rest of your code...
+});
+This way, you're ensuring that you're working with the most up-to-date values when you perform your validation.
+
+you
+I think I forgot the semicolon after the first if block I made.
+
+ddb
+Forgetting a semicolon in JavaScript can indeed cause unexpected behavior. In JavaScript, semicolons are used to separate statements from each other. If you forget to put a semicolon after a statement, the JavaScript interpreter might not be able to tell where one statement ends and the next one begins, which can lead to errors or unexpected behavior.
+
+It's good practice to always put a semicolon after a statement in JavaScript, even though in some cases they can be automatically inserted by the JavaScript interpreter. This makes your code more readable and helps prevent potential issues.
+
+So, if you've forgotten a semicolon after your if block, adding it could potentially solve your issue.
+
+you
+I added the semicolon but nothing changed -- the form still gets submitted.
+
+ddb
+It's possible that there's another issue in your code that's causing the form to submit.
+
+One thing you could try is to add a console.log statement at the beginning of your event listener function. This will help you confirm whether the function is being called when the form is submitted.
+
+search_form.addEventListener('submit', function(event) {
+    console.log("Form submitted");
+    // Rest of your code...
+});
+If you don't see "Form submitted" in your JavaScript console when you submit the form, that means your event listener function isn't being called, and you'll need to investigate why.
+
+If you do see the message, that means your function is being called, and the issue lies somewhere else in your code. In that case, you might want to add more console.log statements throughout your code to help you track down the issue.
+
+you
+Okay, so the script is still not being found. here's what the console printed when I loaded up the search page:
+GET http://127.0.0.1:5000/final_project/script.js net::ERR_ABORTED 404 (NOT FOUND)
+
+ddb
+The error message you're seeing indicates that the browser is unable to find the JavaScript file at the specified URL. This could be due to a few reasons:
+
+The file script.js might not exist in the location specified. Make sure that the file is in the correct directory.
+
+The path to the file might be incorrect. If your JavaScript file is in a different directory, you'll need to include that in the path. For example, if script.js is in a directory called js, the path would be /js/script.js.
+
+If you're using a web framework, you might need to set up static file serving for your JavaScript files. The way to do this depends on the framework you're using.
+
+Check these points and see if they help resolve the issue.
+
+you
+so the JavaScript file is in the main directory of my final_project, whereas the search page and all the other HTML pages are in the templates folder. I have script linked like this:
+<script src="/final_project/script.js"></script>
+
+ddb
+The path you're using to link your JavaScript file seems to be absolute, starting from the root directory (/final_project/script.js). However, depending on how your server is set up, the root directory might not be the main directory of your project.
+
+If your JavaScript file is in the main directory of your project, and your HTML files are in a templates subdirectory, you might need to use a relative path to link to your JavaScript file. In this case, the path would be ../script.js, which means "go up one directory from the current directory, then find script.js".
+
+Try changing your script tag to the following:
+
+<script src="../script.js"></script>
+This might solve the issue if the problem is related to the path of your JavaScript file.
+
+you
+I'm still getting the same error. should I restart my Flask server?
+
+ddb
+Restarting your Flask server could potentially help, especially if you've made changes to your file structure or server configuration. However, if the issue is with the path to your JavaScript file, restarting the server might not resolve the issue.
+
+Before you restart your server, you might want to double-check the path to your JavaScript file. Make sure that the path is correct relative to the HTML file that's linking to it. If your JavaScript file is in the main directory of your project, and your HTML file is in a templates subdirectory, the path to your JavaScript file from your HTML file should be ../script.js.
+
+If you're still having trouble, you might want to consider moving your JavaScript file to a static directory, which is a common convention in Flask applications. You would then link to it using the url_for function, like so:
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+This tells Flask to generate the correct URL for the file, regardless of where your application is running.
+
+you
+I'll try that second line first.
+
+ddb
+Sure, give it a try and let me know how it goes. Remember, the url_for function is a Flask function that generates URLs for static files, so it should help in correctly linking your JavaScript file.
+
+you
+Okay, that worked, but now it's saying document.createEventListener isn't a function -- did I type it wrong?
+
+ddb
+It seems like there might be a typo in your code. The correct method is addEventListener, not createEventListener. So, if you're trying to add an event listener to a DOM element, you should use document.addEventListener. Try correcting this and see if it resolves the issue.
+
+you
+right. I'm making so many dumb mistakes -- I could have spent the last few hours already where I wanted to be.
+
+ddb
+Don't be too hard on yourself! Learning to code, especially debugging, can be a challenging process and it's completely normal to make mistakes. They're a part of the learning process. Remember, every mistake is an opportunity to learn something new. Keep going, you're doing great!
+
+you
+Okay, so the client-side validation seems to be working, except the h6 isn't showing up yet -- I'm getting this in the console:
+Uncaught TypeError: Cannot read properties of null (reading 'value')
+    at HTMLFormElement.<anonymous> (script.js:11:53)
+
+I think I need to specify a condition of if the use doesn't fill in the query field or check the query type.
+
+ddb
+The error message you're seeing typically occurs when you're trying to access a property of an element that doesn't exist or hasn't been defined yet. In this case, it seems like you're trying to access the 'value' property of an element that is null.
+
+This could be happening because the element you're trying to access doesn't exist in the DOM at the time your JavaScript code is running. If your JavaScript code is in the head of your HTML document, it will run before the body of the document has been parsed, so any elements you're trying to access in the body won't exist yet.
+
+To fix this, you could try moving your JavaScript code to the end of the body of your HTML document, or wrapping your code in a window.onload or document.addEventListener('DOMContentLoaded', function() {...}) event handler to ensure it doesn't run until the entire document has been parsed.
+
+As for the condition you mentioned, you could indeed add a check to see if the user has filled in the query field or checked the query type before proceeding with the rest of your code. This could look something like:
+
+if (document.getElementById('queryField').value && document.getElementById('queryType').checked) {
+    // Proceed with the rest of your code
+}
+This will ensure that your code only runs if both the query field has a value and the query type is checked.
+
+you
+Could I check the opposite first?
+
+ddb
+Absolutely! Checking for the opposite condition first is a common practice known as "early return" or "guard clause". It can make your code cleaner and easier to read. In your case, you could check if the query field is empty or the query type is unchecked, and if so, stop the function execution. Here's a rough idea:
+
+if (!document.getElementById('queryField').value || !document.getElementById('queryType').checked) {
+    // Display an error message or do something else
+    return;
+}
+// Proceed with the rest of your code
+This way, you handle the "error" case first and then proceed with the rest of your code, reducing the need for nested if statements and making your code easier to follow.
+
+you
+is there another way to access the value of an input?
+
+ddb
+Yes, there are a few ways to access the value of an input field in JavaScript. Here are a couple of methods:
+
+document.querySelector(): This method allows you to access an element using any CSS selector. For example, if your input field has an id of 'myInput', you can access its value like this:
+let value = document.querySelector('#myInput').value;
+document.forms: This is an HTMLCollection of all the <form> elements in the document. You can access the value of an input field within a form like this:
+let value = document.forms['myForm']['myInput'].value;
+In this example, 'myForm' is the name of the form and 'myInput' is the name of the input field.
+
+Remember to ensure that the DOM is fully loaded before trying to access elements. You can do this by placing your script at the end of your HTML body, or by using an event listener for the 'DOMContentLoaded' event.
+
+you
+does getElement work?
+
+ddb
+Yes, getElementById, getElementsByClassName, and getElementsByTagName are all methods provided by the document object in JavaScript to select HTML elements. They return the element(s) that match the provided identifier, class, or tag name, respectively. For example, document.getElementById('myId') would return the element with the id 'myId'. Remember to replace 'myId' with the actual id of your element.
+
+you
+So these lines aren't a problem?
+var query = document.getElementById('query').value;
+        var query_type = document.querySelector('input[name="query_type"]:checked').value;
+        console.log(query);
+
+ddb
+These lines of code seem fine at first glance. They are getting the value of the element with the id 'query' and the value of the checked radio button with the name 'query_type'. However, if you're encountering issues, it could be due to a few reasons:
+
+The elements might not exist at the time this code is running. Make sure this script is running after the DOM has fully loaded.
+
+The id 'query' or the name 'query_type' might not match the actual id or name of your elements. Double-check your HTML to ensure the names match.
+
+There might not be a checked radio button with the name 'query_type' at the time this code is running. If no radio button is checked, document.querySelector('input[name="query_type"]:checked') will return null, and trying to access .value will throw an error.
+
+Could you please show me some code that implements my previous advice before asking another question?
+
+you
+so if not filling in both returns null for both, should I make the check ask if they're both null?
+
+ddb
+Yes, you could certainly check if both values are null. If either the 'query' field or the 'query_type' radio buttons are not filled in, their values would be either null or an empty string. You could check for these conditions like so:
+
+if (!query || !query_type) {
+    // Display an error message or handle the error
+}
+This condition will be true if either 'query' or 'query_type' is null, undefined, or an empty string. If you specifically want to check for null, you could use query === null or query_type === null instead.
+
+you
+I'm still getting a TypeError saying Cannot read properties of null (reading 'value')
+    at HTMLFormElement.<anonymous> (script.js:11:53)
+
+ddb
+It seems like you're trying to access a property of an object that is null. This error usually occurs when you're trying to access a DOM element that doesn't exist or hasn't been loaded yet.
+
+Here are a few things you can check:
+
+Make sure the element you're trying to access actually exists in your HTML.
+If the script tag is in the head of your HTML, make sure you're waiting for the DOM to fully load before trying to access elements. You can do this by wrapping your code in a window.onload function or by moving your script tag to the bottom of your body tag.
+Check your spelling and capitalization. JavaScript is case-sensitive, so make sure you're using the correct case when trying to access elements.
+Can you show me the code around where you're getting the error? That might help me give more specific advice.
+
+you
+document.addEventListener('DOMContentLoaded', function() {
+
+    var search_form = document.getElementById('search_form');
+
+    search_form.addEventListener('submit', function(event) {
+    
+        event.preventDefault();
+        var search_error = document.getElementById('search_error');
+        search_error.style.display = 'none';
+
+ddb
+From the code snippet you've provided, it seems like you're trying to access an element with the id 'search_error'. The TypeError you're encountering suggests that this element might not exist in your HTML, or it's not loaded yet when this script runs.
+
+Could you please confirm if the element with id 'search_error' exists in your HTML? Also, could you show me the code where you're trying to read the 'value' property? That might help me understand the issue better.
+
+you
+the h6 with the id search_error exists, but these are the lines in particular that the error is referencing:
+ var query = document.getElementById('query').value;
+        var query_type = document.querySelector('input[name="query_type"]:checked').value;
+
+ddb
+It seems like the error is coming from trying to access the 'value' property of either the element with id 'query' or the checked radio button with name 'query_type'.
+
+Here are a few things you can check:
+
+Make sure the element with id 'query' exists in your HTML.
+Make sure there is at least one radio button with name 'query_type' and that one of them is checked when this code runs. If no radio button is checked, document.querySelector('input[name="query_type"]:checked') will return null, and trying to access the 'value' property of null will throw a TypeError.
+Can you confirm these elements exist and are in the correct state when this code runs?
+
+you
+so I think the problem is the :checked thing -- I want to check if either radio button is not checked or if the user doesn't fill the input.
+
+ddb
+You're on the right track! If you want to check if a radio button is not checked or if an input field is empty, you can do so before accessing their 'value' property.
+
+For the radio button, you can first store the result of document.querySelector('input[name="query_type"]:checked') in a variable, and then check if this variable is null before trying to access its 'value' property.
+
+For the input field, you can check if its 'value' property is an empty string.
+
+Remember, it's always a good practice to validate user input before using it in your code.
+
+you
+okay, so what's happening now is that I removed the .value from both lines, and now the check for having both checked works and the error comes up. However, if both not null, then I can go into them and obtain their values?
+
+ddb
+Yes, you're correct! If you've confirmed that the elements are not null, you can then safely access their 'value' property.
+
+For the radio button, you can do something like this:
+
+var radio_button = document.querySelector('input[name="query_type"]:checked');
+if (radio_button != null) {
+    var query_type = radio_button.value;
+}
+And for the input field:
+
+var input_field = document.getElementById('query');
+if (input_field.value != '') {
+    var query = input_field.value;
+}
+This way, you're ensuring that the elements exist and are in the correct state before trying to access their 'value' property.
+
+you
+so I could do an else if (query !== null && query_type !== null): {
+
+// rest of code
+}
+
+ddb
+Yes, you're on the right track! You can use an else if statement to check if both query and query_type are not null before proceeding with the rest of your code. This way, you're ensuring that both elements exist and are in the correct state before using them in your code. Remember to use the actual elements (not their values) in the condition of your else if statement.
+
+you
+is checking if both are null the same as checking if they're both equal to empty strings?
+
+ddb
+No, checking if a variable is null is not the same as checking if it's equal to an empty string. In JavaScript, null is a special value that represents no value or no object. It's the value that variables have when they are created, but not assigned a value.
+
+On the other hand, an empty string is a string with zero characters. If you have an input field in your HTML and the user doesn't enter anything into it, the value of that input field will be an empty string, not null.
+
+So, if you want to check if an input field is empty, you should check if its value is an empty string. If you want to check if an element exists in your HTML, you should check if the variable storing that element is null.
+
+you
+Would it make sense to check if they're equal to empty strings?
+
+ddb
+Yes, it would make sense to check if the value of an input field is an empty string if you want to ensure that the user has entered something into the field. If the value of the input field is an empty string, it means that the user hasn't entered anything.
+
+However, for a radio button, you would typically check if it's null (meaning no radio button is selected) rather than if its value is an empty string. This is because a radio button's value is usually set in the HTML and doesn't change based on user interaction.
+
+you
+gotcha. so I should probably still include a check only for the input field to see if it's equal to an empty string. do spaces count in that empty string?
+
+ddb
+In JavaScript, a string with only spaces is not considered an empty string. An empty string is specifically a string with zero characters. So if a user enters only spaces into an input field, its value will be a string of spaces, not an empty string.
+
+If you want to treat input of only spaces as an empty input, you could use the trim() method, which removes whitespace from both ends of a string. For example, input_field.value.trim() === '' would be true if the user entered only spaces.
+
+you
+ah so maybe my check could be else if query.value.trim === '' or query.value == ''?

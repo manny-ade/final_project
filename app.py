@@ -57,25 +57,15 @@ def search():
             query_return = lookup(query, query_type)
             
             if query_return != None:
-                return query_return
+                return jsonify(query_return)
             else:
                 print(query_return)
                 return apology("no results found", 400)
         
     
-    else:
-        if request.method == "GET":
-            return render_template("search.html")
 
-@app.route("/results", methods=["GET"])
-@login_required
-def results():
-    """Show results of search"""
-    
     if request.method == "GET":
-
-        return apology("TODO")
-        
+        return render_template("search.html")
 
 
 @app.route("/history", methods=["GET"])
