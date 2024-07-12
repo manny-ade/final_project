@@ -1807,3 +1807,180 @@ are lists also called arrays in JavaScript?
 
 ddb
 Yes, in JavaScript, what are often referred to as "lists" in other programming languages are called "arrays". They are used to store multiple values in a single variable.
+
+you
+Okay, so I've coded for the div that contains the form to disappear when the data comes through in the fetch block. However, I'm using createElement and appendChild to make a new h2 heading but nothing is appearing yet.
+
+ddb
+It sounds like you're on the right track with using createElement and appendChild. Here are a few things to check:
+
+Are you sure the fetch block is being executed? You can confirm this by adding a console.log statement inside the fetch block.
+After creating the new h2 element, are you setting its innerHTML or textContent property to the desired text?
+Are you appending the new h2 element to an existing element that's attached to the DOM?
+Remember, the new element won't appear until it's appended to an element that's already in the DOM.
+
+you
+isn't there something else you're supposed to do before appendChild?
+
+ddb
+Before using appendChild, you should indeed create the element using createElement and set its content using innerHTML or textContent. Here's a general idea:
+
+let newElement = document.createElement('h2');
+newElement.textContent = 'Your text here';
+Then you can append this new element to an existing one in the DOM. If you've done these steps and it's still not working, could you show me the relevant part of your code?
+
+you
+resultHeading = document.createElement('h2')
+                search_content.appendChild(resultHeading);
+                resultHeading.textContent = 'Search Results'
+                resultHeading.style.display = 'block';
+
+ddb
+Your code seems fine at first glance. However, it's important to ensure that search_content is a valid element in the DOM before you try to append resultHeading to it.
+
+Also, make sure that this block of code is being executed. You can check this by adding a console.log statement before the createElement line. If you don't see the log message in the console, then the code block isn't being executed.
+
+If you've checked these and the issue persists, could you provide more context or a larger code snippet?
+
+you
+I think the problem is that I'm making the div disappear as opposed to the form.
+
+ddb
+Ah, I see. If you're hiding the div that contains the form, then any elements you append to that div won't be visible because the parent div is hidden.
+
+You might want to consider hiding just the form after submission, rather than the entire div. This way, the div is still visible for you to append new elements like your h2 heading.
+
+Does this help clarify things?
+
+you
+Yes! I've gotten the desired front-end behavior. Now, for making the table, I think I need to create the table, then make the header row, and then add cells for the corresponding data.
+
+ddb
+That's a great start! You're correct in your approach. You'll first need to create the table, then add a header row, and finally add the data cells. Remember to iterate over your data when adding cells to ensure each piece of data has its own cell. Can you show me how you're planning to implement this?
+
+you
+So I'm thinking of setting a variable called resultsTable by creating the element and then add the headers and appending them, and so on and so forth for each row of data.
+
+ddb
+That sounds like a good plan! Remember to use the document.createElement method to create new table rows and cells. Also, don't forget to append each cell to its respective row, and each row to the table. Would you like to show me some code that implements this?
+
+you
+These are the beginnings I have:
+ var resultsHeading = document.createElement('h2');
+                resultsHeading.textContent = 'Search Results';
+                resultsHeading.style.display = 'block';
+                search_content.appendChild(resultsHeading);
+
+                var resultsTable = document.createElement('table');
+
+                if (query_type.value == 'song'){
+                
+                
+                    for (let item of data) {
+                    
+                        console.log(item);
+                        var resultsTableHeaderRow = document.createElement('thead');
+                        
+                }
+
+ddb
+It looks like you're off to a good start! You've created the heading and the table, and you're iterating over your data.
+
+Next, inside your loop, you might want to create a new row for each item. Then, for each property in the item, create a new cell, set its text content to the property value, and append it to the row.
+
+Remember to append the row to the table only after you've added all the cells.
+
+Also, you're creating a new table header (thead) for each item in your data. You probably want to do this just once, before the loop.
+
+Can you try implementing these suggestions and show me what you come up with?
+
+you
+Yeah, sounds good.
+
+ddb
+Great! Please go ahead and try implementing those suggestions. If you encounter any issues or have any questions, feel free to ask.
+
+you
+Ah so I should create the header row before the loop, right?
+
+ddb
+Yes, that's correct! The header row, which typically contains the column names, should be created and added to the table before the loop. The loop then should be used to create and add each data row. This way, you ensure that the header row is at the top of the table, followed by all the data rows.
+
+you
+does each column in the header row have to be a variable?
+
+ddb
+No, each column in the header row does not have to be a variable. You can directly create a cell, set its text content to the column name, and append it to the header row. However, if you find it more manageable or readable, you can certainly use variables. It's more about your personal coding style and what makes the code easier for you to understand and maintain.
+
+you
+how exactly would i add columns to the header row?
+
+ddb
+To add columns to the header row, you would create a new table cell for each column using document.createElement('th'), set its text content to the column name, and then append it to the header row. Here's a general idea:
+
+var headerRow = document.createElement('tr');
+var column1 = document.createElement('th');
+column1.textContent = 'Column Name 1';
+headerRow.appendChild(column1);
+// Repeat for other columns
+resultsTable.appendChild(headerRow);
+Remember to replace 'Column Name 1' with the actual name of your column, and repeat the process for each column you want to add.
+
+you
+so this isn't exactly right?
+var resultsTableHeaderRow = document.createElement('thead');
+
+ddb
+Your code is partially correct. The 'thead' element is a container for the header of a table, which can include multiple rows. However, in most cases, the header consists of a single row with multiple cells. Each cell represents a column header.
+
+So, you would typically create a 'tr' (table row) element, add 'th' (table header) elements to it for each column, and then append this row to the 'thead' element.
+
+Would you like to try implementing this and show me your code?
+
+you
+I'll try and see if I understood you correctly.
+
+ddb
+That sounds like a good plan! Please go ahead and try implementing the suggestions. If you have any questions or run into any issues, feel free to ask.
+
+you
+so for each td in the loop, I can add the data from the corresponding values in the dictionary?
+
+ddb
+Yes, you're on the right track! You can iterate over each td in your loop and assign the corresponding value from your dictionary. Just make sure that the keys in your dictionary match the order of your td elements. Remember to handle any potential key errors.
+
+you
+How would I refer to a new row?
+
+ddb
+In HTML, a new row in a table is typically represented by the <tr> tag. If you're dynamically creating a new row using JavaScript, you might use a method like insertRow(). If you're using Python with a library like BeautifulSoup, you might create a new Tag object with the name "tr". The specifics can depend on the context and the tools you're using. Could you provide a bit more detail about your situation?
+
+you
+yeah, so now I'm making the loop where I add rows to the results table in correspondence with the columns and the data from the dictionary.
+
+ddb
+Great! It sounds like you're making good progress. Remember, when you're adding rows, you'll want to create a new row element for each entry in your data. Then, for each row, you'll create new cell elements for each piece of data in the entry. Can you show me how you're implementing this in your code?
+
+you
+would I create a variable for each row?
+
+ddb
+Yes, creating a variable for each row can be a good approach. This variable can then be used to append cells (td elements) to it. Remember, each row should represent a single entry from your data, and each cell within that row should represent an individual piece of data from that entry. Can you show me how you're implementing this in your code?
+
+
+you
+How might I put the album link from the data into an a tag that says "Link" in my JavaScript?
+
+ddb
+To create a link in JavaScript, you can create an a element, set its href attribute to the album link, and its text content to "Link". Here's a general idea:
+
+let aTag = document.createElement('a');
+aTag.href = albumLink; // replace albumLink with your actual link variable
+aTag.textContent = "Link";
+Remember to append this a tag to the appropriate parent element in your DOM.
+
+you
+Got it. Thank you!
+
+ddb
+You're welcome! If you have any more questions or run into any issues, feel free to ask. Happy coding!
