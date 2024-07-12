@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', function() {
     var search_tip1 = document.getElementById('search_tip1');
     var new_search = document.getElementById('new_search');
     new_search.style.display = 'none';
+    
+    var add_form = document.getElementById('add_form');
+    var add_header = document.getElementById('add_header');
+    var add_instruction = document.getElementById('add_instruction');
+    var add_tip1 = document.getElementById('add_tip1');
+    
 
     search_form.addEventListener('submit', function(event) {
     
@@ -99,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     for (let item of data) {
                     
-                        console.log(item);
                         var resultsTableRow = document.createElement('tr');
                         var resultsSongName = document.createElement('td');
                         resultsSongName.classList.add('text-start');
@@ -157,8 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 resultsTable.appendChild(resultsTableHeader);
 
                 for (let item of data) {
-                    
-                    console.log(item);
+                
                     var resultsTableRow = document.createElement('tr');
                     var resultsAlbumName = document.createElement('td');
                     resultsAlbumName.textContent = item.album_name;
@@ -194,12 +198,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 new_search.addEventListener('click', () => {
 
                     new_search.style.display = 'none';
+                    resultsHeading.style.display = 'none';
+                    resultsTable.style.display = 'none';
                     search_form.reset();
                     search_header.style.display = 'block';
                     search_instruction.style.display = 'block';
                     search_tip1.style.display = 'block';
                     search_form.style.display = 'block';
-                    resultsTable.style.display = 'none';
+                    
 
                 })
             })
@@ -212,4 +218,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     
     });
+
+
+
+
+
+
 });

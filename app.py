@@ -86,6 +86,15 @@ def search():
     if request.method == "GET":
         return render_template("search.html")
 
+@app.route("/add", methods=["GET", "POST"])
+@login_required
+def add():
+    """Add a new song or album"""
+    if request.method == "POST":
+        return apology("TODO")
+
+    if request.method == "GET":
+        return render_template("add.html")
 
 @app.route("/history", methods=["GET"])
 @login_required

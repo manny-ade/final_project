@@ -1996,3 +1996,22 @@ For sure. Could I hide that button on load and have it appear again in the code 
 
 ddb
 Absolutely! You can initially set the button's CSS display property to 'none' to hide it on load. Then, in your JavaScript code that handles the fetch data, you can change the display property to 'block' or 'inline' to make it visible again. Remember to give your button a unique id so you can easily select it with JavaScript.
+
+you
+Should I modify users to include the song_ids and album_ids of songs/albums they add?
+
+ddb
+In a typical database design, it's not common to store song_ids and album_ids directly in the users table. Instead, you might want to create a separate table, such as a "user_songs" or "user_albums" table, that links users to the songs or albums they've added. This is known as a many-to-many relationship. Each row in this table would represent a single song or album added by a user, and would contain the user's id, and the song's or album's id. This way, a user can add multiple songs or albums, and a song or album can be added by multiple users.
+
+you
+Got it. I had a feeling I'd need a junction table for that.
+
+ddb
+I'm glad to hear that you found the information helpful! If you have any more questions or need further clarification on anything, feel free to ask.
+
+you
+Would I make one separate junction table for songs and users or should I have one combine junction table for songs, albums and users?
+
+ddb
+It would be best to create separate junction tables for songs and users, and albums and users. This is because songs and albums are different entities and may have different relationships with users. For example, a user might add a song to their playlist but not the entire album. Having separate tables allows for more flexibility and better organization in your database.
+

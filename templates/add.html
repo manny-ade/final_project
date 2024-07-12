@@ -6,5 +6,37 @@
 
 {% block main %}
 
+    <div id="add">
+    
+        <h2 id="add_header">Add</h2>
+        
+        <h6 id="add_instruction">Search for the song or album you wish to add and then click the add button. (Choose one type!)</h6>
+        <h6 id="add_tip1">Remember: including the artist name can be helpful as well.</h6>
+            
+        <br>
+        
+        <form action="/add" method="post" id="add_form">
+
+            <div class="mb-3">
+                <input id="query" autocomplete="off" autofocus class="form-control mx-auto w-auto" name="query" placeholder="Search" type="text">
+            </div>
+            <div class="form-check form-check-inline">
+                <input autocomplete="off" class="form-check-input" name="query_type" type="radio" value="song">
+                <label>Song</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input autocomplete="off" class="form-check-input" name="query_type" type="radio" value="album">
+                <label>Album</label>
+            </div>
+            <div class="mb-3">
+                <br>
+                <button class="btn btn-primary mx-auto w-auto" type="submit">Search</button>
+            </div> 
+        </form>
+    </div>
+
+    <h6 id="add_error"></h6>
+    
+
 
 {% endblock %}
