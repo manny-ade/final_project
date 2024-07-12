@@ -1759,3 +1759,51 @@ oh okay.
 
 ddb
 I'm glad I could help clarify that for you! If you have any other questions about fetch, HTTP methods, or anything else related to CS50 or computer science, feel free to ask.
+
+you
+So the variable I've created to represent the div that contains the search form apparently isn't a function at the line I wrote it.
+
+ddb
+It sounds like you might be trying to call a function on a variable that doesn't actually represent a function. Could you please show me the line of code where you're encountering this issue? That way, I can better understand what might be going wrong.
+
+you
+var search_content = document.getElementbyId('search');
+
+ddb
+It seems like there might be a small typo in your code. JavaScript is case-sensitive, so getElementbyId should be getElementById. Try making that change and see if it resolves your issue.
+
+you
+I see. It's always the small stuff for me. 😂
+
+ddb
+I'm glad you found the issue! Don't worry, it happens to everyone. Small typos can sometimes be the hardest bugs to find. Do you have any other questions about your code or CS50?
+
+you
+I know data is the name of the data returned to the function, but would it be wise to refer to it as a new variable, or just leave it as is and then loop through it to create the table on the page?
+
+ddb
+It's generally fine to use the variable name provided in the function definition, especially if it accurately describes the data it represents. However, if you find that a different name would make your code more readable or understandable, it's perfectly okay to assign the data to a new variable with a more descriptive name. Just remember to keep your variable names meaningful and concise. As for looping through the data to create a table, that sounds like a good approach!
+
+you
+I can use for (let item in data) to loop through, correct?
+
+ddb
+Yes, you can use a for...in loop to iterate over the properties of an object. However, if data is an array and you want to iterate over its elements, it's more common to use a for...of loop or the array's .forEach() method. These methods are designed to work with arrays and won't iterate over properties that aren't elements of the array.
+
+you
+data is an array/list of dictionaries.
+
+ddb
+If data is an array of objects (which are similar to dictionaries in Python), you can indeed use a for...of loop to iterate over each object in the array. Here's a general idea of how you might do it:
+
+for (let item of data) {
+    // You can now access properties of the current item using dot notation
+    // For example: item.propertyName
+}
+This will allow you to access each object in the array one at a time, and you can then use the properties of each object to populate your table.
+
+you
+are lists also called arrays in JavaScript?
+
+ddb
+Yes, in JavaScript, what are often referred to as "lists" in other programming languages are called "arrays". They are used to store multiple values in a single variable.

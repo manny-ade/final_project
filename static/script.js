@@ -53,6 +53,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 var search_content = document.getElementById('search');
                 search_content.style.display = 'none';
                 console.log(data);
+
+                resultHeading = document.createElement('h2')
+                search_content.appendChild(resultHeading);
+                resultHeading.textContent = 'Search Results'
+                resultHeading.style.display = 'block';
+                
                 
                 if (query_type.value == 'song'){
                 
