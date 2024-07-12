@@ -43,7 +43,7 @@ def search():
     """Search for a song or album"""
     if request.method == "POST":
 
-        if not request.form.get("query"):
+        """if not request.form.get("query"):
             return apology("must provide query", 400)
         
         elif not request.form.get("query_type"):
@@ -54,15 +54,34 @@ def search():
             query = request.form.get("query")
             query_type = request.form.get("query_type")
             
+            print("About to call lookup")
             query_return = lookup(query, query_type)
             
             if query_return != None:
                 return jsonify(query_return)
             else:
                 print(query_return)
+                return apology("no results found", 400)"""
+        data = request.get_json()
+
+        if not data.get("query"):
+            return apology("must provide query", 400)
+
+        elif not data.get("query_type"):
+            return apology("must provide search type", 400)
+
+        else:
+            query = data.get("query")
+            query_type = data.get("query_type")
+
+            print("About to call lookup")
+            query_return = lookup(query, query_type)
+
+            if query_return != None:
+                return jsonify(query_return)
+            else:
+                print(query_return)
                 return apology("no results found", 400)
-        
-    
 
     if request.method == "GET":
         return render_template("search.html")

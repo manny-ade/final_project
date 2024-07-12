@@ -1593,3 +1593,169 @@ If you want to treat input of only spaces as an empty input, you could use the t
 
 you
 ah so maybe my check could be else if query.value.trim === '' or query.value == ''?
+
+you
+so for checking if the input value is an empty string or has no characters I can check using trim or comparing the value to an empty string?
+
+ddb
+Yes, you're on the right track! You can check if a string is empty by comparing it to an empty string. If you're dealing with a string that might contain whitespace characters, using a trim function can be helpful to remove those before making the comparison. This way, a string of just spaces would also be considered "empty". Remember to consider all possible edge cases when implementing your solution.
+
+you
+Could someone manipulate the html to make the value of the radio button something else in which case I should check if the value is not equal to song or album?
+
+ddb
+Yes, it's possible for someone to manipulate the HTML and change the value of a radio button. Therefore, it's a good practice to validate the input on the server side as well. In your case, you could check if the value is either "song" or "album", and handle any other values as invalid input. This way, you ensure that your program behaves correctly even if the client-side HTML is tampered with.
+
+you
+okay, i'll try that next.
+
+you
+Okay, so I'm checking if there to make sure that the radio buttons and the input fields have been filled and do not have values that are empty strings, or that are anything other than "song" or "album"?
+
+ddb
+Yes, you're on the right track. You want to ensure that the user has selected one of the radio buttons ("song" or "album") and that any input fields are not empty. This is a common form validation process. You can achieve this by checking the value of the radio buttons and input fields before the form is submitted. If the values are not as expected, you can prevent the form from being submitted and provide feedback to the user.
+
+you
+Okay, so now that i've checked those conditions, I can do an else block that makes the fetch request, right?
+
+ddb
+Yes, that's correct! If your validation checks pass, you can proceed to the else block where you make the fetch request. Remember to handle the response from the fetch request appropriately, and also consider what should happen in case of an error during the fetch.
+
+you
+Could you remind me of the structure of the fetch request?
+
+ddb
+Sure, a fetch request in JavaScript typically has this structure:
+
+fetch('url', {
+  method: 'method', // GET, POST, etc.
+  headers: {
+    'Content-Type': 'application/json',
+    // Other headers as needed
+  },
+  body: JSON.stringify(data) // data to send in case of 'POST' method
+})
+.then(response => response.json()) // Parsing the response to JSON
+.then(data => console.log(data)) // Handling the data from the response
+.catch(error => console.error('Error:', error)); // Handling any errors
+Remember to replace 'url' with the actual URL you're making the request to, 'method' with the HTTP method you're using (like 'GET', 'POST', etc.), and data with the actual data you're sending in case of a 'POST' request.
+
+you
+do I still need to do event.preventDefault?
+
+ddb
+Yes, event.preventDefault() is often used in JavaScript when you want to prevent the default action of an event from occurring. For example, in the context of a form submission event, the default action is to send a POST request and then refresh the page. If you're handling the form submission with JavaScript and don't want the page to refresh, you would use event.preventDefault().
+
+you
+okay so I'd use if before the fetch request.
+
+ddb
+Yes, you would typically use event.preventDefault() at the beginning of your event handler function, before making the fetch request. This is to ensure that the default action is prevented before any other code is executed. Would you like to show me how you've implemented this in your code?
+
+you
+search_form.addEventListener('submit', function(event) {
+    
+        event.preventDefault();
+
+ddb
+That's a good start! After preventing the default action, you can now proceed with the fetch request inside this function. Remember to handle both the response and any potential errors. Would you like guidance on how to structure the fetch request?
+
+you
+That would be very helpful. Before that though, should I use event.preventDefault in the else block where I run the fetch request?
+
+ddb
+No, you don't need to put event.preventDefault() in the else block. It should be at the beginning of your event handler function, before any conditional statements. This is because you want to prevent the default action regardless of any conditions in your function. Once you've done that, you can proceed with your fetch request.
+
+you
+I see. I'd appreciate guidance on structuring the fetch request.
+
+ddb
+Sure, here's a general structure for a fetch request:
+
+fetch('url', {
+  method: 'method', // such as 'GET', 'POST', etc.
+  headers: {
+    'Content-Type': 'application/json',
+    // other headers as needed
+  },
+  body: JSON.stringify(data) // data to send in case of 'POST' method
+})
+.then(response => response.json()) // parse the response to JSON
+.then(data => {
+  // handle the data from the response here
+})
+.catch(error => {
+  // handle any errors here
+});
+Remember to replace 'url' with the actual URL you're making the request to, 'method' with the HTTP method you're using (like 'GET', 'POST', etc.), and data with the actual data you're sending in case of a 'POST' request.
+
+In your case, since you're handling a form submission, you'll likely want to gather the data from the form fields and include it in the body of your fetch request.
+
+you
+Do I need the Content-Type header? could you explain what it does?
+
+ddb
+Yes, the 'Content-Type' header is important in HTTP requests. It tells the server what kind of data is being sent. For example, 'Content-Type: application/json' tells the server that you're sending JSON data.
+
+When you're using the fetch API to send data to the server, you'll often set the 'Content-Type' header to 'application/json'. This is because the body of the request is typically stringified JSON data.
+
+However, not all requests need to set this header. For example, if you're sending form data using the FormData API, you should not set the 'Content-Type' header because the browser will automatically set it to 'multipart/form-data' and include the necessary boundary parameter.
+
+you
+okay -- I don't remember including the JSON header but I'll try both and see what happens.
+
+ddb
+That sounds like a good plan. Experimenting with different approaches can often lead to a better understanding of how things work. Just remember to check the server's requirements, as some servers may expect a specific content type. If you encounter any issues or have further questions, feel free to ask!
+
+
+you
+Should I use the POST method?
+
+ddb
+Whether you should use the POST method depends on what you're trying to achieve with your fetch request. If you're sending data to the server to create a new resource (like submitting a form), then yes, you would typically use the POST method. However, if you're trying to retrieve data from the server, you would use the GET method. Can you tell me more about what you're trying to do with your fetch request?
+
+you
+so basically, I'm using the fetch request to receive the data from the lookup function and create a table on the page that shows the data without reloading the page.
+
+ddb
+In that case, you would want to use the GET method. The GET method is used to retrieve data from a server. Since you're not sending data to create or update a resource on the server, but rather retrieving data to display on your page, GET would be the appropriate method to use.
+
+you
+So then in my GET method I'd do the server-side validation?
+
+ddb
+Server-side validation typically happens when you're handling a POST request, as you're receiving data that needs to be validated before it's used or stored. However, you can also perform server-side validation with a GET request if you're receiving data in the query string that needs to be validated.
+
+In your case, if the data you're retrieving with the GET request doesn't depend on any user input, you might not need server-side validation. But if you're using user input to determine what data to fetch, you should validate that input on the server side to make sure it's safe and valid.
+
+Remember, server-side validation is crucial for security and data integrity, but it's not the only place validation should occur. Client-side validation can provide a better user experience by catching and reporting errors before a request is even made to the server.
+
+you
+Yeah, the reason I ask this is because usually with the POST request, a new page gets loaded.
+
+I assumed if you match the method it would fetch the data from the corresponding one in that route.
+
+ddb
+You're correct that typically a POST request is associated with sending data to the server, often resulting in a new page load. However, when using fetch (or similar APIs like XMLHttpRequest), you can send a POST request and handle the response without a page reload. This is a key part of creating a smooth user experience in many modern web applications.
+
+As for matching methods between the fetch request and the server route, you're also correct. If your server route is set up to handle a GET request, you should use a GET method in your fetch request to that route, and vice versa for POST.
+
+Remember, the method you choose should reflect what you're trying to achieve: use GET when you're retrieving data, and POST when you're sending data to be stored or processed by the server.
+
+you
+Hmm so the return statement in the POST method of my search route won't return a new page, but rather its data will get sent to the JavaScript?
+
+ddb
+Yes, that's correct! When you use fetch (or a similar API) to make a POST request, the server's response is returned to the JavaScript code that made the request, not as a new page load. This allows you to update the current page with the new data without requiring a full page reload. This is a key aspect of AJAX (Asynchronous JavaScript and XML) and is fundamental to many modern web applications.
+
+you
+So will the URL change accordingly too?
+
+ddb
+No, the URL will not change when you make a fetch request. The fetch API performs HTTP requests asynchronously to the server and processes the responses, but it does not cause a change in the URL or a page reload. If you want to change the URL without a page reload, you would need to use the History API, specifically the pushState or replaceState methods.
+
+you
+oh okay.
+
+ddb
+I'm glad I could help clarify that for you! If you have any other questions about fetch, HTTP methods, or anything else related to CS50 or computer science, feel free to ask.
