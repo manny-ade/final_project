@@ -1984,3 +1984,15 @@ Got it. Thank you!
 
 ddb
 You're welcome! If you have any more questions or run into any issues, feel free to ask. Happy coding!
+
+you
+Okay, I was able to make the JavaScript populate the page with data from the lookup function! I want to add a button at the bottom to let the user search for a song or album again.
+
+ddb
+That's great progress! To add a button for a new search, you could consider adding a button element in your HTML and then use JavaScript to add an event listener to it. When the button is clicked, you could clear the current results and show the search form again. Does that make sense?
+
+you
+For sure. Could I hide that button on load and have it appear again in the code that handles the fetch data?
+
+ddb
+Absolutely! You can initially set the button's CSS display property to 'none' to hide it on load. Then, in your JavaScript code that handles the fetch data, you can change the display property to 'block' or 'inline' to make it visible again. Remember to give your button a unique id so you can easily select it with JavaScript.

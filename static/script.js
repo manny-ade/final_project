@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var search_header = document.getElementById('search_header');
     var search_instruction = document.getElementById('search_instruction');
     var search_tip1 = document.getElementById('search_tip1');
-
+    var new_search = document.getElementById('new_search');
+    new_search.style.display = 'none';
 
     search_form.addEventListener('submit', function(event) {
     
@@ -189,8 +190,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 resultsTable.appendChild(resultsTableBody);
                 search_content.appendChild(resultsTable);
+                new_search.style.display = 'block';
+                new_search.addEventListener('click', () => {
 
-              })
+                    new_search.style.display = 'none';
+                    search_form.reset();
+                    search_header.style.display = 'block';
+                    search_instruction.style.display = 'block';
+                    search_tip1.style.display = 'block';
+                    search_form.style.display = 'block';
+                    resultsTable.style.display = 'none';
+
+                })
+            })
               .catch(error => {
                 // handle any errors here
                 console.log(error);
