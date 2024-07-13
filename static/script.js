@@ -1,17 +1,15 @@
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
 
     var search_form = document.getElementById('search_form');
     var search_header = document.getElementById('search_header');
     var search_instruction = document.getElementById('search_instruction');
     var search_tip1 = document.getElementById('search_tip1');
     var new_search = document.getElementById('new_search');
-    new_search.style.display = 'none';
-    
+
     var add_form = document.getElementById('add_form');
     var add_header = document.getElementById('add_header');
     var add_instruction = document.getElementById('add_instruction');
     var add_tip1 = document.getElementById('add_tip1');
-    
 
     search_form.addEventListener('submit', function(event) {
     
@@ -219,9 +217,44 @@ document.addEventListener('DOMContentLoaded', function() {
     
     });
 
+    add_form.addEventListener('submit', function(event) {
+        
+        event.preventDefault();
+        var add_error = document.getElementById('add_search_error');
+        add_error.style.display = 'none';
+        var add_query = document.getElementById("add_query");
+        var query_type = document.querySelector('input[name="query_type"]:checked');
+        
+        if (add_query === null && query_type === null) {
+            event.preventDefault();
+            add_error.textContent = 'You must enter both a query and a query type.';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+        } else if (add_query.value === '' || add_query.value.trim() === '') {
+            event.preventDefault();
+            add_error.textContent = 'You must enter a query.';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+        } else if (query_type.value === '' || query_type.value.trim() === '') {
+            event.preventDefault();
+            add_error.textContent = 'You must enter a query type.';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+        } else if (query_type.value !== 'song' && query_type.value !== 'album') {
+            event.preventDefault();
+            add_error.textContent = 'Query type must be either "song" or "album".';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+        } else {
+
+            add_error.style.display = 'none';
+            var url = '/add';
+            
+
+        }
 
 
-
+    });
 
 
 });

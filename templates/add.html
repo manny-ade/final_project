@@ -18,7 +18,7 @@
         <form action="/add" method="post" id="add_form">
 
             <div class="mb-3">
-                <input id="query" autocomplete="off" autofocus class="form-control mx-auto w-auto" name="query" placeholder="Search" type="text">
+                <input id="add_query" autocomplete="off" autofocus class="form-control mx-auto w-auto" name="query" placeholder="Search" type="text">
             </div>
             <div class="form-check form-check-inline">
                 <input autocomplete="off" class="form-check-input" name="query_type" type="radio" value="song">
@@ -35,8 +35,7 @@
         </form>
     </div>
 
-    <h6 id="add_error"></h6>
+    <h6 id="add_search_error"></h6>
     
-
 
 {% endblock %}

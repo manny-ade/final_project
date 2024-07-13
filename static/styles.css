@@ -22,4 +22,6 @@ nav .navbar-brand .green
     color: #2e944b;
 }
 
-
+#new_search {
+    display: none;
+}
