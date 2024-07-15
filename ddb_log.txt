@@ -2395,3 +2395,2258 @@ Are there any errors in your JavaScript console? These could indicate if there's
 Are your HTML elements correctly set up to interact with your JavaScript? For example, do they have the correct ids or classes that your JavaScript is trying to target?
 
 Remember, debugging is a process of elimination. Try to narrow down where the problem could be coming from and test your assumptions.
+
+
+you
+Is this good for the start of the event listener for the form on the add page?
+
+ddb
+I'd be happy to help, but I'll need a bit more information. Could you please share the code you've written for the event listener so far? This will help me understand what you're trying to achieve and how I can best assist you.
+
+you
+add_form.addEventListener('submit', function(event) {
+
+        event.preventDefault();
+        var add_error = document.getElementById('add_search_error');
+        add_error.style.display = 'none';
+        var add_query = document.getElementById("add_query");
+        var query_type = document.querySelector('input[name="query_type"]:checked');
+        console.log(add_query);
+        console.log(add_query.value);
+        console.log(query_type);
+        console.log(query_type.value);
+        
+        
+
+    });
+
+ddb
+Your event listener seems to be set up correctly. You're preventing the default form submission, which is a common practice when you want to handle the form data using JavaScript. You're also correctly selecting elements from the DOM and logging them to the console.
+
+However, it's not clear what you're planning to do with the add_query and query_type values. Are you planning to use these values to make a request to a server, or to update the UI in some way? If you could provide more context about what you're trying to achieve, I could give more specific advice.
+
+you
+Of course! I'm trying to replicate the search function I wrote for the search page, where based on the user input I can do some client-side validation before the search query and type gets submitted to the backend. Then eventually the results will be sent back to a fetch call and shown on the page, from which the user can add the song or album of their choice.
+
+ddb
+It sounds like you're on the right track! You've already set up the event listener and are correctly grabbing the user's input. The next steps would be to perform your client-side validation on the input, and then use the fetch API to send the data to your server.
+
+For the validation, you might want to check if the input fields are empty or if they contain invalid characters. If the validation fails, you can display an error message to the user.
+
+For the fetch call, you'll want to send a POST request to your server with the form data. Remember to stringify your data before sending it and to set the appropriate headers. After you receive the response from the server, you can update the UI accordingly.
+
+Remember, I can't write the code for you, but I hope this gives you a good idea of the steps you need to take. Let me know if you have any more questions!
+
+you
+How do I make sure that the backend doesn't load when the form is submitted so that the client-side validation can occur first?
+
+ddb
+You're already doing the right thing to prevent the form from submitting and causing a page reload. The event.preventDefault(); line in your event listener stops the form from submitting in the traditional way. This allows your JavaScript code to take over and handle the form data.
+
+So, once the form is submitted, your event listener function is triggered, the default form submission is prevented, and then your client-side validation and fetch call can occur. If the validation fails, you can stop the function and display an error message without ever sending the data to the server.
+
+you
+is there a better way to obtain the element for the type of query than what I've done?
+
+ddb
+The way you're obtaining the value of the selected radio button with document.querySelector('input[name="query_type"]:checked') is a common and effective method. However, if you find that you're repeating this line of code often, you might consider creating a helper function that takes the name of the radio button group as a parameter and returns the value of the selected button. This could help make your code more DRY (Don't Repeat Yourself).
+
+you
+What might that look like? I used the querySelector line in the search event listener.
+
+ddb
+Sure, a helper function for getting the value of a selected radio button might look something like this:
+
+function getSelectedRadioButtonValue(name) {
+    var selectedButton = document.querySelector(`input[name="${name}"]:checked`);
+    return selectedButton ? selectedButton.value : null;
+}
+Then, you could use this function in your event listener like so:
+
+var query_type = getSelectedRadioButtonValue("query_type");
+This way, if you need to get the value of a selected radio button elsewhere in your code, you can just call this function with the appropriate name.
+
+you
+Okay -- maybe I can put that at the top of the DOMContentLoaded function and replace those lines in both the search and add functions.
+
+ddb
+That sounds like a good plan! By defining the helper function in the scope of the DOMContentLoaded event handler, you'll be able to access it in both the search and add functions. This will help keep your code DRY and organized. Remember to replace the original lines where you used querySelector with calls to your new helper function. If you encounter any issues or have further questions, feel free to ask!
+
+you
+Should I use the same for the query itself or is the getElementbyId enough for each specific query field (for search and add respectively)?
+
+ddb
+Using getElementById is perfectly fine for getting the value of a specific input field, as long as each field has a unique ID. This method is fast and straightforward. However, if you find yourself repeating the same getElementById line for different fields, you might consider creating a similar helper function to the one you made for radio buttons. This could help make your code more DRY (Don't Repeat Yourself). But in general, using getElementById for individual fields is a common practice.
+
+you
+A quick question -- the search again button I have for when I want to give the user the option to search for a song again flashes on the screen for a second before it disappears. I do have it set to be a display of none when the DOM content loads, but is there a way to prevent this? it's fine if there's not -- I just figured it'd be better for UX if that doesn't happen.
+
+ddb
+You can prevent the flash of unstyled content by setting the display of the button to none in your CSS file instead of setting it in your JavaScript file. This way, the button will be hidden as soon as the page starts to load, rather than waiting for the DOMContentLoaded event. Here's how you can do it:
+
+#your-button-id {
+    display: none;
+}
+Then, in your JavaScript, you can change the display property to block or inline when you want to show the button.
+
+you
+do if blocks require an else?
+
+ddb
+No, if blocks in programming do not require an else clause. An if statement will execute the block of code inside it if the condition is true. If the condition is not true, the program simply skips over the if block and continues with the rest of the code. An else clause is optional and is used when you want a block of code to be executed if the if condition is false.
+
+you
+Okay -- I was wondering if that was why the client-side validation didn't seem to kick in yet. For some reason the condition that matches isn't producing the behavior I want.
+
+ddb
+Could you please show me the part of your code where you're implementing the client-side validation? This will help me understand the issue better and provide more targeted advice.
+
+you
+I've begun creating it for the add page, here's what I have so far:
+add_form.addEventListener('submit', function(event) {
+
+        event.preventDefault();
+        var add_error = document.getElementById('add_search_error');
+        add_error.style.display = 'none';
+        var add_query = document.getElementById("add_query");
+        var query_type = document.querySelector('input[name="query_type"]:checked');
+        
+        if (add_query === null || query_type === null) {
+            event.preventDefault();
+            add_search_error.textContent = 'You must enter both a query and a query type.';
+            add_search_error.style.color = 'red';
+            add_search_error.style.display = 'block';
+        };
+
+    });
+
+ddb
+It seems like you're on the right track with your validation. However, you might be encountering an issue because you're checking if add_query and query_type are null. These variables are storing DOM elements, so they won't be null unless the elements don't exist on the page.
+
+Instead, you might want to check the value of add_query and query_type. If the user hasn't entered anything, add_query.value will be an empty string, and if no radio button is selected, query_type will be null. So your condition could look something like this:
+
+if (add_query.value === "" || query_type === null) {
+    // display error message
+}
+Try this modification and see if it helps!
+
+you
+The client-side validation still fails to kick in before the apology page loads.
+
+ddb
+It seems like the form is still being submitted even when the validation fails. This might be because the event.preventDefault(); line is being called before the validation check. This line should stop the form from being submitted, but if it's called before the validation check, it won't have any effect if the validation fails.
+
+Try moving event.preventDefault(); inside the if block, like this:
+
+if (add_query.value === "" || query_type === null) {
+    event.preventDefault();
+    // display error message
+}
+This way, the form submission will be prevented only when the validation fails. Let me know if this helps!
+
+you
+So the ones here aren't necessary?
+add_form.addEventListener('submit', function(event) {
+
+        event.preventDefault();
+        var add_error = document.getElementById('add_search_error');
+        add_error.style.display = 'none';
+        var add_query = document.getElementById("add_query");
+        var query_type = document.querySelector('input[name="query_type"]:checked');
+        
+        if (add_query === null || query_type === null) {
+            event.preventDefault();
+            add_error.textContent = 'You must enter both a query and a query type.';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+
+ddb
+You're correct in observing that there are two event.preventDefault(); calls in your code. The first one at the beginning of your function will prevent the form from being submitted regardless of the validation result. The second one inside your if block will also prevent the form from being submitted if the validation fails.
+
+However, since the first event.preventDefault(); call is preventing the form submission in all cases, the second one is not necessary. You can remove the event.preventDefault(); call inside your if block.
+
+Remember to check the value of add_query and whether query_type is null in your if condition, as we discussed earlier. This will ensure that your validation is checking the user's input correctly.
+
+you
+removing the other ones did not work.
+
+ddb
+Could you please show me the updated code that you have implemented based on our previous discussion? This will help me understand the current state of your code and provide more targeted advice.
+
+you
+event.preventDefault();
+        var add_error = document.getElementById('add_search_error');
+        add_error.style.display = 'none';
+        var add_query = document.getElementById("add_query");
+        var query_type = document.querySelector('input[name="query_type"]:checked');
+        
+        if (add_query === null || query_type === null) {
+            add_error.textContent = 'You must enter both a query and a query type.';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+
+ddb
+I see that you've removed the event.preventDefault(); from inside the if block, but it's still at the beginning of your function. This means that the form submission is still being prevented in all cases, not just when the validation fails.
+
+Also, remember to check the value of add_query and whether query_type is null in your if condition. Right now, you're checking if add_query and query_type are null, but these variables are storing DOM elements, so they won't be null unless the elements don't exist on the page.
+
+Here's how your code should look:
+
+var add_error = document.getElementById('add_search_error');
+add_error.style.display = 'none';
+var add_query = document.getElementById("add_query");
+var query_type = document.querySelector('input[name="query_type"]:checked');
+
+if (add_query.value === "" || query_type === null) {
+    event.preventDefault();
+    add_error.textContent = 'You must enter both a query and a query type.';
+    add_error.style.color = 'red';
+    add_error.style.display = 'block';
+}
+Try this modification and see if it helps!
+
+you
+I have a check right after this one that checks if the value of the query input is blank, the same way the search function does.
+
+ddb
+That's a good practice! Checking for an empty string will ensure that the user has actually entered something in the query input. However, remember that you also need to check if a query type has been selected. If the user hasn't selected a query type, query_type will be null, and you should prevent the form from being submitted in this case as well.
+
+So your check could look something like this:
+
+if (add_query.value === "" || query_type === null) {
+    event.preventDefault();
+    // display error message
+}
+This will ensure that both a query and a query type have been entered before the form is submitted. If either is missing, the form submission will be prevented and an error message will be displayed.
+
+you
+none of this is working.
+
+ddb
+I'm sorry to hear that you're still having trouble. Could you please clarify what exactly isn't working? Are you seeing any error messages in the console? Or is the form still being submitted even when the validation fails? The more details you can provide, the better I can assist you.
+
+you
+the form is being submitted even when the conditions for the validation to fail appear to be met.
+
+ddb
+Could you please show me the updated code that implements the advice I've given? This will help me understand the current state of your code and provide more targeted advice.
+
+you
+ var add_error = document.getElementById('add_search_error');
+        add_error.style.display = 'none';
+        var add_query = document.getElementById("add_query");
+        var query_type = document.querySelector('input[name="query_type"]:checked');
+        
+        if (add_query === null || query_type === null) {
+            event.preventDefault();
+            add_error.textContent = 'You must enter both a query and a query type.';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+
+ddb
+I see that you're checking if add_query and query_type are null. However, these variables are storing DOM elements, so they won't be null unless the elements don't exist on the page.
+
+You should be checking if add_query.value is an empty string and if query_type is null. This will ensure that you're checking the user's input correctly.
+
+Can you try modifying your if condition to check add_query.value and query_type as suggested and let me know if that helps?
+
+you
+I did get this in the Flask terminal once or twice:
+WARNING: Exception raised while handling cache file '/mnt/c/Users/ayoku/Documents/cs50/final_project/flask_session/803ff0a5b313dd5e549856a0099f6d7e'
+Traceback (most recent call last):
+  File "/home/mannyade/.local/lib/python3.10/site-packages/cachelib/file.py", line 268, in set
+    self._run_safely(os.chmod, filename, self._mode)
+  File "/home/mannyade/.local/lib/python3.10/site-packages/cachelib/file.py", line 336, in _run_safely
+    output = fn(*args, **kwargs)
+FileNotFoundError: [Errno 2] No such file or directory: '/mnt/c/Users/ayoku/Documents/cs50/final_project/flask_session/803ff0a5b313dd5e549856a0099f6d7e'
+
+ddb
+This error message is indicating that the Flask application is trying to access a cache file that doesn't exist. This could be due to a few reasons:
+
+The cache file was deleted while your application was running.
+There's a problem with the way your application is handling sessions.
+You might want to look into how your application is managing sessions. Are you properly setting and accessing session variables? Are you clearing the session when it's no longer needed?
+
+Also, consider handling exceptions when dealing with file operations. This way, your application can recover gracefully if a file it expects to exist has been deleted.
+
+you
+it handles them the same way Finance does:
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+ddb
+The configuration you've shown is a standard way to set up sessions in Flask, so that's likely not the issue. The error message you're seeing is related to the cache file that Flask is trying to access.
+
+It's possible that the cache file was deleted or moved while your application was running. You might want to check the directory /mnt/c/Users/ayoku/Documents/cs50/final_project/flask_session/ to see if the cache file 803ff0a5b313dd5e549856a0099f6d7e exists.
+
+If the file doesn't exist, you might want to investigate why it was deleted. If the file does exist, then the issue might be with file permissions. You could try changing the permissions of the file or the directory to see if that resolves the issue.
+
+you
+The file does exist.
+
+ddb
+If the file does exist, then it's possible that the issue might be with file permissions. You could try changing the permissions of the file or the directory to see if that resolves the issue.
+
+Another possibility is that there's a timing issue where the file is being accessed before it's ready. This could happen if you're running multiple instances of your application, or if there's some other process that's also accessing the cache files.
+
+You might want to add some error handling in your code to handle this exception and retry the operation after a short delay. This could help if the issue is due to a timing problem.
+
+you
+Okay, i'm basically making the add route/function work the way that the search function did before linking it to the JavaScript file to get the result of lookup. Both input fields and the checks to handle bad/undesired input seem to work correctly as it pertains to server-side, but not client-side.
+
+ddb
+It sounds like you're having trouble getting the client-side validation to work correctly. Client-side validation typically involves using JavaScript to check the form inputs before the form is submitted.
+
+From your previous code snippet, it seems like you're trying to prevent the form submission if either the add_query or query_type fields are empty. However, you're checking if the DOM elements themselves are null, rather than checking if their values are empty.
+
+You might want to revise your condition to check if add_query.value is an empty string and if query_type.value is null or an empty string. This will ensure that you're checking the user's input, not the existence of the DOM elements.
+
+Remember, client-side validation is a good user experience feature, but you should always have server-side validation as a backup, as client-side validation can be bypassed.
+
+you
+In my search event listener I checked if both values were null and it doesn't seem to be a problem:
+ event.preventDefault();
+        var search_error = document.getElementById('search_error');
+        search_error.style.display = 'none';
+        var query = document.getElementById('query');
+        var query_type = document.querySelector('input[name="query_type"]:checked');
+    
+        if (query === null || query_type === null) {
+            event.preventDefault();
+            search_error.textContent = 'You must enter both a query and a query type.';
+            search_error.style.color = 'red';
+            search_error.style.display = 'block';
+
+ddb
+The code you've shown is checking if the DOM elements query and query_type are null. This will only be true if the elements with the id 'query' and the name 'query_type' do not exist in the HTML.
+
+If you want to check if the user has not entered a value in the input field or not selected a radio button, you should check if query.value is an empty string and if query_type is null.
+
+Can you try modifying your if condition to check query.value and query_type as suggested and let me know if that helps?
+
+you
+it didn't work -- the server-side validation kicked in before the client-side got a chance to let the user know what they were doing wrong directly on the page.
+
+ddb
+It sounds like the form is being submitted before your JavaScript code has a chance to run. This could be due to the order in which your event listeners are firing.
+
+One way to ensure that your JavaScript validation runs first is to use the event.preventDefault() method at the beginning of your event listener function. This will prevent the form from being submitted until your JavaScript code has finished running.
+
+If your JavaScript validation passes (i.e., both fields are filled in), you can then manually submit the form using the form.submit() method.
+
+Here's a rough outline of what this might look like:
+
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // Your validation code here...
+
+    if (validation passes) {
+        form.submit();
+    }
+});
+Try implementing this in your code and see if it helps!
+
+you
+it stil didn't work.
+
+ddb
+I see that you're still having trouble. Could you please show me the updated code where you implemented the changes? This will help me understand the issue better.
+
+you
+else if (query_type.value !== 'song' && query_type.value !== 'album') {
+            event.preventDefault();
+            add_error.textContent = 'Query type must be either "song" or "album".';
+            add_error.style.color = 'red';
+            add_error.style.display = 'block';
+        } else {
+
+            add_error.style.display = 'none';
+            form.submit();
+            var url = '/add';
+            
+
+        }
+
+ddb
+It seems like you're on the right track. However, I can't see the full context of your code. Could you please show me the entire event listener function? This will help me understand how you're handling the form submission and where the validation checks are being performed.
+
+you
+The function would be too long.
+
+ddb
+I understand. In that case, let's focus on the part that's causing trouble.
+
+From the snippet you've shown, it seems like you're correctly preventing the form submission when the query_type value is not 'song' or 'album'.
+
+However, you mentioned that the server-side validation is kicking in before the client-side validation. This suggests that the form is being submitted even when the event.preventDefault() line is executed.
+
+One possibility is that there's another event listener that's causing the form to be submitted. Are there any other event listeners attached to the form or its submit button?
+
+Another possibility is that the form is being submitted due to a button click or a similar event. Are there any elements in your form that could be triggering a form submission?
+
+Lastly, are you sure that the event.preventDefault() line is being executed? You could add a console.log statement right after it to check.
+
+you
+to be fair, the search function uses the same line of code to store the value of any field named "query_type".
+
+ddb
+It seems like you're using the same line of code to get the value of the "query_type" field in both the search and add functions. If the "query_type" field is not found in the add function, it could be because the field doesn't exist in the add form.
+
+Could you please confirm if the "query_type" field exists in both forms? If it doesn't, you might need to adjust your code to handle each form separately.
+
+you
+The "query_type" radio button group exists in both HTML pages. Would it be better for me to change the name for the add one to say "query_type2"?
+
+ddb
+If the "query_type" radio button group exists in both forms and you're having trouble distinguishing between them, changing the name for the add form to "query_type2" could indeed be a good solution. This would allow you to target each group separately in your JavaScript code.
+
+Remember to update your JavaScript code to get the value of "query_type2" when validating the add form. Let me know how it goes!
+
+you
+I don't think it worked -- it still defaults to the server-side validation straightaway. the only other eventListener function associated with it is the DOMContentLoaded one, which makes sure that my other eventListeners only work when the DOM content is loaded.
+
+ddb
+I see, it's still not working as expected. Let's try to debug this.
+
+When you say it defaults to server-side validation, does it mean the form is being submitted even when the client-side validation fails? If so, it seems like the event.preventDefault() might not be working as expected.
+
+Here are a few things you can check:
+
+Are you sure the event listener is attached to the correct form? You can check this by logging the form element inside the event listener function.
+
+Is the event listener function being called when the form is submitted? You can check this by adding a console.log statement at the beginning of the function.
+
+Is the event.preventDefault() line being executed when the validation fails? Again, you can check this by adding a console.log statement right after the event.preventDefault() line.
+
+Is there any error in the console that might prevent the JavaScript code from running?
+
+Please check these points and let me know what you find.
+
+you
+How would I log the form element?
+
+ddb
+To log the form element, you can use the console.log() function in JavaScript. If your form has an id, you can select it using document.getElementById(). Here's an example:
+
+let form = document.getElementById('yourFormId');
+console.log(form);
+This will print the form element to the console, which you can view in your browser's developer tools. This can help you confirm if you're working with the correct form.
+
+you
+What happens if the form isn't getting printed to the console?
+
+ddb
+If the form isn't getting printed to the console, it could mean a few things:
+
+The form with the specified id doesn't exist. Make sure the id in your JavaScript matches the id of your form in your HTML.
+
+The JavaScript code is running before the form is loaded in the DOM. If your script tag is in the head of your HTML, it will run before the body of the HTML is loaded. You can fix this by moving your script tag to the end of the body, or by using an event listener for the DOMContentLoaded event.
+
+There's an error in your JavaScript code that's preventing the console.log line from being executed. Check your browser's console for any error messages.
+
+Try to investigate these possibilities and let me know what you find.
+
+you
+The id I'm using to refer to the add form is correct, so I don't think the form doesn't exist. In terms of the JavaScript running before the form is loaded, all of my event listeners are embedded in a DOMContentLoaded event listener -- I could still move the script tag to the end, but I doubt that would change much. The only error in the console is one saying the search form doesn't exist yet, which makes sense because I'm not on the search page yet.
+
+ddb
+It sounds like you've done a thorough job of checking the potential issues. If the form id is correct and your JavaScript is running after the DOM is loaded, then the form should be getting printed to the console.
+
+The error about the search form not existing yet shouldn't affect the add form, assuming they're on separate pages.
+
+One thing you could try is to add an event listener directly to the add form's submit event, outside of the DOMContentLoaded event listener. This would ensure that the event listener is attached as soon as the form exists in the DOM.
+
+If that doesn't work, you might want to check the rest of your JavaScript code for any potential issues. For example, are there any other event listeners that might be interfering with the add form's submit event? Or is there any code that might be causing the form to submit before the event listener function is called?
+
+you
+I'll give that a try.
+
+ddb
+Sure, take your time to try that out and let me know how it goes. I'm here to help if you have any more questions or run into any issues.
+
+you
+Interestingly enough, moving the add_form function and all the variables associated with it outside the DOMContentLoaded function seemed to suggest that somehow it's null!
+script.js:222 
+ Uncaught 
+TypeError: Cannot read properties of null (reading 'addEventListener')
+    at script.js:222:10
+(anonymous) @ script.js:222
+
+ddb
+It seems like the form is not available in the DOM at the time your script is trying to attach the event listener, hence the error.
+
+This could be due to the script running before the form is loaded in the DOM. Even though you moved the code outside of the DOMContentLoaded event listener, if your script tag is in the head of your HTML, it will still run before the body of the HTML is loaded.
+
+You could try moving your script tag to the end of the body of your HTML. This will ensure that the entire DOM is loaded before your script runs.
+
+Alternatively, you could keep your code inside the DOMContentLoaded event listener. This event fires after the initial HTML document has been completely loaded and parsed, without waiting for stylesheets, images, and subframes to finish loading.
+
+Let me know if this helps!
+
+you
+This worked -- but why didn't it work when I put the eventListenerFunction inside the DOMContentLoaded one?
+
+ddb
+The DOMContentLoaded event fires when the initial HTML document has been completely loaded and parsed, but it doesn't guarantee that all the scripts have been loaded. If your event listener function was defined in another script, and that script hadn't loaded yet when the DOMContentLoaded event fired, then the function would be undefined at the time you tried to attach it to the form's submit event.
+
+Another possibility is that there was an error in your JavaScript code that prevented the DOMContentLoaded event listener from being set up correctly. This could happen if, for example, there was an error in the code above the DOMContentLoaded event listener.
+
+Without seeing your code, it's hard to say for sure what the issue was. But I'm glad to hear that moving the event listener function outside of the DOMContentLoaded event listener solved the problem!
+
+you
+Is there a limit to the amount of code that can exist in a function? Maybe that was part of it.
+
+ddb
+In theory, there's no strict limit to the amount of code that can exist in a function. However, it's generally considered good practice to keep functions relatively small and focused on a single task. This makes your code easier to read, test, and debug.
+
+If your function is getting too large, it might be a sign that you should break it up into smaller, more manageable functions. Each of these smaller functions can then be tested and debugged individually, which can make it easier to identify and fix issues.
+
+That being said, the size of your function is unlikely to be the cause of the issue you were experiencing with the DOMContentLoaded event. It's more likely that there was an issue with the timing of when your script was running relative to when the form was being loaded into the DOM.
+
+you
+I see. I was thinking about it further -- would it be smart to make separate JavaScript files for each page or is that a bit too complex?
+
+ddb
+Splitting your JavaScript code into separate files for each page can be a good idea, especially if you have a lot of code or if the code for each page is largely independent. This can make your code easier to manage and debug, as you'll only be dealing with the code relevant to the current page.
+
+However, if there's a lot of shared code between the pages, you might end up with a lot of duplication. In that case, it might be better to have a shared JavaScript file for the common code, and separate files for the code specific to each page.
+
+Remember, the goal is to keep your code organized and manageable. The best approach depends on the specifics of your project.
+
+you
+Between the add and search pages, the code is essentially the same with only a few significant changes, so I don't know -- but maybe for the sake of ease, I'll just keep everything in the main script.js file for now.
+
+ddb
+That sounds like a reasonable approach. Keeping everything in one file can simplify things, especially if there's a lot of shared code. As your project grows and evolves, you can always reconsider and refactor your code into separate files if it makes sense to do so. Remember, the key is to keep your code organized and manageable. If you have any more questions or need further clarification, feel free to ask!
+
+you
+okay, so in the fetch request for the data from lookup in the add function, I'm getting null back in the console. Why might that be?
+
+ddb
+There could be a few reasons why you're getting null back from the lookup function. Here are a few things you might want to check:
+
+Are you passing the correct parameters to the lookup function?
+Is the lookup function implemented correctly? It should return null if it doesn't find the data you're looking for.
+Are you handling the response from the lookup function correctly in your add function?
+Try to debug by printing out the parameters you're passing to the lookup function and the response you're getting back. This might give you a clue as to what's going wrong.
+
+you
+when you set parameters, is that what's in the "body" part in the fetch request?
+
+ddb
+Yes, you're correct. In a fetch request, the "body" property is used to specify any parameters that you want to send with your request. These parameters should be in the form of a JSON string. You can convert a JavaScript object to a JSON string using the JSON.stringify() method. Remember to also set the "Content-Type" header to "application/json" when you're sending JSON data.
+
+you
+Okay -- in the Flask terminal it seems that they're getting passed correctly, maybe.
+ /add?query=Lil%20Thing&query_type=song HTTP/1.1" 200 -
+
+ddb
+It seems like your parameters are being passed correctly in the URL. The issue might be in how you're accessing these parameters in your Flask route. Are you using request.args.get() to retrieve the parameters in your Flask route? Also, are you sure that the lookup function is working correctly and returning the expected results?
+
+you
+No -- it's kind of like the search function where we had a data variable set to request.get_json and then it uses some conditionals:
+if request.method == "POST":
+        
+       data = request.get_json()
+
+       if not data.get("query"):
+            return apology("must provide query", 400)
+
+       elif not data.get("query_type"):
+            return apology("must provide search type", 400)
+
+       else:
+            query = data.get("query")
+            query_type = data.get("query_type")
+
+            query_return = lookup(query, query_type)
+
+            if query_return != None:
+                return jsonify(query_return)
+            else:
+                print(query_return)
+
+ddb
+It seems like you're correctly retrieving the data from the POST request. However, you're using request.get_json(), which is used to parse JSON data from the request body. In your Flask terminal output, it appears that the parameters are being passed in the URL as query parameters, not in the request body as JSON.
+
+You might want to use request.args.get() instead of request.get_json() to retrieve the parameters from the URL. For example, query = request.args.get("query") and query_type = request.args.get("query_type").
+
+Also, make sure that your lookup function is correctly implemented and is able to return the expected results.
+
+you
+I remember using request.args.get for the first go of this project.
+
+ddb
+That's correct! request.args.get() is used to retrieve query parameters from the URL in a Flask application. If you've used it before, it might be worth revisiting that approach for this part of your project. It's important to match the method you're using to send data (in the URL as query parameters) with the method you're using to retrieve it (request.args.get() for query parameters).
+
+you
+Should I revise the search function to follow this as well or leave it as is to avoid breaking things?
+
+ddb
+If your search function is currently working as expected, you might not need to change it. However, it's important to ensure consistency in your code. If you're using request.args.get() in one place to retrieve query parameters, it might be a good idea to use it in other places as well. But remember, always test your changes to make sure they don't break your existing functionality.
+
+you
+how would I do the check if the parameter isn't there? would it be if not request.args.get("query")?
+
+ddb
+Yes, you're correct! In Python, None is considered to be False when used in a conditional statement. So, if request.args.get("query") is None (meaning the "query" parameter wasn't provided), if not request.args.get("query") will evaluate to True. This is a common way to check if a parameter or variable is None or otherwise "falsy" in Python.
+
+you
+Okay! Changing to request.args.get worked on the search function and didn't break things!
+
+ddb
+That's great to hear! I'm glad the change to request.args.get() worked for your search function. If you have any more questions or run into any other issues, feel free to ask. Keep up the good work!
+
+you
+Now I'll need to replicate it for the add function.
+
+ddb
+Since you've successfully implemented the change for the search function, you can apply the same logic to your add function. Remember to retrieve the parameters from the URL using request.args.get(), and to check if the parameters are None before using them. If you encounter any issues or have any questions, feel free to ask.
+
+you
+Hey Duck -- how would I link the add button for each row to a particular item in the backend?
+
+ddb
+Hello! It sounds like you're trying to link a button to a specific item in your backend. This is typically done by associating each button with a unique identifier (like an ID) that corresponds to the item in the backend. When the button is clicked, you can use this ID to fetch or manipulate the corresponding item.
+
+In the context of CS50, you might be working with a web application where you're using JavaScript for frontend and Python (Flask) for backend. In such a case, you could pass the unique ID as part of a fetch request to your Flask route.
+
+Remember, the specifics can vary based on the technologies you're using, so you might need to adjust this advice to fit your particular situation.
+
+you
+Yeah, I amusing HTML/CSS/JavaScript for the frontend and Flask for the backend. Basically the idea would be for each "Add" button to correspond to each dictionary in the the list of dictionaries, and then in the backend i'd pull the corresponding information (for song or album) and insert it into the appropriate tables.
+
+ddb
+It sounds like you're on the right track! You can indeed associate each "Add" button with a unique identifier from your dictionary. When the button is clicked, you can send a request to your Flask backend with this identifier.
+
+In your Flask route, you can then use this identifier to find the corresponding dictionary and perform the necessary operations (like inserting data into tables).
+
+Remember to use the fetch function in JavaScript to send the request, and in your Flask route, you can retrieve the identifier from the request data.
+
+Does this help clarify the process for you?
+
+you
+When you say unique identifier, could you clarify?
+
+ddb
+Sure, by "unique identifier", I mean a value that is unique for each dictionary in your list. This could be an ID field, or any other field that is guaranteed to be unique for each dictionary. This unique identifier is used to distinguish between different dictionaries in your list. When a button is clicked, you can use this identifier to determine which dictionary's data should be used for further operations in your backend.
+
+you
+the only values that are probably guaranteed to be different for each dictionary would be the links corresponding to the song or album -- I can't say there's necessarily anything else as sometimes results can have an artist, album, or song (due to Spotify's methods of storing different versions of music) show up multiple times.
+
+ddb
+If the links corresponding to the song or album are unique for each dictionary, you can use them as the unique identifiers. When an "Add" button is clicked, you can send this link to your Flask backend. In the backend, you can then use this link to find the corresponding dictionary and perform the necessary operations.
+
+Remember, the key here is that the identifier should be unique for each dictionary and should allow you to find the corresponding dictionary in your backend. If the links meet these criteria, they should work as identifiers.
+
+you
+hmm, so it would be a reverse lookup of sorts to find the dictionary that contains that key-value pair and then performing the inserts?
+
+ddb
+Yes, that's correct! You would use the unique identifier (in this case, the link) to find the corresponding dictionary in your list. Once you've found the correct dictionary, you can then perform the necessary operations, such as inserting the data into your tables. This is indeed a sort of "reverse lookup", as you're using the value (the link) to find the key (the dictionary).
+
+you
+hmm...i'm still not sure how that would work in practice but I'll start with generating the tables first and then adding the buttons with the loop.
+
+ddb
+That sounds like a good plan! Starting with the tables and then moving on to the buttons is a logical progression. Remember, when you get to the buttons, you'll want to associate each one with the unique identifier (the link) from its corresponding dictionary. If you have any more questions or run into any issues, feel free to ask!
+
+you
+so for the loop that creates each row, should there be a fetch request in it as well?
+
+ddb
+No, you don't need to include a fetch request in the loop that creates each row. The fetch request should be triggered when a user clicks on the "Add" button. You can use JavaScript to add an event listener to each "Add" button, and inside this event listener, you can include the fetch request. This fetch request would then send the unique identifier (the link) to your Flask backend.
+
+you
+the eventListener gets created in the loop, right?
+
+ddb
+Yes, you're correct. The event listener would be created inside the loop. For each "Add" button you create, you would add an event listener that triggers when the button is clicked. Inside this event listener is where you would put the fetch request.
+
+you
+Got it. Let me make the table first, then try and come up with the fetch request and the button.
+
+ddb
+That sounds like a great plan! Take your time to create the table and the button. If you encounter any issues or have any questions about the fetch request or anything else, don't hesitate to ask. I'm here to help!
+
+you
+Hey Duck, I just realized I can add the id for each track/album (that is assigned by Spotify) as a unique identifier for each dictionary!
+
+ddb
+That's a great realization! Using unique identifiers like the ones provided by Spotify can indeed be very helpful in managing and organizing your data. It can help prevent duplication and make searching for specific tracks or albums more efficient. Keep going with your thoughtful approach to problem-solving!
+
+you
+Okay, so I was able to replicate the search function and add an "Add" button to each row -- now when I include the fetch request in the eventListener for each button, should the item's track/album id be what gets sent?
+
+ddb
+Yes, sending the track/album id in the fetch request would be a good approach. This way, you can uniquely identify each track or album on the server side. Remember to ensure that the server side is set up to handle this id correctly.
+
+you
+When the server gets it from the fetch request, should it then look for the dictionary with that id in it, save it in a variable, and then perform the backend table operations?
+
+ddb
+Yes, that's a good approach. When the server receives the id from the fetch request, it can use that id to find the corresponding dictionary. Once it has the dictionary, it can then perform the necessary operations on the backend table. Remember to handle the case where the id might not be found in your dictionary.
+
+you
+Or do I even need to look for the dictionary server side? Could I just pass back the data again or is it wise to just do the reverse search to be doubly sure?
+
+ddb
+It's generally a good practice to verify the data on the server side. While you could pass back the data, doing a reverse search on the server side adds an extra layer of validation. This can help catch any discrepancies or errors that might have occurred when the data was being sent from the client side. It's always better to be doubly sure when it comes to data integrity.
+
+you
+Okay. So when I do fetch, I just need to include the add route again, and then include the variable for what the id is, right?
+
+ddb
+Yes, that's correct. When you make the fetch request, you'll want to include the route that handles the addition operation on the server side. You'll also want to include the id as part of the data you're sending in the request. This way, the server knows which item to add based on the id.
+
+you
+The add route already has a return statement though, so would it be necessary to have another route name and function to handle this?
+
+ddb
+If your add route is already set up to handle the addition operation and return a response, you may not need another route. However, if the logic for handling the fetch request with the id is significantly different, it might be cleaner to create a separate route for it. This can help keep your code organized and easier to maintain. Could you show me how you've implemented the add route?
+
+you
+Sure! There's a lot, but here's a portion:
+else:
+            query = request.args.get("query")
+            query_type = request.args.get("query_type")
+
+            if query == '' or query == None:
+
+                return apology("must provide query", 400)
+            
+            elif query_type == '' or query_type == None:
+
+                return apology("must provide search type", 400)
+            
+            elif query_type != "song" and query_type != "album":
+
+                return apology("must provide valid search type", 400)
+
+            else:
+
+                print("About to call lookup")
+                query_return = lookup(query, query_type)
+
+                if query_return != None:
+                    return jsonify(query_return)
+                else:
+                    print(query_return)
+                    return apology("no results found", 400)
+
+ddb
+From the code snippet you've shared, it seems like this route is handling a search operation rather than an add operation. It's taking a query and a query type, performing a lookup, and then returning the results of that lookup.
+
+If you want to implement an add operation, you might want to create a separate route for it. This route would take the id of the item to be added, perform the necessary operations to add the item, and then return a response indicating whether the operation was successful or not.
+
+Remember, it's important to keep different functionalities separated in your code. This makes your code easier to understand, maintain, and debug.
+
+you
+Yeah, I needed to replicate what I did for the search route to visually show the tracks from the search to start out, but yeah I'm a bit nervous as to where to go.
+
+ddb
+It's understandable to feel a bit nervous when tackling a new problem. Could you show me some code that implements the advice I gave you earlier? This will help me understand where you're at and how I can best assist you further.
+
+you
+I've created a new route/function:
+@app.route("add_music", methods=["GET", "POST"])
+@login_required
+def add_music():
+    if request.method == "POST":
+        return apology("TODO")
+
+    else:
+        if request.method == "GET":
+            return render_template("index.html")
+
+ddb
+Great start! Now, in your POST method, you'll want to extract the id from the request data. Once you have the id, you can use it to perform the necessary operations to add the item. Remember to handle any potential errors and return appropriate responses. Can you try implementing this and show me what you come up with?
+
+you
+I think I can make it work somehow! I'll give it a go.
+
+ddb
+That's the spirit! Don't hesitate to ask if you have any more questions or run into any issues. Happy coding!
+
+you
+do i need a part in the fetch request to handle data if I'm going to be doing backend operations?
+
+ddb
+Yes, when you make a fetch request, you often need to include data if the server-side operation requires it. For example, if you're making a POST request to add a new item, you would need to include the data for the new item in the body of the request. This data is typically included in the body of the request as a JSON object.
+
+you
+Okay -- well here's what I have so far for adding a song:
+resultsAddButton.addEventListener('click', function() {
+                            fetch('/add_music', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    
+                                    track_id: item.track_id
+                                })
+                            })
+                        })
+
+ddb
+Your fetch request looks good! You're correctly making a POST request to the '/add_music' route and including the track_id in the body of the request. Now, on the server side, you'll need to extract this track_id from the request body and use it to perform the necessary operations to add the song. Have you implemented this part yet?
+
+you
+So I don't need the following response block?
+            .then(response => response.json()) // parse the response to JSON
+            .then(data => {
+
+ddb
+The response block you're referring to is used to handle the response from the server after the fetch request is made. If your server-side code is set up to return a JSON response, you would use this block to parse that response and do something with the data.
+
+However, whether you need this block or not depends on what your server-side code is doing. If your server-side code is just adding a song and not returning any data, you might not need to parse a JSON response. But if your server-side code is returning some data (like a confirmation message or the details of the added song), you would use this block to handle that data.
+
+So, it really depends on how you've set up your server-side code. Can you share what your server-side code for the '/add_music' route is doing?
+
+you
+So I haven't written any server-side code yet, but basically like we talked about before, it'll take the track_id that the fetch request gives it and look up the proper dictionary that I can then use to perform queries to insert the relevant data.
+
+ddb
+That sounds like a good plan! Once you receive the track_id on the server-side, you can use it to look up the necessary information and perform your database operations. Remember to handle any potential errors and return appropriate responses. If you're planning to return some data to the client-side (like a confirmation message or the details of the added song), you would need to include the response block in your fetch request to handle that data. If you're not returning any data, you might not need the response block. It's all up to how you design your application.
+
+you
+Okay, so I was able to get the add button to return the dictionary of the track from the helper function!
+
+ddb
+That's great to hear! It sounds like you're making good progress. Do you have any other questions or is there anything else you're struggling with in CS50?
+
+you
+I do need to add the corresponding information to the SQL tables in this route, but since they aren't exactly one-to-one with the dictionary that gets returned with the lookup function I wrote, should I basically replicate what I did there where I create a new dictionary with the relevant info I'm looking for?
+
+ddb
+It sounds like you're on the right track! If the dictionary returned by your lookup function doesn't match the structure of your SQL tables, creating a new dictionary with the relevant information could be a good approach.
+
+Remember, the goal is to extract the necessary data from the returned dictionary and format it in a way that can be inserted into your SQL tables. You might want to consider which fields are necessary for your SQL tables and how you can extract these from the returned dictionary.
+
+Can you show me how you're currently handling this?
+
+you
+In the helper function that looks for a specific track for example, this is all I'm doing:
+def return_track(track_id):
+    """Returns track info for a given track id"""
+    result = sp.track(track_id, market="US")
+    return result
+
+ddb
+It seems like you're returning the entire track information as a dictionary. If you only need specific information from this dictionary for your SQL tables, you could extract those fields in your return_track function before returning the result.
+
+For example, if you only need the 'name' and 'duration' of the track, you could do something like this:
+
+def return_track(track_id):
+    """Returns track info for a given track id"""
+    result = sp.track(track_id, market="US")
+    return {'name': result['name'], 'duration': result['duration_ms']}
+This way, you're only returning the information you need. Does this help with your problem?
+
+you
+yeah! I remember in my lookup function I created a list of dicts since that dealt with search results, but I could create a new dictionary in this function with the results given to me from the track lookup function from Spotipy.
+
+ddb
+That's correct! You can create a new dictionary with only the information you need from the Spotipy track lookup function. This way, you can ensure that the data you're working with is structured in a way that fits your SQL tables. Remember to test your function to make sure it's returning the expected results. Do you have any other questions or is there anything else you're unsure about?
+
+you
+I think I'm good so far -- I can replicate this for the album add as well.
+
+ddb
+That sounds like a solid plan! If you encounter any issues or have any questions while implementing this for the album add, don't hesitate to ask. Happy coding!
+
+you
+So for adding songs or albums, I use the INSERT keyword, correct?
+
+ddb
+Yes, that's correct! In SQL, the INSERT INTO statement is used to insert new records in a table. You would specify the table name and the values you want to add. Just remember to ensure that the values match the data types of the columns in your table.
+
+you
+Would i use the names of the columns and then the dictionary syntax to insert the data from the dictionary into the database?
+
+ddb
+Yes, you're on the right track! In SQL, you can specify the column names where the data will be inserted. If you're using Python with a library like sqlite3, you can use a dictionary to insert data. The keys in the dictionary would correspond to the column names in your SQL table. However, remember that the actual SQL query should still be a string. You would use placeholders (like ?) in the query string, and then provide the dictionary as a parameter to the execute method.
+
+you
+If I wanted to flash a notification to let the user know the song was added, should I send that back to the JavaScript or just use flash in the server-side?
+
+ddb
+You have a couple of options here. If you want to display the notification without refreshing the page, you might want to send a response back to the JavaScript and handle the notification there. This would involve using AJAX to send the request and then manipulating the DOM to show the notification when the response is received.
+
+On the other hand, if you're okay with refreshing the page, you could use the flash function server-side (assuming you're using a framework like Flask). When the page reloads, the notification would be displayed.
+
+Both methods have their uses, so it really depends on what kind of user experience you want to provide.
+
+you
+if I do the latter, then it kind of defeats the purpose of me including the search and add again button, so maybe I should add a then block in the fetch request that receives a flash response?
+
+ddb
+Yes, you're thinking along the right lines. If you want to maintain the interactivity of your page, handling the notification on the client-side with JavaScript would be a good approach. After the fetch request, you could indeed use a .then() block to handle the response and display a notification on the page. This way, the page won't need to be refreshed, and the user can continue to interact with the page seamlessly.
+
+you
+A quick question -- Spotify marks singles as an album type of "single" -- does that mean I should associate a single with its album (which is listed as the name of the track, just as a single)?
+
+ddb
+Yes, in the context of Spotify, a "single" is considered a type of album that typically contains one track. So, if you're designing a database schema based on this model, you could indeed associate a single with its album. The album's name would be the same as the track's name. This way, you can maintain consistency in your data structure, whether you're dealing with albums that contain multiple tracks or singles that contain just one track.
+
+you
+Do the junction tables automatically update when I insert data into the tables they reference?
+
+ddb
+No, junction tables do not automatically update when you insert data into the tables they reference. You would need to manually insert the appropriate data into the junction table. This is because the junction table is used to represent a many-to-many relationship between two other tables, and the database can't automatically determine what relationships you want to create.
+
+you
+Okay. Can I still do operations in the backend without user variables?
+
+ddb
+Yes, you can perform operations in the backend without user variables. You can use constants, environment variables, or data fetched from a database or another API. However, user variables are often used to personalize the user experience, such as displaying user-specific data or making user-specific changes. If you don't need to personalize the experience, you can certainly perform operations without them.
+
+you
+right -- so after inserting to the songs, albums, and artists tables, I can then use the data that gets entered there to enter data for the junction tables.
+
+ddb
+Yes, that's correct! After you've inserted data into the songs, albums, and artists tables, you can then use the IDs (or other unique identifiers) from those entries to populate your junction tables. This will create the necessary relationships between your songs, albums, and artists. Remember to handle any potential errors that might occur during this process, such as duplicate entries or references to non-existent IDs.
+
+you
+Does the dictionary for the info about a song returned by Spotify give images for the specific single and the album it's on?
+
+ddb
+The Spotify API typically provides images for albums, which includes singles. When you fetch track information, it includes an array of associated album data, which should contain the album cover image URLs. However, it's important to note that the image is associated with the album, not the individual track. If the track is a single, then the album image would effectively be the single's cover. If you need images specifically associated with individual tracks regardless of album, you might need to look into other APIs or methods.
+
+you
+okay, cool -- I think I'll stick with the image it returns because it's associated with the album.
+
+ddb
+That sounds like a good plan! The album image returned by the Spotify API should serve well for your needs. If you have any more questions or need further clarification, feel free to ask!
+
+you
+The song_id and album_id fields auto increment for me, as I'm using the framework of the app to distinguish songs from one another instead of the Spotify ids. With that said, how do I make sure that the ids for the particular song being added are the ones that get inserted? do I just use the field names?
+
+ddb
+Yes, you're on the right track. After you insert a song or album into their respective tables, your database should return the auto-incremented ID of the newly inserted record. You can then use this ID when inserting into your junction table. The exact method of retrieving this ID will depend on the specific database and language you're using. For example, in SQL, you might use a command like LAST_INSERT_ID() to get the ID of the most recently inserted record. Remember to ensure that you're correctly handling the IDs and inserting them into the appropriate fields in your junction table.
+
+you
+I am using SQL, so maybe that would work? I'd fill in the parentheses with the correct field/table, right?
+
+ddb
+Yes, you're correct. In SQL, you can use LAST_INSERT_ID() to retrieve the ID of the last inserted record. You would typically use this immediately after your INSERT statement. This function doesn't require any parameters, so you don't need to fill in the parentheses with any field or table names. Just make sure to use it in the same session as your INSERT statement, as it's session-specific.
+
+you
+So this would work?
+db.execute("INSERT INTO song_albums(song_id, album_id) VALUES (INSERT LAST ID(), INSERT LAST ID())",)
+
+ddb
+It seems like you're trying to use the LAST_INSERT_ID() function in your SQL query. However, the syntax isn't quite right. You can't use LAST_INSERT_ID() directly in the VALUES clause like that. Instead, you would typically use it in a separate query immediately after your INSERT statement.
+
+Could you show me the code where you're inserting into the songs and albums tables? That would help me guide you on how to correctly use LAST_INSERT_ID().
+
+you
+db.execute("INSERT INTO songs(song_name, album_name, album_link, genre, release_date, song_link, length, explicit_status, song_artwork) VALUES (?,?,?,?,?,?,?)", 
+                           track_info["song_name"], track_info["album_name"], track_info["genre"], 
+                           track_info["release_date"], track_info["song_link"], track_info["length"], 
+                           track_info["explicit_status"], track_info["song_artwork"])
+                
+                db.execute("INSERT INTO albums(album_name, genre, release_date, album_link, album_artwork) VALUES (?,?,?,?,?)", 
+                           track_info["album_name"], track_info["genre"], track_info["release_date"], 
+                           track_info["album_link"], track_info["song_artwork"])
+
+ddb
+After each of these INSERT statements, you can execute a SELECT LAST_INSERT_ID() query to get the ID of the last inserted record. You would then store these IDs in variables, which you can use in your INSERT statement for the song_albums table. Here's a rough pseudocode example:
+
+song_id = db.execute("SELECT LAST_INSERT_ID()")
+album_id = db.execute("SELECT LAST_INSERT_ID()")
+db.execute("INSERT INTO song_albums(song_id, album_id) VALUES (?, ?)", song_id, album_id)
+Remember to replace db.execute("SELECT LAST_INSERT_ID()") with the correct function call to execute a SQL query and retrieve the result in your specific environment.
+
+you
+Could you explain what you mean by replacing those lines with the correct function call? I believe db.execute is the correct way to execute a query.
+
+ddb
+You're correct that db.execute is used to execute a SQL query. However, the db.execute function typically doesn't return the result of a SELECT query directly. You might need to use a different function or method to retrieve the result of the SELECT LAST_INSERT_ID() query, depending on the specific database library you're using.
+
+For example, in some libraries, you might execute the query with one function and then fetch the result with another function. The exact method can vary, so you'll need to refer to the documentation for your specific library to see how to retrieve the result of a SELECT query.
+
+you
+true -- cs50's SQL library is what I'm using, I believe.
+
+ddb
+Yes, if you're using CS50's SQL library, db.execute does indeed return the result of a SELECT query. So you can use it to retrieve the ID from LAST_INSERT_ID(). Here's how you might do it:
+
+song_id = db.execute("SELECT LAST_INSERT_ID()")[0]['LAST_INSERT_ID()']
+album_id = db.execute("SELECT LAST_INSERT_ID()")[0]['LAST_INSERT_ID()']
+db.execute("INSERT INTO song_albums(song_id, album_id) VALUES (?, ?)", song_id, album_id)
+This code assumes that db.execute returns a list of dictionaries, where each dictionary represents a row in the result set. The key of the dictionary is the column name, and the value is the value of that column in the row.
+
+you
+this means I'm using CS50's SQL library, right?
+from cs50 import SQL
+
+ddb
+Yes, that's correct! The line from cs50 import SQL is importing the SQL module from CS50's library, which provides functions for interacting with a SQL database. You can use this to execute SQL queries and retrieve their results.
+
+you
+And last insert id only contains one item, right?
+
+ddb
+Yes, LAST_INSERT_ID() returns the ID of the most recently inserted row in the current session. It will only return one value, which is the ID of that row. If no row has been inserted in the current session, it will return NULL.
+
+you
+So this pulls them from those particular tables, right? Or when should I be calling execute?
+
+ddb
+LAST_INSERT_ID() doesn't pull from a specific table. Instead, it retrieves the ID generated by the most recent INSERT operation in your current database session, regardless of the table.
+
+You should call db.execute("SELECT LAST_INSERT_ID()") immediately after an INSERT operation for which you want to retrieve the generated ID. This is because if another INSERT operation that generates an ID occurs before you call LAST_INSERT_ID(), you'll get the ID from that latest operation instead.
+
+you
+Okay, so if I want to insert the song_id into the joint tables it's supposed to go I should call this one specifically after inserting into songs?
+
+ddb
+Yes, that's correct! After you insert a new song into the songs table, you should immediately call db.execute("SELECT LAST_INSERT_ID()") to retrieve the ID of the song you just inserted. You can then use this ID when inserting a record into the joint table. This ensures that the ID you're using is the correct one for the song you just inserted.
+
+you
+should I remove the NOT NULL constraint on the joint tables since the fields will need to be inserted one after the other?
+
+ddb
+No, you should not remove the NOT NULL constraint. The NOT NULL constraint ensures that a column cannot have a NULL value. This is important for your joint table because you want to make sure that every record in the table has a valid ID for both the song and the album.
+
+When you're inserting into the joint table, you should have both the song ID and the album ID ready to insert at the same time. If you're inserting a new song and album at the same time, you would first insert the song, get the song ID, then insert the album, get the album ID, and finally insert both IDs into the joint table. This way, you're not inserting NULL values into the joint table.
+
+you
+How would I do that if I can only pull one with LAST_INSERT_ID()?
+
+ddb
+You're correct that LAST_INSERT_ID() only retrieves the ID of the most recent INSERT operation. Here's how you can handle this:
+
+Insert the new song into the songs table.
+Immediately after, use LAST_INSERT_ID() to get the ID of the song you just inserted and store it in a variable.
+Then, insert the new album into the albums table.
+Again, immediately after, use LAST_INSERT_ID() to get the ID of the album you just inserted and store it in another variable.
+Now you have both IDs and can insert them into the joint table at the same time.
+This way, you're ensuring that you're getting the correct IDs for the song and album you just inserted.
+
+you
+oh okay -- so the variable storing the songs id won't be overwritten?
+
+ddb
+No, the variable storing the song's ID won't be overwritten when you call LAST_INSERT_ID() again for the album. Each time you call LAST_INSERT_ID(), you should store the result in a new variable. This way, you keep the song's ID and the album's ID separate and can use both when inserting into the joint table.
+
+you
+how does it know that i'm using "song_id" and not any other id in the table?
+
+ddb
+When you call LAST_INSERT_ID(), it doesn't specifically know that you're using "song_id" or any other specific ID. It simply returns the ID generated by the most recent INSERT operation in your current database session. This is why it's important to call LAST_INSERT_ID() immediately after the INSERT operation for which you want to retrieve the ID. If you insert a song and then call LAST_INSERT_ID(), it will return the ID of the song you just inserted.
+
+you
+my songs table has song_id, album_id, and artist_id in it -- album_id and artist_id would get added in from the other tables since they're foreign keys, but I don't know how it would all work then.
+
+ddb
+It sounds like you're trying to understand how to work with foreign keys in your database. Here's a general idea:
+
+When you insert a new song, you'll need to know the album_id and artist_id that the song is associated with. These should be existing IDs from your albums and artists tables.
+
+You insert the new song into the songs table with the album_id and artist_id as part of the INSERT statement.
+
+After the song is inserted, you can use LAST_INSERT_ID() to get the song_id if you need it for further operations.
+
+Remember, LAST_INSERT_ID() is used to get the ID of the last inserted row, not to retrieve foreign keys. The foreign keys (album_id and artist_id in this case) should be known before you insert a new song.
+
+you
+so i guess I could save the last created id from the artist and albums table in variables too and then insert those into the tables that depend on them?
+
+ddb
+Yes, that's correct! If you're creating a new artist and album at the same time as the song, you can insert the artist, save the ID in a variable, then insert the album, save that ID in a variable, and then use those IDs when inserting the song. This way, you're ensuring that the song is associated with the correct artist and album.
+
+you
+An important thing you just mentioned was "if you're creating a new artist and album" -- if the artist already exists (by name), how do we check that to prevent duplicate entries? do we use something like if track_info["artist_name] in db.execute("SELECT artist_name FROM artists")?
+
+ddb
+Yes, you're on the right track! Before inserting a new artist, you can execute a SELECT query to check if the artist already exists in the artists table. If the artist does exist, you can simply retrieve the existing artist's ID. If not, you can insert the new artist and then retrieve the new artist's ID using LAST_INSERT_ID(). This way, you can prevent duplicate entries in your artists table.
+
+you
+So i should be doing this for all my inserts, right?
+
+ddb
+Yes, it's a good practice to check for existing entries before inserting new data into your database. This can help prevent duplicate entries and maintain the integrity of your data. However, remember to implement this advice and show me some code before asking another question.
+
+you
+I'm a little overwhelmed at how all this should flow. For adding a song, should I first start out by checking if the song name exists or something else?
+
+ddb
+When adding a song, you might want to start by checking if the artist exists, since a song is usually associated with an artist. If the artist doesn't exist, you can add them to the artists table. Then, you can check if the album exists (if applicable), and add it to the albums table if it doesn't. Finally, you can add the song to the songs table, using the IDs of the artist and album you've just confirmed or added. This way, you're ensuring that the song is associated with the correct artist and album, and you're avoiding duplicate entries in your tables.
+
+you
+Hey Duck -- I'm a bit unsure of how to handle the insertions. I know I need to check to avoid duplicate insertions but I don't know how to ensure the right ids get inserted down the line for the tables.
+
+ddb
+It sounds like you're dealing with a relational database. When inserting data into tables, you can use primary and foreign keys to maintain relationships between tables.
+
+To avoid duplicate insertions, you can set the primary key of your table to be unique. This way, the database management system will prevent you from inserting a row with a duplicate primary key.
+
+As for ensuring the right ids get inserted, you can use the foreign key concept. A foreign key is a column or a set of columns in one table that is used to identify a row in another table. The table that contains the foreign key is called the referencing table or child table, and the table that is identified by the foreign key is called the referenced table or parent table.
+
+Remember, when you insert data into the child table, the values you insert into its foreign key columns must match the values in the primary key column of the parent table. This ensures the integrity of your data.
+
+Could you show me some of your SQL statements? That way, I can provide more specific advice.
+
+you
+db.execute("INSERT INTO songs(song_name, album_name, album_link, genre, release_date, song_link, length, explicit_status, song_artwork) VALUES (?,?,?,?,?,?,?)", 
+                           track_info["song_name"], track_info["album_name"], track_info["genre"], 
+                           track_info["release_date"], track_info["song_link"], track_info["length"], 
+                           track_info["explicit_status"], track_info["song_artwork"])
+                song_id = db.execute("SELECT LAST INSERT ID()")[0]['LAST_INSERT_ID()']
+
+ddb
+It seems like you're trying to insert a new song into your songs table and then retrieve the id of the newly inserted song. However, it looks like you're missing a couple of placeholders in your INSERT INTO statement. You have 8 placeholders but 9 values.
+
+Also, the SELECT LAST_INSERT_ID() function is specific to MySQL. If you're using SQLite, you should use sqlite3_last_insert_rowid() instead.
+
+Could you try fixing these issues and let me know if you're still encountering problems?
+
+you
+okay, so before I do that -- how do I make sure that when I insert the ids of songs, artists and albums into the junction tables that they are the correct ones?
+
+ddb
+When you insert data into your junction tables, you'll want to make sure you're using the correct IDs from your songs, artists, and albums tables.
+
+One way to do this is to retrieve the ID of the newly inserted row right after you insert a song, artist, or album. You're already doing this for songs with your SELECT LAST_INSERT_ID() (or sqlite3_last_insert_rowid() for SQLite) statement.
+
+Once you have these IDs, you can use them to insert the correct relationships into your junction tables. For example, if you have a junction table artist_song to represent the many-to-many relationship between artists and songs, you could insert the artist's ID and the song's ID into this table right after you insert the new artist and song.
+
+Remember to handle cases where the song, artist, or album already exists in your database. In these cases, you'll want to retrieve the existing ID instead of inserting a new row. You can do this with a SELECT statement.
+
+Does this help clarify things? If you have any specific code you're unsure about, feel free to share it!
+
+you
+if i'm using the CS50 SQL library, would I be able to use LAST_INSERT_ID()? or  would I have to use the sqlite3 statement since sqlite3 is the program we use?
+
+ddb
+The CS50 SQL library is designed to work with SQLite, so you would need to use the SQLite-specific function to get the ID of the last inserted row. In SQLite, the function to use is sqlite3_last_insert_rowid(). However, this function is not directly accessible via the CS50 library.
+
+Instead, you can use the SQL statement SELECT last_insert_rowid(), which should return the ID of the last inserted row when executed right after an INSERT operation. This is equivalent to LAST_INSERT_ID() in MySQL.
+
+So, in your case, you would replace SELECT LAST_INSERT_ID() with SELECT last_insert_rowid().
+
+you
+You said the "last inserted row" -- If I want to save the song_id as the last one, I assume I should add rows in an order that effectively slots the song/artist/album id last so that I can store it in a variable like you mentioned earlier and put it in the according junction tables.
+
+ddb
+Yes, you're correct. If you're inserting a new song, artist, or album and then want to use that ID in a junction table, you should retrieve the ID immediately after the insert operation. This is because SELECT last_insert_rowid() will give you the ID of the last row that was inserted into the database, regardless of the table. So if you insert a song and then an artist, SELECT last_insert_rowid() will give you the ID of the artist, not the song.
+
+So, the process would be something like this:
+
+Insert the song.
+Retrieve the song's ID.
+Insert the artist.
+Retrieve the artist's ID.
+Insert the album.
+Retrieve the album's ID.
+Use the retrieved IDs to insert the appropriate relationships into your junction tables.
+Remember to handle cases where the song, artist, or album already exists in your database. In these cases, you'll want to retrieve the existing ID instead of inserting a new row. You can do this with a SELECT statement.
+
+you
+Okay, so I can check if the artist exists in the artists table like so:
+if track_info["artist"] in db.execute("SELECT artist_name FROM artist"):
+
+ddb
+Your approach is on the right track, but there's a small issue. The db.execute() function returns a list of dictionaries, where each dictionary represents a row from the result set. So, you're currently checking if track_info["artist"] is in a list of dictionaries, which will always return False.
+
+Instead, you should check if track_info["artist"] is in any of the dictionaries returned by db.execute(). You can do this with a loop or a list comprehension. Here's an example using a list comprehension:
+
+if track_info["artist"] in [row['artist_name'] for row in db.execute("SELECT artist_name FROM artist")]:
+This will check if track_info["artist"] is in the list of artist names returned by your SELECT statement. If it is, that means the artist already exists in your database. If it's not, that means the artist doesn't exist in your database yet, and you should insert them.
+
+you
+if my ids autoincrement, then how do I know which one to obtain?
+
+ddb
+When you insert a new row into a table with an auto-incrementing ID, the database automatically assigns an ID to that row. This ID is one greater than the highest ID currently in the table.
+
+If you want to know the ID of the row you just inserted, you can use the SELECT last_insert_rowid() function in SQLite immediately after the insert operation. This function returns the ID of the last row that was inserted into the database.
+
+So, if you're inserting a new song, artist, or album and then want to use that ID in a junction table, you should retrieve the ID immediately after the insert operation. Here's an example:
+
+db.execute("INSERT INTO songs (song_name) VALUES (?)", song_name)
+song_id = db.execute("SELECT last_insert_rowid()")[0]['last_insert_rowid()']
+In this example, song_id will contain the ID of the song you just inserted. You can then use song_id when inserting into your junction tables.
+
+you
+so what is considered the id of a row?
+
+ddb
+The ID of a row in a database table is typically a unique identifier for that row. It's often an integer that auto-increments with each new row that's added, but it could also be a different type like a string or a UUID, depending on how the table is set up.
+
+In the context of your CS50 music database, each song, artist, and album has an ID. When you insert a new song, artist, or album into your database, the database automatically assigns an ID to that row. This ID is unique to that row and can be used to reference that specific song, artist, or album elsewhere in your database, such as in your junction tables.
+
+you
+so in theory song_id, album_id, and artist_id are the first field, and those are the ids that the statement would be referring to?
+
+ddb
+Yes, you're correct. In a typical database setup, the first field (often named id, song_id, album_id, artist_id, etc.) is the unique identifier for each row in the table. When you use SELECT last_insert_rowid(), it refers to the ID of the last inserted row in the table where the insert operation was performed. So if you just inserted a song, it would refer to the song_id of that song. Similarly for an artist or album, it would refer to the artist_id or album_id respectively.
+
+you
+Okay, so I guess I don't need to be too worried.
+
+ddb
+That's right! It's important to understand the concepts, but don't worry too much. Take one step at a time, and feel free to ask if you have any more questions. Happy coding!
+
+you
+So I should check if the artist is in the artists table, and if so, I should maybe do a select of the artist_id from the artist table where their name is the one currently having the add operation being done on it, and if not, we add them to the artists table and save their id in a variable, and move on to each table that needs to be filled in accordingly.
+
+ddb
+Yes, you've got the right idea! You first check if the artist exists in the artists table. If they do, you select their artist_id. If they don't, you insert them into the artists table and then retrieve the newly created artist_id. You can then use this artist_id for any further operations, like inserting into a junction table. Remember to apply this same logic for songs and albums as well. Keep going, you're doing great!
+
+you
+Should I control the flow in both cases? I guess what I mean is,should I embed my further checks in both the if and else blocks?
+
+ddb
+Yes, you should control the flow in both cases. If the artist is already in the table, you'll want to retrieve their ID and then move on to the next part of your program. If the artist isn't in the table, you'll want to insert them, retrieve the newly created ID, and then move on to the next part of your program. In both cases, you're doing something different based on whether the artist is already in the table or not, so you'll need to control the flow of your program accordingly.
+
+you
+ah okay, so i can have another if-else structure after the one checking for the artist inside the table -- it doesn't have to be inside each block checking for the artist.
+
+ddb
+Yes, you're correct. You can structure your code in a way that after checking for the artist in the table, regardless of the outcome, you proceed to the next check. This could be checking for the album or song in their respective tables. This way, your code will be more organized and easier to follow. Remember, the key is to ensure that at each step, you have the necessary information (like IDs) to proceed to the next step.
+
+you
+How's this look?
+if track_info["artist"] in [row['artist_name'] for row in db.execute("SELECT artist_name FROM artist")]:
+
+                        artist_id = db.execute("SELECT artist_id FROM artist WHERE artist_name = ?", track_info["artist"])
+                    
+                    else:
+
+                        db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
+                                    track_info["artist"], track_info["genre"], track_info["artist_link"], track_info["artist_image"])
+
+ddb
+Your approach seems to be on the right track! However, there's a small issue. When you execute a SELECT statement, it returns a list of dictionaries where each dictionary represents a row from the result set. So, when you're trying to get the artist_id, you'll need to access it from the returned dictionary.
+
+Also, remember that after inserting a new artist, you'll need to retrieve the newly created artist_id. You can use last_insert_rowid() for this.
+
+Here's a hint on how you can modify your code:
+
+if track_info["artist"] in [row['artist_name'] for row in db.execute("SELECT artist_name FROM artist")]:
+    artist_id = db.execute("SELECT artist_id FROM artist WHERE artist_name = ?", track_info["artist"])[0]['artist_id']
+else:
+    db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
+               track_info["artist"], track_info["genre"], track_info["artist_link"], track_info["artist_image"])
+    artist_id = db.execute("SELECT last_insert_rowid()")[0]['last_insert_rowid()']
+Remember, this is just a hint. Try to understand the logic and implement it in your own way.
+
+you
+I see. So if I'm understanding the logic correctly -- for the adjustment to that first SELECT statement, the [0] index just gives us one instance of the artist, right?
+
+ddb
+Yes, you're correct. The [0] index is used to access the first (and in this case, only) dictionary in the list returned by the db.execute("SELECT artist_id FROM artist WHERE artist_name = ?", track_info["artist"]) statement. This dictionary represents a row from the result set of the SELECT statement. The ['artist_id'] then accesses the value associated with the 'artist_id' key in that dictionary, which is the artist_id you're looking for.
+
+you
+Got it.
+
+ddb
+Great! If you have any more questions or need further clarification, feel free to ask. Happy coding!
+
+you
+Does the last_insert_rowid() need a FROM?
+
+ddb
+No, last_insert_rowid() does not need a FROM clause. This function returns the ROWID of the last row inserted into the database, regardless of the table it was inserted into. So you can simply use it as SELECT last_insert_rowid().
+
+you
+Okay, here's what I've got now:
+if track_info["artist"] in [row['artist_name'] for row in db.execute("SELECT artist_name FROM artist")]:
+
+                        artist_id = db.execute("SELECT artist_id FROM artists WHERE artist_name = ?", track_info["artist"])[0]["artist_id"]
+                    
+                    else:
+
+                        db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
+                                    track_info["artist"], track_info["genre"], track_info["artist_link"], track_info["artist_image"])
+                        artist_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+ddb
+It looks like you've implemented the advice correctly! How is this code working for you? Are you encountering any issues or errors?
+
+you
+I need to continue with the checks and code for the other tables first to see if the operations are working correctly, but we'll see.
+
+ddb
+That sounds like a good plan. Proceeding step by step and testing your code as you go is a great approach. If you encounter any issues or have any questions as you continue, don't hesitate to ask. Happy coding!
+
+you
+I made one for the albums as well:
+if track_info in [row['album_name'] for row in db.execute("SELECT album_name FROM albums")]:
+                        
+                        album_id = db.execute("SELECT album_id FROM albums WHERE album_name = ?", track_info["album_name"])[0]["album_id"]
+                    
+                    else:
+
+                        db.execute("INSERT INTO albums(album_name, genre, release_date, album_link, album_artwork) VALUES (?, ?, ?, ?, ?)",
+                                   track_info["album_name"], track_info["genre"], track_info["release_date"], track_info["album_link"],
+                                   track_info["track_artwork"])
+                        album_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+ddb
+Your approach for the albums table seems to be in line with the previous logic you used for the artists table. You're checking if the album already exists in the database, and if it doesn't, you're inserting it and then retrieving the album_id of the newly inserted album.
+
+Just make sure that track_info in your if condition should be track_info["album_name"] as you're comparing the album names.
+
+If you're not encountering any errors and your database is being populated as expected, it seems like you're on the right track! Keep going and don't hesitate to ask if you have any more questions.
+
+you
+When I do the song insert, should I use my previously set album and artist ids in it or add them later? And also for the album one -- should I include the artist_id that was generated before the inserting of the album?
+
+ddb
+When you're inserting a new song into the songs table, you should include the album_id and artist_id as foreign keys. These keys establish a link between the song and its corresponding album and artist in their respective tables. This is a fundamental aspect of relational databases, which allow us to create relationships between different tables.
+
+As for the album table, it would make sense to include the artist_id as a foreign key if each album is associated with one artist. This way, you can easily find out which artist an album belongs to by looking at the artist_id in the album table.
+
+Remember, the order of operations matters here. You need to insert the artist before you insert the album, so you have the artist_id ready when inserting the album. Similarly, you need to insert the album before you insert the song, so you have the album_id ready when inserting the song.
+
+you
+When you say foreign keys, I do understand what you mean, but since the query I used to create them states that that field references the other tables, can I insert them straightaway without worrying about it?
+
+ddb
+Yes, you can insert them straightaway. When you define a column in a table as a foreign key that references a primary key in another table, the database system will enforce referential integrity. This means that you cannot insert a value into the foreign key column that does not exist in the referenced primary key column. So, as long as the artist_id and album_id exist in their respective tables, you can insert them into the songs table without any issues.
+
+you
+Should there be a junction table for artists and users too? or is it enough to just access the artists from connections with the other junction tables?
+
+ddb
+Whether you need a junction table between artists and users depends on the relationships you want to represent in your database. If there's a many-to-many relationship between artists and users (for example, if users can follow multiple artists and artists can be followed by multiple users), then a junction table would be appropriate.
+
+However, if you can access all the necessary information about the relationship between artists and users through other tables (like songs, albums, etc.), then you might not need a direct junction table between artists and users.
+
+Remember, the goal is to design your database in a way that accurately represents the relationships between entities and allows for efficient queries.
+
+you
+I do imagine that any user can store songs/albums from an artist.
+
+ddb
+In that case, you might want to consider creating junction tables for users_songs and users_albums. These tables would store the relationships between users and the songs/albums they have stored. Each row in the users_songs table would represent a user storing a song, and each row in the users_albums table would represent a user storing an album. This way, you can easily query which songs/albums a user has stored and which users have stored a particular song/album.
+
+you
+I do have those junction tables, actually.
+
+ddb
+That's great! Having those junction tables will allow you to efficiently manage and query the relationships between users, songs, and albums. If you have any specific questions or run into any issues while working with these tables, feel free to ask.
+
+you
+Ah so those tables can still serve as an effective way of associating a user's collection/log/diary with artists by way of the songs they have.
+
+ddb
+Absolutely! By using the users_songs and users_albums junction tables, you can track which songs and albums a user has in their collection. And since those songs and albums are linked to artists, you can indirectly associate a user's collection with specific artists. This can be very useful for features like generating personalized recommendations or statistics based on a user's listening habits.
+
+you
+I'd need to check if both ids are in the junction tables before choosing to insert, right?
+
+ddb
+Yes, before inserting a new record into a junction table, you should check if the corresponding ids already exist in the table. This is to avoid duplicate entries. You can do this by performing a SELECT query on the junction table with a WHERE clause that checks for the existence of both ids. If the query returns no results, then it's safe to insert the new record.
+
+you
+So kind of like what I've been doing for the other tables.
+
+ddb
+Yes, exactly! It's the same principle. Before inserting data, you want to ensure that you're not creating duplicate entries. This is a common practice when working with databases to maintain data integrity. If you have any more questions or need further clarification, feel free to ask!
+
+you
+is the user_id in the users table the same as the session['user_id']?
+
+ddb
+Yes, typically in a web application, session['user_id'] is used to keep track of the logged-in user's ID, which should correspond to a user_id in the users table. When a user logs in, their user_id from the users table is usually stored in the session so that the server can remember which user is logged in.
+
+you
+Gotcha. also for the checking of the joint tables, should I just use pass if both ids are in the junction table, or something else? And when, say, the user_id or another id is already there, but the other one isn't, I should then insert that id and the other id?
+
+ddb
+If both ids are already in the junction table, you don't need to insert anything, so you could use pass or simply skip the insertion operation.
+
+If one id is there but the other isn't, it means that the user has already stored a different song or album. In this case, you should insert a new record with both ids. This will create a new association between the user and the song or album, without affecting the existing associations.
+
+Remember, the goal of the junction table is to represent all the associations between users and songs/albums. Each record in the table represents one such association. So, if a user stores a new song or album, there should be a corresponding record in the junction table.
+
+you
+so I should check if both are there, one is there, and the other is there as the three conditions to take the corresponding action.
+
+ddb
+Yes, you've got it! Checking for these three conditions will help you decide the appropriate action to take:
+
+If both ids are in the junction table, no action is needed.
+If one id is there but the other isn't, insert a new record with both ids.
+If neither id is there, insert a new record with both ids.
+This way, you ensure that all associations between users and songs/albums are correctly represented in the junction table.
+
+you
+The first is a pretty long conditional-- how can I continue it on a new line (or is it not possible)?
+
+ddb
+In Python, you can continue a long conditional statement onto a new line using a backslash (\) at the end of the line. Here's an example:
+
+if condition1 and condition2 and condition3 and \
+   condition4 and condition5:
+    # do something
+In this example, the backslash allows the conditional statement to continue onto the next line. This can make your code easier to read when you have a long conditional statement.
+
+you
+Sweet!
+
+ddb
+I'm glad you found the information helpful! If you have any more questions or need further clarification, feel free to ask. Happy coding!
+
+you
+Here's what I have:
+if album_id in [row["album_id"]for row in db.execute("SELECT album_id FROM albums_users")] and \                         user_id in [row["album_id"]for row in db.execute("SELECT user_id FROM albums_users")]:
+                        pass 
+                    elif album_id in [row["album_id"]for row in db.execute("SELECT album_id FROM albums_users")] and \                         user_id not in [row["album_id"]for row in db.execute("SELECT user_id FROM albums_users")]:
+
+                        db.execute("INSERT INTO albums_users (user_id) VALUES (?)", user_id)
+                    elif album_id not in [row["album_id"]for row in db.execute("SELECT album_id FROM albums_users")] and \                         user_id in [row["album_id"]for row in db.execute("SELECT user_id FROM albums_users")]:
+                        db.execute("INSERT INTO albums_users (album_id) VALUES (?)", album_id)
+
+ddb
+It seems like you're on the right track, but there might be a small mistake in your code. You're checking if user_id is in the list of album_ids and vice versa. Shouldn't you be checking if user_id is in the list of user_ids and album_id is in the list of album_ids?
+
+Also, when you're inserting a new record into albums_users, you're only inserting either user_id or album_id. Shouldn't you be inserting both ids together to represent the association between a user and an album?
+
+Lastly, executing a SELECT query for each condition can be quite inefficient. It might be better to execute the query once, store the results in a variable, and then check the conditions using that variable. This way, you only need to interact with the database once, which can significantly improve the performance of your code.
+
+you
+I see. on that last pint, could I do that with the other checks as well?
+
+ddb
+Yes, you can certainly apply that optimization to the other checks as well. By executing the query once and storing the results in a variable, you can avoid multiple database interactions, which can be time-consuming. You can then use this variable for all your checks. This approach is not only more efficient but also makes your code cleaner and easier to read.
+
+you
+So I could say something like albums_users_albumids =  db.execute("SELECT album_id FROM albums_users") and plop that into the code wherever necessary?
+
+ddb
+Yes, you're on the right track! You can execute the query once, store the result in a variable, and then use that variable in your checks. However, remember that the db.execute function returns a list of dictionaries, so you might want to extract the album_ids into a list for easier checking. Here's how you can do it:
+
+albums_users_albumids = [row["album_id"] for row in db.execute("SELECT album_id FROM albums_users")]
+Now albums_users_albumids is a list of album_ids, and you can use this list in your checks. You can do the same for user_ids. This way, you only need to interact with the database once for each id, which can significantly improve the performance of your code.
+
+you
+I think this is better:
+albums_users_albumids = [row["album_id"]for row in db.execute("SELECT album_id FROM albums_users")]
+                    albums_users_userids = [row["user_id"]for row in db.execute("SELECT user_id FROM albums_users")]
+                    if album_id in albums_users_albumids and user_id in albums_users_userids:
+                        pass 
+                    elif album_id in albums_users_albumids and user_id not in albums_users_userids:
+                        db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
+
+                    elif album_id not in albums_users_albumids and user_id in albums_users_userids:
+                        db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?,?)", user_id, album_id)
+you
+here's what I have for checking if the album_id or user_id is in the junction table between them:
+albums_users_albumids = [row["album_id"]for row in db.execute("SELECT album_id FROM albums_users")]
+                    albums_users_userids = [row["user_id"]for row in db.execute("SELECT user_id FROM albums_users")]
+                    if album_id in albums_users_albumids and user_id in albums_users_userids:
+                        pass 
+                    elif album_id in albums_users_albumids and user_id not in albums_users_userids:
+                        db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
+
+                    elif album_id not in albums_users_albumids and user_id in albums_users_userids:
+                        db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?,?)", user_id, album_id)
+
+ddb
+It seems like you're trying to ensure that each album_id and user_id pair is unique in your junction table. However, your current approach might not work as expected because you're checking if the album_id and user_id exist anywhere in the table, not necessarily together as a pair.
+
+Instead of fetching all album_ids and user_ids separately, you could execute a SQL query to check if the specific pair of album_id and user_id already exists in the table. If it doesn't, then you can insert it.
+
+Here's a hint: You can use a SQL query with a WHERE clause that checks for both album_id and user_id. If the result is empty, then you can proceed with the INSERT operation.
+
+you
+So I could have just used one line?
+
+ddb
+Yes, you can achieve the same result with a single SQL query. Instead of checking if the album_id and user_id exist separately in the table, you can check if the specific pair exists. If the pair doesn't exist, then you can insert it. This approach is more efficient and accurate. Can you try to implement this and show me your code?
+
+you
+so I can use this to create the variable that stores the query?
+albums_users_ids = db.execute("SELECT album_id, user_id FROM albums_users WHERE user_id = ? AND album_id = ?",
+                                                  user_id, album_id)
+
+ddb
+Yes, that's correct! This query will return a row if there is a match for the specific pair of user_id and album_id in the table. If the result is empty, it means that the pair doesn't exist in the table, and you can proceed with the INSERT operation. Remember to check the result of this query before attempting to insert a new row.
+
+you
+so then I should say: 
+if user_id, album_id in albums_users_ids:
+     pass
+else:
+     db.execute("INSERT INTO albums_users....")
+
+ddb
+You're on the right track! However, remember that the result of the db.execute query is a list of dictionaries. So, you can't directly check if the pair (user_id, album_id) is in albums_users_ids. Instead, you should check if the list is empty. If it is, then you can proceed with the INSERT operation. Can you try to implement this?
+
+you
+Oh right.
+
+ddb
+It seems like you've understood the concept. That's great! If you have any more questions or need further clarification, feel free to ask.
+
+you
+If the list is empty, it's equal to None, correct?
+
+ddb
+No, an empty list is not equal to None. In Python, an empty list is represented as [], while None is a special type that represents the absence of a value or a null value. You can check if a list is empty by using an if statement like if not my_list:. This will return True if the list is empty.
+
+you
+I see.
+
+ddb
+I'm glad you understand! If you have any more questions or need further clarification, feel free to ask.
+
+you
+Here's what I have now:
+if albums_users_ids:
+                        pass
+                    else:
+                        db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
+
+ddb
+That looks correct! If albums_users_ids is empty (meaning there's no existing pair of user_id and album_id), your code will execute the INSERT operation. Just make sure that user_id and album_id have the correct values before this check. Keep up the good work!
+
+you
+How would I check that those values are correct?
+
+ddb
+Before this check, you should ensure that user_id and album_id are not None and are of the correct type (likely integers). You can do this with simple if statements. For example:
+
+if user_id is not None and isinstance(user_id, int):
+    # similar check for album_id
+    # then your existing code
+Can you try to implement this?
+
+you
+I think I got it:
+if user_id is not None and isinstance(user_id, int):
+
+                        if album_id is not None and isinstance(album_id, int):
+                    
+                            albums_users_ids = db.execute("SELECT album_id, user_id FROM albums_users WHERE user_id = ? AND album_id = ?",
+                                                        user_id, album_id)
+                            if albums_users_ids:
+                                pass
+                            else:
+                                db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
+
+ddb
+That looks great! You're checking that user_id and album_id are not None and are integers, then you're checking if the pair already exists in the database. If it doesn't, you're inserting it. Well done! If you have any more questions or need further clarification, feel free to ask.
+
+you
+Instead of pass, should I return a flash to the JavaScript fetch request saying ("song already in collection")?
+
+ddb
+Yes, that's a good idea! If the song is already in the collection, you can return a message to inform the user. You can use the flash function to send a message back to the client side. However, remember that flash is typically used for server-side session-based messaging. If you're using AJAX requests, you might want to return a JSON response instead. Can you try to implement this?
+
+you
+what would a JSON response look like in this case?
+
+ddb
+A JSON response in this case could look something like this:
+
+return jsonify({"message": "Song already in collection"})
+This will return a JSON object with a key of "message" and a value of "Song already in collection". On the client side, you can access this message and display it to the user.
+
+you
+I used pass in the song_album case since I don't know if a song being in that joint_album is necessarily something that's wrong.
+
+ddb
+That's a good point! If it's not an error condition for a song to already be in the album, then you don't necessarily need to return an error message. You could simply ignore the request or return a neutral message like "Song already in album". It really depends on how you want to handle this situation in your application.
+
+you
+Is there an equivalent to flash in JavaScript?
+
+ddb
+In JavaScript, there isn't a direct equivalent to Flask's flash function. However, you can achieve similar functionality by using alert for simple messages, or more complex libraries like SweetAlert for more interactive notifications.
+
+For AJAX responses, you can send a response from the server (like a JSON object) and then handle that response in your JavaScript code to display the appropriate message to the user.
+
+you
+Okay, so if I have a message saying the song was added, I could just say alert(message)?
+
+ddb
+Yes, you can use alert(message) to display a simple dialog box with your message. This is a straightforward way to provide feedback to the user. However, keep in mind that alert is quite basic; if you want more sophisticated notifications, you might want to look into libraries like SweetAlert or toastr.
+
+you
+If I use toastr, how would I make the backend help specify what alert to use?
+
+ddb
+To use toastr with your backend, you would typically send a response from your server-side code (like a JSON object) that includes the type of notification and the message. For example, your server might send a response like {"status": "success", "message": "Song added successfully"}.
+
+Then, in your JavaScript code, you would handle this response and use toastr to display the notification. For example, if the status is "success", you might call toastr.success(message), and if the status is "error", you might call toastr.error(message).
+
+This way, your server-side code determines what kind of notification should be displayed, and your client-side code handles the actual display of the notification.
+
+you
+Is it normal for programs to get big sometimes?
+
+ddb
+Yes, it's quite normal for programs to get large, especially as they become more complex and feature-rich. This is why good organization and structure are important in programming. Breaking down your program into smaller, manageable functions or modules can make it easier to understand and maintain. Remember, it's not the size of the program that matters as much as its readability, maintainability, and efficiency.
+
+you
+Okay so i'd handle the response in the .then(data) portion of the fetch request?
+
+ddb
+Yes, that's correct! In the .then(data) portion of your fetch request, you would handle the response from the server. This is where you would parse the JSON response and use the data to determine how to display the notification with toastr. For example, if the status in the response is "success", you might call toastr.success(data.message).
+
+you
+Hey Duck -- while working with the table insertions, I saw this error in the Flask terminal:
+RuntimeError: 11 values for 4 columns
+
+ddb
+Hello! This error typically means that you're trying to insert more values into a table than there are columns. You should check your SQL INSERT statement to ensure that the number of values you're trying to insert matches the number of columns in your table. Can you show me the part of your code where you're trying to insert values into the table?
+
+you
+there's quite a handful of places where I'm inserting values into multiple tables, but here is one of the lines of code that showed up right before that RuntimeError:
+File "/mnt/c/Users/ayoku/Documents/cs50/final_project/app.py", line 168, in add_music
+db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
+
+ddb
+It seems like you're trying to insert four values into the table, which matches the number of columns you've specified. The error might be coming from another part of your code.artists
+
+Are you sure all the values you're trying to insert are not None or not an array with more than one value? Sometimes, this error can occur if one of the values you're trying to insert is actually a list or array of values, rather than a single value.
+
+Also, ensure that the number of placeholders (?) matches the number of values you're providing in the execute function.
+
+you
+I assumed everything I was doing made sense, but maybe I should start the insertion process from scratch.
+
+ddb
+Starting from scratch can sometimes be a good way to identify where things might have gone wrong. As you rebuild, pay close attention to your SQL statements, particularly the INSERT statements. Make sure the number of columns you're specifying matches the number of values you're trying to insert. Also, ensure that the data types of the values you're inserting match the data types of the columns in your table. If you encounter any issues or have any questions during this process, feel free to ask!
+
+you
+I think something could be wrong with how I'm constructing the resulting dictionary used to add a song from another helper function.
+
+ddb
+It sounds like you're having trouble with a helper function related to adding a song. Could you provide a bit more detail about what this function is supposed to do, and what issues you're encountering? Seeing some of the code you're working with could also be helpful. Remember, I won't provide the solution, but I can guide you towards it.
+
+you
+Yeah -- so at first I was worried about how I'd tell the backend to add a specific song but I realized I could create helper functions that take the particular parameters used by the track function in the Spotipy library to get the specific song someone wants to add. Here's a few lines:
+result = sp.track(track_id, market="US")
+    
+    track_info = {}
+    track_info["song_name"] = result["name"]
+    track_info["artist"] = result["artists"][0]["name"]
+    track_info["artist_link"] = result["artists"][0]["external_urls"]["spotify"]
+    track_info["album_name"] = result["album"]["name"]
+    track_info["album_link"] = result["album"]["external_urls"]["spotify"]
+
+ddb
+It seems like you're on the right track with using a dictionary to store the song information. However, it's important to ensure that the keys in your dictionary match the column names in your database table when you're inserting the data.
+
+Also, remember to handle any potential errors or exceptions that might occur when accessing the dictionary keys. For instance, what happens if is an empty list or if the key doesn't exist in ?result["artists"]"spotify"result["artists"][0]["external_urls"]
+
+Could you show me how you're using this dictionary in your INSERT statement? That might help me understand where the issue is coming from.track_info
+
+you
+Here's an example of adding an artist to the artists table if they aren't already there:
+if track_info == None:
+                    return jsonify({"status": "error", "message": "Could not add song. Please try again."})
+
+                else:
+                    artists_artistnames = [row["artist_name"] for row in db.execute("SELECT artist_name FROM artists")]
+                    if track_info["artist"] in artists_artistnames:
+
+                        artist_id = db.execute("SELECT artist_id FROM artists WHERE artist_name = ?", track_info["artist"])[0]["artist_id"]
+                    
+                    else:
+
+                        db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
+                                    track_info["artist"], track_info["genre"], track_info["artist_link"], track_info["artist_image"])
+                        artist_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+ddb
+It seems like you're correctly checking if the artist already exists in the database before attempting to insert. However, I noticed that you're trying to insert a value into a "genre" column, but it doesn't look like you're setting a "genre" key in your dictionary.track_info
+
+This could be causing an issue if you're trying to access when it doesn't exist. Similarly, you're trying to insert but I don't see where you're setting this in your dictionary.track_info["genre"]track_info["artist_image"]
+
+Could you confirm if these keys exist in your dictionary? If they don't, you'll need to either add them to your dictionary or remove them from your INSERT statement.track_info
+
+you
+These are the keys:
+artist_info = sp.artist(result["artists"][0]["id"])
+    track_info["genre"] = artist_info["genres"]
+    track_info["artist_image"] = artist_info["images"][1]["url"]
+
+ddb
+It looks like you're correctly setting the "genre" and "artist_image" keys in your dictionary.track_info
+
+One thing to note is that returns a list of genres. If your "genre" column in the database is not set up to store lists, this could be causing an issue. You might need to convert this list to a string or choose a single genre to store.artist_info["genres"]
+
+If the "genre" and "artist_image" columns in your database are set up correctly to store these values, then your INSERT statement should be working as expected. If you're still encountering issues, the problem might be elsewhere in your code.
+
+you
+true, you are so right -- i remember thinking to myself that at some point I was going to need to turn it into a string -- should I pick just one genre or store them all?
+
+ddb
+The decision to store one genre or all genres depends on what you plan to do with the data. If you think having all genres will be beneficial for your application, you could convert the list to a string and store it. However, if you only need one genre, you could choose the first one from the list or any other genre that you think is most representative of the artist. Remember, there's no one right answer here, it depends on the needs of your application.
+
+you
+Well to be honest I'm not sure there's much I'll do with it but I figured it would be good to have just because.
+
+ddb
+In that case, you might choose to store all genres for completeness, even if you don't have a specific use for them right now. You can convert the list of genres to a string using the function in Python before storing it in the database. This way, you'll have the data if you decide to use it in the future.join()
+
+you
+would I put the call or that list inside the join paretheses?
+
+ddb
+Yes, you would put the list inside the parentheses of the function. Here's a general idea of how you can do it:join()
+
+genres_string = ', '.join(track_info["genre"])
+This will create a string where each genre is separated by a comma and a space. You can then store in your database.genres_string
+
+you
+Wouldn't it be easier to do it in the helper function first so as not to worry about doing it in the main insertion process?
+
+ddb
+Yes, you're absolutely right! Performing the conversion in the helper function can make your code cleaner and easier to manage. It's a good practice to handle data transformations as early as possible, so you don't have to worry about them later in your code. This way, by the time you're ready to insert the data into the database, it's already in the correct format.
+
+you
+I think I misunderstood how to use the join function.
+track_info["genre"] = ', '.join(genre_list)
+TypeError: str.join() takes exactly one argument (0 given)
+
+ddb
+It seems like you're getting a TypeError because the function expects an iterable (like a list) as an argument, but it's receiving none. This error typically occurs when the variable you're trying to join isn't a list or isn't defined.join()
+
+Could you please confirm that is a list and that it's defined before this line of code? If is supposed to be , then your code should look like this:genre_listgenre_listtrack_info["genre"]
+
+track_info["genre"] = ', '.join(track_info["genre"])
+This will work if is a list. If it's not, you'll need to make sure you're converting the correct variable.track_info["genre"]
+
+you
+this is what I did:
+artist_info = sp.artist(result["artists"][0]["id"])
+    genre_list = artist_info["genres"]
+    track_info["genre"] = ', '.join(genre_list)
+
+ddb
+It seems like you're correctly extracting the genres and joining them into a string. If you're still getting an error, could you please share the exact error message? It would also be helpful to see the value of right before you try to join it. You can print it out using . This will help us understand what's going wrong.genre_listprint(genre_list)
+
+you
+Interestingly, genre_list ends up being empty, and for some reason, at the end of the flask terminal it says:
+ File "/home/mannyade/.local/lib/python3.10/site-packages/cs50/sql.py", line 473, in execute
+    raise e
+RuntimeError: no such table: songs
+
+ddb
+It seems like there are two issues here.
+
+First, is empty. This could be because the artist in question doesn't have any genres associated with them in the Spotify API. You might want to add a check to see if is empty before trying to join it.genre_listgenre_list
+
+Second, you're getting a . This suggests that your program is trying to interact with a table named "songs" in your database, but this table doesn't exist. You might want to check your database setup and make sure the "songs" table is being created correctly.RuntimeError: no such table: songs
+
+you
+I do have a songs table, so I'm not sure why that error is being raised.
+
+ddb
+It's possible that the table name is case-sensitive, so ensure that the table name in your code matches exactly with the one in your database. Also, check if the database connection is correctly established before executing queries.
+
+If you're still facing issues, could you please share the part of your code where you're interacting with the "songs" table? This will help me understand the context better.
+
+you
+songs_songnames = [row["song_name"]for row in db.execute("SELECT song_name FROM songs")]
+                    if track_info["song_name"] in songs_songnames:
+
+                        song_id = db.execute("SELECT song_id FROM songs WHERE song_name = ?", track_info["song_name"])[0]["song_id"]
+
+                    else:
+
+                        db.execute("INSERT INTO songs(song_name, album_id, genre, release_date, song_link, length, explicit_status, song_artwork) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                   track_info["song_name"], album_id, track_info["genre"], track_info["release_date"], track_info["song_link"],
+                                   track_info["length"], track_info["explicit_status"], track_info["song_artwork"])
+                        song_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+ddb
+From the code snippet you've shared, it seems like you're correctly querying and inserting data into the "songs" table. The error message you're seeing typically indicates that the table doesn't exist in the current database.
+
+Here are a few things you could check:
+
+Ensure that the database file you're connected to is the correct one. Sometimes, if the database file doesn't exist, SQLite will automatically create a new one without any tables.
+
+Make sure that the "songs" table is created before this code is run. If the table creation is in a different part of your code, there might be an issue with the order in which your code is being executed.
+
+Check the spelling and case of your table name. SQL is case-insensitive, but the underlying file system may not be, especially if you're using a Unix-based system.
+
+Try to manually inspect your database using a database viewer to confirm that the "songs" table exists.
+
+If you've checked all of these and you're still seeing the error, could you please share the part of your code where you're connecting to the database and creating the "songs" table?
+
+you
+Looking at the name of the table in the sqlite3 terminal, songs has an extra space in the name for some reason.
+
+ddb
+If the table name has an extra space, that could certainly cause issues when trying to query it. In SQL, table names are typically written without spaces. If there's a space in the name, you would need to enclose the name in quotes every time you refer to it, like this: ."songs "
+
+However, it's generally better to avoid spaces in table names altogether. If possible, I would recommend renaming the table to remove the space. You can do this with a command like this:
+
+ALTER TABLE "songs " RENAME TO songs;
+Remember to update your Python code to use the new table name as well.
+
+you
+Thank you for mentioning that I should have something to tell if the genre list is empty -- The particular artist I was using as a test apparently has an empty list for their genres. When I used a new python3 terminal to test another artist, their list was full, so I what I'll need to do is have an if else to change the value of genre_list in the helper function.
+
+ddb
+That sounds like a great approach! Checking if the genre list is empty before trying to join it will definitely help prevent errors. If the list is empty, you can decide what value to assign to . It could be an empty string, a specific string like "No genre available", or whatever makes the most sense for your application. Keep up the good work!track_info["genre"]
+
+you
+Okay, the insertions worked! Unfortunately, I didn't seem to get the toastr messages I wanted. I might need to move the script that gets it after the script tag at the end of the body.
+
+ddb
+It sounds like you're on the right track! Toastr messages are typically dependent on the order of scripts in your HTML file. Make sure that the toastr script is included before the script where you're trying to use it. Also, ensure that the toastr configurations and the call to display the toastr message are placed correctly. If you're still having trouble, could you please share the relevant parts of your code?
+
+you
+this is what happens in the .then ( data => block of my code in script .js:
+if ('status' in data && 'message' in data) {
+                                    
+                                    if(data.status == 'success'){
+                                        
+                                        toastr.success("Success", data.message);
+
+                                    } else if(data.status == 'error'){
+
+toastr.error("Error", data.message);
+} else if(data.status == 'warning'){
+
+toastr.warning("Warning", data.message);
+} else if (data.status == 'info'){
+
+                                        toastr.info("Info", data.message);
+                                    }
+                                }
+                            })
+
+ddb
+Your code seems to be structured correctly for displaying toastr notifications based on the status and message in the returned data.
+
+Here are a few things you could check:
+
+Ensure that the library is correctly included in your HTML file. It should be included before your script.js file.toastr
+
+Check if the object returned in your block actually contains and properties. You can do this by logging the object to the console.data.then(data => {...})statusmessagedata
+
+Make sure that the options are correctly configured. For example, you might need to set to display a close button on the toastr notifications.toastrtoastr.options.closeButton = true;
+
+If you've checked all of these and you're still not seeing the toastr notifications, could you please share more context or code?
+
+you
+Okay, so I got a TypeError -- but before I address that, I am noticing that my songs table doesn't seem to be inserting the artist_id from the artists table. Why might that be? Am I forgetting that in the songs insertion?
+
+ddb
+From the code snippet you shared earlier, it seems like you're not including the in your statement for the "songs" table. If you want to include the from the "artists" table in the "songs" table, you'll need to modify your statement to include an additional parameter for .artist_idINSERTartist_idINSERTartist_id
+
+Remember, the order of the values in your statement should match the order of the columns in your table. So, if is the first column in your "songs" table, should be the first value in your statement.INSERTartist_idartist_idINSERT
+
+Could you please share the part of your code where you're inserting data into the "songs" table? This will help me provide more specific advice.
+
+you
+I think I am forgetting it:
+db.execute("INSERT INTO songs(song_name, album_id, genre, release_date, song_link, length, explicit_status, song_artwork) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                   track_info["song_name"], album_id, track_info["genre"], track_info["release_date"], track_info["song_link"],
+                                   track_info["length"], track_info["explicit_status"], track_info["song_artwork"])
+
+ddb
+From the code you've shared, it seems like you're indeed not inserting the into the "songs" table. If you want to include the in the "songs" table, you'll need to modify your statement to include an additional parameter for .artist_idartist_idINSERTartist_id
+
+Here's a modified version of your statement:INSERT
+
+db.execute("INSERT INTO songs(artist_id, song_name, album_id, genre, release_date, song_link, length, explicit_status, song_artwork) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                   artist_id, track_info["song_name"], album_id, track_info["genre"], track_info["release_date"], track_info["song_link"],
+                                   track_info["length"], track_info["explicit_status"], track_info["song_artwork"])
+Remember, you'll need to have the available at this point in your code. If you're getting the from the "artists" table, you might need to query that table first to get the for the current artist.artist_idartist_idartist_id
+
+you
+Okay, so I've added artist_id. Now onto the JavaScript, I'm getting a TypeError:
+TypeError: Cannot read properties of undefined (reading 'extend')
+    at m (toastr.js:474:40)
+    at Object.i [as success] (toastr.js:474:40)
+    at script.js:350:48
+
+ddb
+The error message you're seeing typically indicates that the toastr library isn't properly loaded before your script.js file is executed. The error is thrown when your script tries to call a method on an undefined object, in this case, .TypeError: Cannot read properties of undefined (reading 'extend')toastr
+
+Here are a few things you could check:
+
+Make sure that the toastr library is correctly included in your HTML file. It should be included before your script.js file.
+
+Check if there are any errors in the console that might indicate a problem with loading the toastr library.
+
+Ensure that the toastr library is loaded and ready before you try to use it. You can do this by checking if is defined before calling or any other toastr methods.toastrtoastr.success()
+
+If you've checked all of these and you're still seeing the error, could you please share more context or code?
+
+you
+This TypeError is the only one in the console, but besides this, how might I check that toastr is defined?
+
+ddb
+You can check if toastr is defined by using a simple statement in your JavaScript code. Here's an example:if
+
+if (typeof toastr !== 'undefined') {
+    // toastr is defined, you can use it here
+} else {
+    // toastr is not defined, handle the error
+}
+This code checks if is defined before trying to use it. If is not defined, it will go into the block where you can handle the error appropriately.toastrtoastrelse
+
+you
+If toastr doesn't work, should I default to using alert?
+
+ddb
+Yes, using is a viable alternative if toastr isn't working for some reason. However, keep in mind that is a blocking function, meaning it will stop the execution of your JavaScript code until the user dismisses the alert. This might not be ideal for all situations. If you're looking for a non-blocking alternative, consider using for debugging purposes or look into other notification libraries.alert()alert()console.log()
+
+you
+ah, so in handling the error, should I console.log it or something else?
+
+ddb
+Yes, using to print an error message to the console is a good way to handle the situation if toastr is not defined. This can help you debug the issue and figure out why toastr might not be loading correctly. Here's an example:console.log()
+
+if (typeof toastr !== 'undefined') {
+    // toastr is defined, you can use it here
+} else {
+    // toastr is not defined, handle the error
+    console.log("Error: toastr is not defined.");
+}
+This will print "Error: toastr is not defined." to the console if toastr is not defined.
+
+you
+So apparently this line of code is highlighted as problematic in the debugger-- is there somewhere in my JavaScript where I ought to be defining toastr or jquery I am including jQuery in my layout.html file which should extend to all pages, but maybe that keyword 'extend' is saying toastr and jquery cannot be extended?
+window.toastr = factory(window.jQuery);
+
+ddb
+The line is part of the toastr library's code, not your own. It's trying to attach toastr to the global object using jQuery. The keyword is a method in jQuery used to merge two or more objects. This error might occur if jQuery is not properly loaded before toastr.window.toastr = factory(window.jQuery);windowextend
+
+Here are a few things you could check:
+
+Make sure jQuery is loaded before toastr. The order of scripts in your HTML file matters. jQuery should come first.
+
+Check the version of jQuery you're using. Toastr might not work with all versions.
+
+Make sure the path to your toastr.js file is correct. If the file can't be found, toastr won't be defined.
+
+Check if there are any other JavaScript errors that might be preventing jQuery or toastr from loading correctly.
+
+If you've checked all of these and you're still seeing the error, could you please share more context or code?
+
+you
+The jQuery script tag did indeed come after the toastr one.
+
+ddb
+Great! The order of script tags is crucial because scripts are loaded in the order they appear in the HTML file. If toastr is loaded before jQuery, it won't be able to find jQuery and will result in an error. Now that you've corrected the order, the error should be resolved. If you're still encountering issues, feel free to ask.
+
+you
+Okay, jQuery works, but I ran into another RuntimeError -- I guess toastr showing me the error message was a good thing:
+ File "/home/mannyade/.local/lib/python3.10/site-packages/cs50/sql.py", line 473, in execute
+    raise e
+RuntimeError: database is locked
+
+ddb
+The "database is locked" error typically occurs when something else is accessing the database at the same time your program is trying to. SQLite, which CS50 uses, allows multiple processes to have the database open at once, but only one process can be making changes at any given time.
+
+Here are a few things you could check:
+
+Make sure you're not running multiple instances of your program at the same time.
+If you have the database open in another program (like a database viewer), make sure to close it.
+If you're using a command in a loop, try to minimize the number of database accesses.db.execute
+If you've checked all of these and you're still seeing the error, could you please share more context or code?
+
+you
+I forgot to close sqlite3 when i was checking to see the issue with the songs table. I should close that terminal, correct?
+
+ddb
+Yes, you should close the SQLite3 terminal if it's still open. Having the database open in SQLite3 can lock the database, preventing other processes from accessing it. Once you close SQLite3, the lock should be released and your program should be able to access the database again.
+
+you
+I had to close SQLiteBrowser as well.
+
+ddb
+I see, having SQLiteBrowser open could indeed cause a lock on the database. Now that you've closed both SQLite3 and SQLiteBrowser, your program should be able to access the database without encountering the "database is locked" error. If you're still having issues, please let me know!
+
+you
+the success message for Toastr worked! there were some errors but I think that's just from the other extensions in my browser.
+
+ddb
+That's great to hear! Toastr is a very useful tool for displaying notifications in a web application. If you have any more questions or run into any other issues, feel free to ask. Happy coding!
+
+you
+Okay, so for some reason, none of the results from the lookup function show up when I search for an album, even though they do get printed to the console. I think I might need to check how I'm accessing the data in the condition of my JavaScript function where the query type is album.
+
+ddb
+It sounds like you're on the right track! If the data is being printed to the console, then the issue likely lies in how you're accessing the data in your JavaScript function.
+
+When you're dealing with album data, remember that it's usually an array of objects. So, you might need to iterate over the array to access each individual album.
+
+Also, check how you're trying to access the properties of the album objects. If you're using dot notation, make sure the property names are correct and match exactly with the data you're receiving.
+
+Can you show me the part of your JavaScript function where you're trying to access the album data?
+
+you
+Here's an example of trying to get the album name:
+for (let item of data) {
+                
+                        var resultsTableRow = document.createElement('tr');
+                        var resultsAlbumName = document.createElement('td');
+                        resultsAlbumName.textContent = item.album_name;
+                        resultsAlbumName.classList.add('text-start');
+                        resultsTableRow.appendChild(resultsAlbumName);
+
+ddb
+Your approach seems correct. You're creating a new table row and a new table data cell, setting the text content of the cell to the album name, and then appending the cell to the row.
+
+However, the issue might be with how you're accessing the album name. You're using to access the album name, but the property might not be named exactly "album_name".item.album_name
+
+You should check the structure of the objects in the array. You can do this by printing an item to the console using inside your loop. This will show you the exact properties of the objects, and you can then use the correct property name to access the album name.dataconsole.log(item)
+
+you
+the album name is listed as such. for example:
+
+ddb
+If the album name is indeed listed as "album_name", then your code should be working as expected. However, if the results are not showing up, there might be an issue elsewhere.
+
+Are you appending the to the table after adding the ? If not, the row won't show up in the table.resultsTableRowresultsAlbumName
+
+Also, are there any errors showing up in the console? Errors could indicate if there's an issue with your code.
+
+Lastly, are you sure that the array contains items? You could check this by printing the length of the array to the console.data
+
+you
+I think I was forgetting to append the body of the table to the page.
+
+ddb
+Ah, that could indeed be the issue. After creating and populating your table rows, you need to append them to the table body for them to be displayed on the page. Have you tried doing that and did it solve your problem?
+
+you
+I realized I forgot to include a field to the songs and albums table for logging when the adding happened -- if I add the field now, is there a way to retroactively get the timestamp for my test insertions?
+
+ddb
+Unfortunately, if the timestamp field was not included at the time of the insertions, there's no built-in way to retroactively get the exact timestamp for those insertions. The timestamp is not stored anywhere unless you explicitly store it in a field.
+
+For future insertions, you can add a timestamp field to your table and set its default value to the current timestamp. This way, every time a new record is inserted, the current timestamp will be automatically stored in this field.
+
+For the existing records, if you know approximately when they were inserted, you could manually update the timestamp field for those records. However, this won't be exact.
+
+you
+would something like "date_added" or "add_time" be a good name for the field?
+
+ddb
+Yes, both "date_added" and "add_time" are descriptive and appropriate names for a field that stores the timestamp of when a record was added. It's good practice to use clear, descriptive names for your fields so that others (and future you) can understand what data they contain.
+
+you
+CURRENT_TIMESTAMP is the SQL keyword for the current timestamp, correct?
+
+ddb
+Yes, you're correct. In SQL, CURRENT_TIMESTAMP is a function that returns the current date and time. You can use it to automatically set the value of a timestamp field to the current date and time when a new record is inserted.
+
+you
+Does SQLite have any different conventions for this?
+
+ddb
+Yes, SQLite does have a slightly different convention for this. In SQLite, you can use the function to get the current date and time. So, when you're creating a new table, you can set the default value of your timestamp field to to automatically record the timestamp of each insertion.datetime('now')datetime('now')
+
+you
+so instead of entering CURRENT_TIMESTAMP in SQLiteBrowser's field for entering the type of field it is, I should just use datetime('now')?
+
+ddb
+In SQLite, the type of the field should be if you want to store dates and times. The function is used to get the current date and time, and you can use it as the default value for your field. So, in SQLiteBrowser, you would set the type of the field to and set the default value to .DATETIMEdatetime('now')DATETIMEDATETIMEdatetime('now')
+
+you
+got it.
+
+ddb
+I'm glad to hear that you understood! If you have any more questions or run into any issues, feel free to ask. Happy coding!
+
+you
+does this look correct?
+"add_time" DATETIME DEFAULT 'datetime(''now'')',
+
+ddb
+Your syntax is almost correct, but you don't need to use single quotes around the function. Here's the correct syntax:datetime('now')
+
+"add_time" DATETIME DEFAULT (datetime('now')),
+
+This will create a DATETIME field named "add_time" that defaults to the current date and time.
+
+you
+I think SQLiteBrowser defaults to showing it that way in the creation query for some reason.
+
+ddb
+I see, SQLiteBrowser might display it that way in the interface. As long as it's setting the default value of the "add_time" field to the current date and time, it should be working correctly. You can test it by inserting a new record without specifying a value for "add_time", and then checking to see if it correctly recorded the current date and time.
+
+you
+Okay, so SQLiteBrowser inserted the literal string datetime('now') instead of the timestamp.
+
+ddb
+It seems like SQLiteBrowser is interpreting as a string literal rather than a function call. Try removing the single quotes around in your table creation statement. The correct syntax should be:datetime('now')datetime('now')
+
+"add_time" DATETIME DEFAULT (datetime('now')),
+
+This should ensure that SQLite interprets as a function call, not a string.datetime('now')
+
+you
+It isn't letting me change it to just that, so maybe I should directly change the default value in the sqlite terminal.
+
+ddb
+Yes, that sounds like a good plan. Directly modifying the default value in the SQLite terminal should allow you to bypass any limitations or quirks in SQLiteBrowser. Remember, the correct syntax for setting the default value to the current timestamp is . Let me know if you encounter any issues!DEFAULT (datetime('now'))
+
+you
+Should I use ALTER TABLE?
+
+ddb
+Yes, you can use the command to modify the structure of an existing table. However, SQLite has some limitations and does not support using to change a column's default value.ALTER TABLEALTER TABLE
+
+You might need to create a new table with the correct default value, copy the data from the old table to the new one, and then rename the new table to the old table's name. This is a common workaround for this limitation in SQLite.
+
+you
+What can ALTER TABLE be used to do?
+
+ddb
+The command in SQL is used to add, delete/drop or modify columns in an existing table. You can also use it to add and drop various constraints on an existing table. However, in SQLite, has some limitations and does not support all the features that other SQL databases might support, such as changing a column's default value or type.ALTER TABLEALTER TABLE
+
+you
+Can I delete the column in SQLite Browser and then use an ALTER TABLE command to add a column?
+
+ddb
+Yes, you can delete the column in SQLite Browser and then use an command to add a new column with the correct default value. Here's the general syntax for adding a column in SQLite:ALTER TABLE
+
+ALTER TABLE table_name ADD COLUMN new_column_name column_type DEFAULT default_value;
+
+Remember to replace , , , and with your actual table name, new column name, column type, and default value.table_namenew_column_namecolumn_typedefault_value
+
+you
+and this would be possible in SQLite?
+
+ddb
+Yes, you can use the command to add a new column in SQLite. However, please note that SQLite has some limitations and does not support all the features that other SQL databases might support. For instance, you cannot modify or delete a column using in SQLite. But adding a new column with a default value is definitely possible.ALTER TABLEALTER TABLE
+
+you
+So ideally, I think this is what the command should read as:
+ALTER TABLE songs ADD COLUMN add_time DATETIME DEFAULT datetime('now')
+
+ddb
+Yes, that's correct! Your command will add a new column named to the table, and it will automatically populate this column with the current date and time for each new record. Good job!add_timesongs
+
+you
+Did I forget something?
+sqlite> ALTER TABLE songs ADD COLUMN add_time DATETIME DEFAULT datetime('now');
+Error: in prepare, near "(": syntax error (1)
+
+ddb
+It seems like you're encountering a syntax error. SQLite has some limitations and one of them is that it doesn't support function calls like in the clause.datetime('now')DEFAULT
+
+A common workaround is to set the default value in your application code, rather than in the database schema. When you insert a new record, you can get the current date and time in your application and include it in the insert statement.
+
+you
+could I use CURRENT_TIMESTAMP instead?
+
+ddb
+Yes, you can use as the default value for your column in SQLite. This will automatically insert the current date and time whenever a new row is added. Your command would look like this:CURRENT_TIMESTAMPDATETIME
+
+ALTER TABLE songs ADD COLUMN add_time DATETIME DEFAULT CURRENT_TIMESTAMP;
+
+you
+I got this error:
+sqlite> ALTER TABLE songs ADD COLUMN add_time DATETIME DEFAULT CURRENT_TIMESTAMP;
+Error: stepping, Cannot add a column with non-constant default (1)
+
+ddb
+It seems like you're encountering an error because SQLite doesn't support adding a column with a non-constant default value. The is a function that returns a different value each time it's called, so it's not considered a constant.CURRENT_TIMESTAMP
+
+A common workaround is to add the column without a default value, and then manually update the new column with the current timestamp for existing rows. For new rows, you would get the current timestamp in your application code and include it in the insert statement. Can you try this approach?
+
+you
+I can try, but how would the insert work?
+
+ddb
+When you're inserting a new row into your table, you can include the current timestamp as a value for the column. In your application code, you would get the current date and time, format it as a string in the format that SQLite expects for values, and include it in your statement.add_timeDATETIMEINSERT
+
+Here's a general idea of what the statement might look like:INSERT
+
+INSERT INTO songs (column1, column2, ..., add_time) VALUES (value1, value2, ..., 'your_timestamp');
+
+Remember to replace , , , , and with your actual column names, values, and the current timestamp.column1column2value1value2'your_timestamp'
+
+you
+would the current timestamp come from sys?
+
+ddb
+Yes, you can use the module in Python to get the current date and time. However, for dealing with dates and times, the module is usually more appropriate. You can use to get the current date and time. Then, you can format it as a string in the format that SQLite expects for values.sysdatetimedatetime.datetime.now()DATETIME
+
+you
+wait -- is there a way for SQLiteBrowser to add the timestamp but not as a default?
+
+ddb
+Yes, you can manually add a timestamp when inserting a new row in SQLiteBrowser. When you're adding a new record, you can type the current timestamp into the field. SQLite accepts timestamps in the format 'YYYY-MM-DD HH:MM:SS'. However, this would require you to manually enter the timestamp each time you add a new record.add_time
+
+you
+Ah, okay. in that case, I'll just use the Python workaround. Does using datetime.datetime.now require an import statement?
+
+ddb
+Yes, to use , you need to import the module. You can do this with the following line at the beginning of your Python script:datetime.datetime.now()datetime
+
+import datetime
+Then, you can get the current date and time with .datetime.datetime.now()
+
+you
+What exactly does datetime.datetime.now() return?
+
+ddb
+The function returns the current date and time as a object. This object contains information about the year, month, day, hour, minute, second, and microsecond. You can format this object as a string in various ways to suit your needs. For example, you can use the method to format the object as a string in the 'YYYY-MM-DD HH:MM:SS' format that SQLite expects for values.datetime.datetime.now()datetimedatetimestrftimedatetimeDATETIME
+
+you
+Would it be smart to make a helper function to get the datetime?
+
+ddb
+Creating a helper function to get the current datetime can be a good idea, especially if you find yourself needing to get the current datetime in multiple places in your code. It can help keep your code DRY (Don't Repeat Yourself), which is a key principle in software development. This function could return the current datetime already formatted as a string, so you can directly use its return value in your SQL queries. What do you think about this approach?
+
+you
+I like it!
+
+ddb
+That's great to hear! Having a helper function can indeed make your code cleaner and more organized. If you have any more questions or need further clarification, feel free to ask!
+
+you
+would I save datetime.datetime.now as a variable first?
+
+ddb
+Yes, you could save the result of as a variable first if you plan to use it multiple times. However, if you're creating a helper function that simply returns the current datetime, you could return the result of directly. Would you like to show me some code that implements this?datetime.datetime.now()datetime.datetime.now()
+
+you
+"""Returns current timestamp for SQL insertion."""
+
+    return datetime.datetime.now()
+
+ddb
+I will be back soon! Just taking a short nap, zzz...
+you
+Here's what I have in the helper function so far, but I know I need to format it for SQL insertion:
+    return datetime.datetime.now()
+
+ddb
+You're on the right track! Now, to format the datetime object for SQL insertion, you can use the method. This method allows you to specify a format string that determines how the datetime object should be converted to a string. For SQLite, you'll want to use the format string '%Y-%m-%d %H:%M:%S'. Can you try adding this to your function?strftime
+
+you
+do I need to use "f" before that string kind of like how format strings usually work?
+
+ddb
+No, you don't need to use an "f" before the string in this case. The method takes a format string as its argument, but this is not the same as a Python f-string. The format string for contains special directives that start with a percent sign (%), such as '%Y' for the four-digit year. So, you would use it like this: . Can you try implementing this in your function?strftimestrftimedatetime_object.strftime('%Y-%m-%d %H:%M:%S')
+
+you
+pure_time = datetime.datetime.now()
+
+    current_timestamp= pure_time.strftime("%Y-%m-%d %H:%M:%S")
+
+ddb
+That looks correct! You've successfully created a timestamp in the format that SQLite expects for values. Now you can use in your SQL queries. Do you have any other questions about this, or is there something else you'd like to discuss?DATETIMEcurrent_timestamp
+
+you
+Not yet, thank you! that suggestion worked wonderfully.
+
+ddb
+You're welcome! I'm glad to hear that the suggestion worked well for you. If you have any more questions in the future, don't hesitate to ask. Happy coding!
+

@@ -25,3 +25,7 @@ nav .navbar-brand .green
 #new_search {
     display: none;
 }
+
+#new_add {
+    display: none;
+}
