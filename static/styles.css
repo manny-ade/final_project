@@ -21,6 +21,12 @@ nav .navbar-brand .green
 {
     color: #2e944b;
 }
+.card {
+
+    width: 300px;
+
+}
+
 
 #new_search {
     display: none;
@@ -28,4 +34,24 @@ nav .navbar-brand .green
 
 #new_add {
     display: none;
+}
+
+#album_collection_header {
+    display: none;
+}
+
+#album_collection {
+    display: none;
+}
+
+#info_title {
+    
+    align-content: center;
+}
+
+#note {
+
+    height: 125px;
+    width: 600px;
+    align-content: center;
 }

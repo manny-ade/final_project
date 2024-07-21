@@ -5,40 +5,52 @@
 {% endblock %}
 
 {% block main %}
+<h1>History</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th class="text-start">Symbol</th>
-                <th class="text-end">Shares</th>
-                <th class="text-end">Price</th>
-                <th class="text-end">Transacted</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for transaction in transactions %}
+<br>
+
+<table class="table table-striped" id="history_table">
+    <thead>
+        <tr>
+            <th class="text-start">Name</th>
+            <th class="text-start">Action</th>
+            <th class="text-start">Type</th>
+            <th class="text-start">Artist</th>
+            <th class="text-end">Added/Removed</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in history %}
+        
+            {% if record.curation_type == 'add' %}
+
+                {% if record.curation_item == 'song' %}
+
+                    <tr>
+                        <td class="text-start">{{ record.song_name }}</td>
+                        <td class="text-start">Added</td>
+                        <td class="text-start">Song</td>
+                        <td class="text-start">{{ record.artist_name }}</td>
+                        <td class="text-end">{{ record.curation_time }}</td>
+                    </tr>
+
+                {% else %}
+
                 <tr>
-                    <td class="text-start">{{ transaction.symbol }}</td>
-
-                    <td class="text-end">
-
-                    {% if transaction.transaction_type == 'sale' %}
-
-                        {{ transaction.share_count * -1 }}
-
-                    {% else %}
-
-                        {{ transaction.share_count }}
-
-                    {% endif %}
-
-                    </td>
-                    <td class="text-end">{{ usd(transaction.share_price) }}</td>
-                    <td class="text-end"> {{ transaction.transaction_time}} </td>
+                    <td class="text-start">{{ record.album_name }}</td>
+                    <td class="text-start">Added</td>
+                    <td class="text-start">Album</td>
+                    <td class="text-start">{{ record.artist_name }}</td>
+                    <td class="text-end">{{ record.curation_time }}</td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
+                {% endif %}
+
+
+            {% endif %}
+
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

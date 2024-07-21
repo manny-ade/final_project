@@ -1,13 +1,116 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Portfolio
+    Collection
 {% endblock %}
+
 
 {% block main %}
 
-    <h2>Songs</h2>
+    <h2>Collection</h2>
 
+    <br>
+
+    <div class="btn-group" role="group" aria-label="Collection view switch">
+        <button type="button" class="btn btn-primary" id="song-toggle">Songs</button>
+        <button type="button" class="btn btn-primary" id="album-toggle">Albums</button>
+    </div>
+
+    <br>
+    <br>
+
+    <h3 id="song_collection_header">Songs</h3>
+    <br>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4 mb-4" id="song_collection">
+
+        {% for song in song_collection %}
+        
+        <div class="col">
+            <div class="card">
+                <img src="{{ song.song_artwork }}" class="card-img-top" alt="artwork for {{ song.song_name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ song.song_name }}</h5>
+                    <p class="card-text">{{ song.artist_name }}</p>
+                    <button class="btn btn-primary modal-button" data-id="{{ song.song_id }}" data-toggle="modal"  data-target="#info_modal" data-type="song">More</button>
+                </div>
+            </div>
+        </div>
+        
+        {% endfor %}
+
+    </div>
+
+    <h3 id="album_collection_header">Albums</h3>
+    <br>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4 mb-4" id="album_collection">
+
+        {% for album in album_collection %}
+        
+        <div class="col">
+            <div class="card">
+                <img src="{{ album.album_artwork }}" class="card-img-top" alt="artwork for {{ album.album_name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ album.album_name }}</h5>
+                    <p class="card-text">{{ album.artist_name }}</p>
+                    <button class="btn btn-primary modal-button" data-id="{{ album.album_id }}" data-toggle="modal"  data-target="#info_modal" data-type="album">More</button>
+                </div>
+            </div>
+        </div>
+        
+        {% endfor %}
+
+    </div>
+    <br>
+    
+    <div class="modal fade" id="info_modal">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+               <div class="modal-header">
+                   <h5 class="modal-title" id="info_title">Details</h5>
+                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               </div>
+               <div class="modal-body">
+                   <b>Name: </b><span id="info_name"></span><br>
+                   <b>Artist: </b><span id="info_artist"></span><br>
+                   <b>Genre(s): </b> <span id="info_genre"></span><br>
+                   <b>Release Date: </b> <span id="info_date"></span><br>
+                   <b>Added:</b> <span id="info_added"></span><br>
+                   <b>Listening Status:</b> <span id="info_listened"></span><br>
+                   <b>Listen on Spotify:</b> <span id="spotify_modal_link"></span>
+                <br>
+                <br>
+                <b>Notes</b>
+                <br>
+                <br>
+                <form action="/detail_view" method="post" id="modal_form">
+                    <div class="mb-3">
+                    <textarea id="note_content" rows="4" cols="80" name="note" autocomplete="off" class="form-control mx-auto w-auto" type="text"></textarea>
+                    </div>
+                    <div>
+                    </div>
+                    <br>
+                    <div class="form-check form-check-inline">
+                        <input autocomplete="off" class="form-check-input" name="listen_check" type="radio" value="not listened" id="not_listened_radio">
+                        <label>Not Listened</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input autocomplete="off" class="form-check-input" name="listen_check" type="radio" value="Listened" id="listened_radio">
+                        <label>Listened</label>
+                    </div>
+                    <br>
+                    <br>
+                    <button class="btn btn-primary mx-auto w-auto" type="submit"id="update_details">Update Notes & Listening Status</button>
+                </form>   
+               </div>
+               <div class="modal-footer">
+                   <button type="button" class="btn btn-danger" id="delete_button">Delete</button>
+                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+               </div>
+            </div>
+           </div>
+        </div>
 
     <a href="/password_change" class="btn btn-primary">Change Password</a>
 

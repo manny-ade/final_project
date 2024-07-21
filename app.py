@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import requests
 
 
 from cs50 import SQL
@@ -32,9 +33,160 @@ def after_request(response):
 @app.route("/")
 @login_required
 def index():
-    """Show portfolio of stocks"""
+    """Show user's collection"""
     if request.method == "GET":
-        return render_template("index.html")
+
+            song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_content, notes.note_id, songs_users.listened FROM songs "  
+                            "JOIN artists ON songs.artist_id = artists.artist_id "
+                            "JOIN songs_users ON songs.song_id = songs_users.song_id "
+                            "JOIN notes ON songs_users.note_id = notes.note_id "
+                            "WHERE songs_users.user_id = ?")
+            song_collection = db.execute(song_lookup, session["user_id"])
+            album_lookup = ("SELECT albums.*, artists. artist_name, notes.note_content, notes.note_id, listened FROM albums "
+                            " JOIN artists ON albums.artist_id = artists.artist_id "
+                            " JOIN albums_users ON albums.album_id = albums_users.album_id "
+                            " JOIN notes ON albums_users.note_id = notes.note_id "
+                            " WHERE albums_users.user_id = ?")
+            album_collection = db.execute(album_lookup, session["user_id"])
+
+            print(song_collection)
+            print(album_collection)
+
+            return render_template("index.html", song_collection=song_collection, album_collection=album_collection)
+
+@app.route("/detail_view", methods=["GET", "POST"])
+@login_required
+def detail_view():
+    """ Passes data to modal to display more info on selected item"""
+
+    if request.method == "POST":
+
+        song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_id, notes.note_content, songs_users.listened FROM songs "  
+                            "JOIN artists ON songs.artist_id = artists.artist_id "
+                            "JOIN songs_users ON songs.song_id = songs_users.song_id "
+                            "JOIN notes ON songs_users.note_id = notes.note_id "
+                            "WHERE songs_users.user_id = ?")
+        song_collection = db.execute(song_lookup, session["user_id"])
+        album_lookup = ("SELECT albums.*, artists. artist_name, notes.note_id, notes.note_content, listened FROM albums "
+                            " JOIN artists ON albums.artist_id = artists.artist_id "
+                            " JOIN albums_users ON albums.album_id = albums_users.album_id "
+                            " JOIN notes ON albums_users.note_id = notes.note_id "
+                            " WHERE albums_users.user_id = ?")
+        album_collection = db.execute(album_lookup, session["user_id"])
+
+        data = request.get_json()
+        current_time = get_current_time()
+
+        if data == None:
+
+            return jsonify({"status":"error", "message": "No data provided"}), 400
+
+        else:
+
+            try:
+                
+                modal_type = data["modal_type"]
+
+                if modal_type == "song":
+
+                    song_id = int(data["song_id"])
+
+                    updated_note = data["note"]
+
+                    note_id = data["note_id"]
+
+                    listen_status_code = data["listen_status_code"]
+
+                    print(song_id)
+                    print(updated_note)
+                    print(note_id)
+                    print(listen_status_code)
+
+                    song_note_update = ("UPDATE notes " 
+                                        "SET note_content = ?, "
+                                        "most_recent_update = ? "
+                                        "WHERE note_id = ? AND song_id = ? AND user_id = ? ")    
+                    listen_status_update = ("UPDATE songs_users SET listened = ? WHERE song_id = ? AND user_id = ?")
+
+                    db.execute(song_note_update, updated_note, current_time, note_id, song_id, session["user_id"])
+                    db.execute(listen_status_update, listen_status_code, song_id, session["user_id"])
+
+                    return jsonify({"status": "success", "message": "Notes and/or listening status updated"}), 200
+                
+                elif modal_type == "album":
+
+                    album_id = int(data["album_id"])
+
+                    updated_note = data["note"]
+
+                    note_id = data["note_id"]
+
+                    listen_status_code = data["listen_status_code"]
+
+                    print(album_id)
+                    print(updated_note)
+                    print(note_id)
+                    print(listen_status_code)
+
+                    album_note_update = ("UPDATE notes " 
+                                        " SET note_content = ?, "
+                                        " most_recent_update = ? "
+                                        "WHERE note_id = ? AND album_id = ? AND user_id = ?")    
+                    listen_status_update = ("UPDATE albums_users SET listened = ? WHERE album_id = ? AND user_id = ?")
+
+                    db.execute(album_note_update, updated_note, current_time, note_id, album_id, session["user_id"])
+                    db.execute(listen_status_update, listen_status_code, album_id, session["user_id"])
+
+                    return jsonify({"status":"success", "message":"Notes and/or listening status updated"}), 200
+
+            except (KeyError, IndexError, requests.RequestException, ValueError):
+
+                return jsonify({"status": "error", "message": "Internal issue"}), 400
+    
+    else:       
+
+        if request.method == "GET":
+
+            song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_id, notes.note_content, songs_users.listened FROM songs "  
+                            "JOIN artists ON songs.artist_id = artists.artist_id "
+                            "JOIN songs_users ON songs.song_id = songs_users.song_id "
+                            "JOIN notes ON songs_users.note_id = notes.note_id "
+                            "WHERE songs_users.user_id = ?")
+            song_collection = db.execute(song_lookup, session["user_id"])
+            album_lookup = ("SELECT albums.*, artists. artist_name, notes.note_id, notes.note_content, listened FROM albums "
+                            " JOIN artists ON albums.artist_id = artists.artist_id "
+                            " JOIN albums_users ON albums.album_id = albums_users.album_id "
+                            " JOIN notes ON albums_users.note_id = notes.note_id "
+                            " WHERE albums_users.user_id = ?")
+            album_collection = db.execute(album_lookup, session["user_id"])
+            
+
+            modal_type = request.args.get("data_type")
+            info_dict = None
+
+            if modal_type == "song":
+
+                song_id = int(request.args.get("song_id"))
+
+                for song in song_collection:
+                    if song["song_id"] == song_id:
+
+                        info_dict = song
+            
+            elif modal_type == "album":
+
+                album_id = int(request.args.get("album_id"))
+
+                for album in album_collection:
+                    if album["album_id"] == album_id:
+
+                        info_dict = album
+            elif modal_type != "song" and modal_type != "album":
+
+                return jsonify({"status": "error", "message": "Could not find song/album data."})
+
+            return jsonify(info_dict)
+
 
 
 @app.route("/search", methods=["GET", "POST"])
@@ -42,7 +194,6 @@ def index():
 def search():
     """Search for a song or album"""
     if request.method == "POST":
-
 
         if not request.args.get("query"):
             return apology("must provide query", 400)
@@ -109,16 +260,14 @@ def add():
 
             else:
 
-                print("About to call lookup")
                 query_return = lookup(query, query_type)
 
                 if query_return != None:
                     return jsonify(query_return)
+                
                 else:
-                    print(query_return)
                     return apology("no results found", 400)
         
-
     else:
         if request.method == "GET":
             return render_template("add.html")
@@ -126,11 +275,14 @@ def add():
 @app.route("/add_music", methods=["GET", "POST"])
 @login_required
 def add_music():
+    """Secondary route to help with adding songs and albums"""
     if request.method == "POST":
         
         data = request.get_json()
         
         query_type = data["query_type"]
+
+        curation_type = "add"
 
         if query_type != "song" and query_type != "album":
 
@@ -150,8 +302,6 @@ def add_music():
             
             else:
 
-                print(track_id)
-                print(query_type)
                 track_info = return_track(track_id)
                 add_timestamp = get_current_time()  
 
@@ -215,7 +365,13 @@ def add_music():
                                 if songs_users_ids:
                                     return jsonify({"status": "info", "message": "song already added"})
                                 else:
-                                    db.execute("INSERT INTO songs_users (user_id, song_id) VALUES (?, ?)", user_id, song_id)
+                                    note_query = ("INSERT INTO notes (user_id, song_id, note_created, most_recent_update)" 
+                                                  "VALUES (?, ?, ?, ?)")
+                                    db.execute(note_query, user_id, song_id, add_timestamp, add_timestamp)
+                                    note_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+                                    songs_users_query = ("INSERT INTO songs_users (user_id, song_id, note_id, listened) VALUES (?, ?, ?, ?) ")
+                                    db.execute(songs_users_query, user_id, song_id, note_id, 0)
 
                                 song_album_ids = db.execute("SELECT song_id, album_id FROM song_album WHERE song_id = ? AND album_id = ?", 
                                                             song_id, album_id)
@@ -233,6 +389,10 @@ def add_music():
                                     pass
                                 else:
                                     db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
+                                
+                                    db.execute("INSERT INTO history (user_id, song_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                                               user_id, song_id, album_id, artist_id, curation_type, query_type, add_timestamp)
+
                     else:
                         return jsonify({"status": "error","message": "user not logged in"})
     
@@ -248,8 +408,6 @@ def add_music():
             
             else:
 
-                print(album_id)
-                print(query_type)
                 album_info = return_album(album_id)
                 add_timestamp = get_current_time()
                 
@@ -290,7 +448,13 @@ def add_music():
                             if albums_users_ids:
                                 return jsonify({"status": "info","message": "album already added"})
                             else:
+                                note_query = ("INSERT INTO notes (user_id, album_id, note_created, most_recent_update)" 
+                                                  "VALUES (?, ?, ?, ?)")
+                                db.execute(note_query, user_id, album_id, add_timestamp, add_timestamp)
                                 db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
+
+                                albums_users_query = ("INSERT INTO albums_users (user_id, song_id, note_id, listened) VALUES (?, ?, ?, ?) ")
+                                db.execute(albums_users_query, user_id, album_id, note_id, 0)
 
                             if artist_id is not None and isinstance(artist_id, int):
 
@@ -300,6 +464,9 @@ def add_music():
                                     pass
                                 else:
                                     db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
+
+                                    db.execute("INSERT INTO history(user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                               user_id, album_id, artist_id, curation_type, query_type, add_timestamp)
                     else:
                         return jsonify({"status": "error","message": "user not logged in"})
 
@@ -315,7 +482,23 @@ def history():
 
     if request.method == "GET":
 
+        history_query = ("SELECT COALESCE(songs.song_name, '') AS song_name, albums.album_name, artists.artist_name, curation_type, curation_item, curation_time "
+                         "FROM history "
+                         "LEFT JOIN songs ON history.song_id = songs.song_id "
+                         "LEFT JOIN albums ON history.album_id = albums.album_id "
+                         "LEFT JOIN artists ON history.artist_id = artists.artist_id "
+                         "WHERE history.user_id = ? "
+                         "ORDER BY history.curation_time DESC ")
+        history = db.execute(history_query, session["user_id"])
+        return render_template("history.html", history=history)
+
+@app.route("/delete_music", methods=["POST"])
+@login_required
+def delete_music():
+    """Delete music from library"""
+    if request.method == "POST":
         return apology("TODO")
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():

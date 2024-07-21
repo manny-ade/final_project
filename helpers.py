@@ -153,68 +153,76 @@ def lookup(q, type):
 #using the below functions to get track info for adding a track to streamline the process
 def return_track(track_id):
     """Returns track info for a given track id"""
-    result = sp.track(track_id, market="US")
-    
-    track_info = {}
-    track_info["song_name"] = result["name"]
-    track_info["artist"] = result["artists"][0]["name"]
-    track_info["artist_link"] = result["artists"][0]["external_urls"]["spotify"]
-    track_info["album_name"] = result["album"]["name"]
-    track_info["album_link"] = result["album"]["external_urls"]["spotify"]
-    track_info["track_artwork"] = result["album"]["images"][1]["url"]
-    track_info["release_date"] = result["album"]["release_date"]
-    track_info["song_link"] = result["external_urls"]["spotify"]
-    track_info["length"] = result["duration_ms"]
-    if result["explicit"] == True:
-        track_info["explicit_status"] = "explicit"
-    elif result["explicit"] == False:
-        track_info["explicit_status"] = "clean"
-    track_info["song_artwork"] = result["album"]["images"][1]["url"]
-
-    artist_info = sp.artist(result["artists"][0]["id"])
-    
-    genre_list = artist_info["genres"]
-
-    if genre_list == []:
-
-        track_info["genre"] = "genre not yet available"
-                
-    else:
+    try:
+        result = sp.track(track_id, market="US")
         
-        track_info["genre"] = ", ".join(genre_list)
+        track_info = {}
+        track_info["song_name"] = result["name"]
+        track_info["artist"] = result["artists"][0]["name"]
+        track_info["artist_link"] = result["artists"][0]["external_urls"]["spotify"]
+        track_info["album_name"] = result["album"]["name"]
+        track_info["album_link"] = result["album"]["external_urls"]["spotify"]
+        track_info["track_artwork"] = result["album"]["images"][1]["url"]
+        track_info["release_date"] = result["album"]["release_date"]
+        track_info["song_link"] = result["external_urls"]["spotify"]
+        track_info["length"] = result["duration_ms"]
+        if result["explicit"] == True:
+            track_info["explicit_status"] = "explicit"
+        elif result["explicit"] == False:
+            track_info["explicit_status"] = "clean"
+        track_info["song_artwork"] = result["album"]["images"][1]["url"]
 
-    track_info["artist_image"] = artist_info["images"][1]["url"]
-    
+        artist_info = sp.artist(result["artists"][0]["id"])
+        
+        genre_list = artist_info["genres"]
 
-    return track_info
+        if genre_list == []:
+
+            track_info["genre"] = "genre not yet available"
+                    
+        else:
+            
+            track_info["genre"] = ", ".join(genre_list)
+
+        track_info["artist_image"] = artist_info["images"][1]["url"]
+        
+
+        return track_info
+
+    except (KeyError, IndexError, requests.RequestException, ValueError):
+        return None
 
 
 def return_album(album_id):
     """Returns album info for a given album id"""
-    result = sp.album(album_id, market="US")
+    try:
+        result = sp.album(album_id, market="US")
 
-    album_info = {}
-    album_info["album_name"] = result["name"]
-    album_info["artist"] = result["artists"][0]["name"]
-    album_info["artist_link"] = result["artists"][0]["external_urls"]["spotify"]
-    album_info["release_date"] = result["release_date"]
-    album_info["album_link"] = result["external_urls"]["spotify"]
-    album_info["album_type"] = result["album_type"]
-    album_info["total_tracks"] = result["total_tracks"]
-    album_info["album_artwork"] = result["images"][1]["url"]
+        album_info = {}
+        album_info["album_name"] = result["name"]
+        album_info["artist"] = result["artists"][0]["name"]
+        album_info["artist_link"] = result["artists"][0]["external_urls"]["spotify"]
+        album_info["release_date"] = result["release_date"]
+        album_info["album_link"] = result["external_urls"]["spotify"]
+        album_info["album_type"] = result["album_type"]
+        album_info["total_tracks"] = result["total_tracks"]
+        album_info["album_artwork"] = result["images"][1]["url"]
 
-    artist_info = sp.artist(result["artists"][0]["id"])
-    genre_list = artist_info["genres"]
-    if genre_list == []:
+        artist_info = sp.artist(result["artists"][0]["id"])
+        genre_list = artist_info["genres"]
+        if genre_list == []:
 
-        album_info["genre"] = "genre not yet available"
-    
-    else:
-        album_info["genre"] = ", ".join(genre_list)
+            album_info["genre"] = "genre not yet available"
+        
+        else:
+            album_info["genre"] = ", ".join(genre_list)
 
-    album_info["artist_image"] = artist_info["images"][1]["url"]
-    
-    return album_info
+        album_info["artist_image"] = artist_info["images"][1]["url"]
+        
+        return album_info
+
+    except (KeyError, IndexError, requests.RequestException, ValueError):
+        return None
 
 def get_current_time():
     """Returns current timestamp for SQL insertion."""
