@@ -8290,4 +8290,131 @@ SET column1 = value1, column2 = value2, ...
 WHERE condition;
 In this syntax, column1, column2, etc. are the names of the columns you want to update, and value1, value2, etc. are the new values you want to set for these columns. The WHERE clause specifies which rows to update; if you omit the WHERE clause, all rows will be updated.
 
+you
+Hey Duck -- I'm running into this error message in my Flask terminal:
+RuntimeError: near "note_content": syntax error
 
+ddb
+Hello! This error message typically indicates a problem with your SQL syntax. It seems like "note_content" is causing an issue. Could you please check your SQL query for any syntax errors? Make sure that all your keywords, column names, and table names are correct and properly formatted.
+
+you
+I'm forgetting commas. 🤦🏿‍♂️😂
+
+ddb
+It happens to the best of us! Commas can be easy to overlook but they're crucial in SQL syntax. Now that you've identified the issue, try updating your SQL query and see if the error persists. If you encounter any more issues, feel free to ask!
+
+you
+Where does the VALUES keyword go in a db.execute statement?
+
+ddb
+In a db.execute statement, the VALUES keyword is used after the INSERT INTO statement to specify the data that you want to insert. Here's a general structure:
+
+db.execute("INSERT INTO table_name (column1, column2) VALUES (?, ?)", value1, value2)
+In this example, value1 and value2 are the values you want to insert into column1 and column2 respectively. Remember to replace table_name, column1, column2, value1, and value2 with your actual table name, column names, and values.
+
+you
+does this go for UPDATE as well?
+
+ddb
+No, the UPDATE statement in SQL has a different syntax. Instead of using VALUES, you would use SET to specify the new value for a particular column. Here's a general structure:
+
+db.execute("UPDATE table_name SET column1 = ? WHERE condition", new_value)
+In this example, new_value is the value you want to update column1 to. The WHERE clause specifies which rows to update. Remember to replace table_name, column1, new_value, and condition with your actual table name, column name, new value, and condition.
+
+you
+Can I only update one value at a time?
+
+ddb
+No, you can update multiple columns at once in an UPDATE statement. You just need to separate each column-value pair with a comma. Here's a general structure:
+
+db.execute("UPDATE table_name SET column1 = ?, column2 = ? WHERE condition", new_value1, new_value2)
+In this example, new_value1 and new_value2 are the values you want to update column1 and column2 to, respectively. Remember to replace table_name, column1, column2, new_value1, new_value2, and condition with your actual table name, column names, new values, and condition.
+
+you
+I somehow have fewer placeholders than values in my db.execute statement, or maybe my SQL query string variable for the listening status update.
+
+ddb
+It sounds like you're having trouble matching the number of placeholders in your SQL query to the number of values you're providing in your db.execute statement.
+
+Remember, each ? placeholder in your SQL query should correspond to one value in your db.execute statement. If you have more values than placeholders, you'll need to either add more placeholders to your SQL query or reduce the number of values you're providing.
+
+Could you show me the part of your code where you're encountering this issue? That way, I can provide more specific guidance.
+
+you
+Here's a snippet:
+song_note_update = ("UPDATE notes " 
+                                        "SET note_content = ?, "
+                                        "most_recent_update = ? "
+                                        "WHERE note_id = ? AND song_id = ? AND user_id = ? ")    
+                    listen_status_update = ("UPDATE songs_users SET listened = ? WHERE song_id = ? AND user_id ")
+
+                    db.execute(song_note_update, updated_note, current_time, note_id, song_id, session["user_id"])
+                    db.execute(listen_status_update, listen_status_code, song_id, session["user_id"])
+
+ddb
+I see the issue. In your listen_status_update query, you're missing a placeholder (?) for user_id in the WHERE clause. It should look like this:
+
+listen_status_update = ("UPDATE songs_users SET listened = ? WHERE song_id = ? AND user_id = ?")
+Then, your db.execute call matches the number of placeholders:
+
+db.execute(listen_status_update, listen_status_code, song_id, session["user_id"])
+Try making this change and see if it resolves your issue.
+
+you
+Okay, so the song modals show up and behave as they should, but the albums aren't having the modal box show up yet -- I'm not sure what's wrong with my code.
+
+ddb
+It sounds like you're having trouble with the modal boxes for your albums. To help you better, could you provide more details about the issue? For example, are there any error messages in your console? What does your current code for the album modals look like?
+
+you
+I am getting a TypeError -- I must have forgotten to change something.
+TypeError: Cannot set properties of null (setting 'value')
+    at script2.js:156:28
+
+ddb
+The error message you're seeing typically means that you're trying to access or modify a property of an object that is null. In JavaScript, null is a special value that represents no object or no value. It seems like the issue is happening at line 156 in your script2.js file.
+
+Could you please show me what your code looks like around that line? That way, I can provide more specific guidance.
+
+you
+note.value = '';
+
+ddb
+It seems like you're trying to set the value property of note to an empty string. The error message suggests that note is null, which means it doesn't point to any object.
+
+This usually happens when you try to select an HTML element that doesn't exist or isn't available yet when your JavaScript code runs. Are you using document.querySelector or document.getElementById to select the note element? If so, please make sure that the selector is correct and the element is available in the DOM when your code runs.
+
+you
+Yup! I had a typo in the getElementbyId function. 😂🤦🏿‍♂️
+
+ddb
+That's great to hear! Typos can often lead to unexpected errors. Don't worry, it happens to everyone. Keep going with your coding! If you have any more questions or run into any other issues, feel free to ask.
+
+you
+YES! I've gotten past the issue and it's working as expected!
+
+ddb
+That's fantastic news! I'm glad to hear that you've resolved the issue and everything is working as expected. Keep up the good work! If you have any more questions or need further clarification on anything, don't hesitate to ask. Happy coding!
+
+you
+I want to implement the delete function but I want to wait until later -- for now I want to save my changes to GitHub.
+
+ddb
+That sounds like a good plan! It's always a good idea to commit your changes regularly, especially when you've made significant progress. If you're unsure about how to do this, here are the general steps:
+
+Stage your changes with git add .
+Commit your changes with a message describing what you've done, like git commit -m "Implemented feature X"
+Push your changes to GitHub with git push
+Remember, these are just general steps. Depending on your Git setup, you might need to specify the branch you're pushing to when you push your changes.
+
+you
+Alright, sweet! I've pushed my changes!
+
+ddb
+That's great! Keeping your code backed up on GitHub is a good practice. If you have any more questions or need help with anything else, feel free to ask. Happy coding!
+
+you
+Thanks for your help, Duck -- I feel really good.
+
+ddb
+You're welcome! I'm glad to hear that you're feeling good. Remember, I'm here to help if you have any more questions or run into any issues. Keep up the good work!
