@@ -142,7 +142,6 @@ def lookup(q, type):
 
 
         else:
-            results = None
             info_dicts.append(results)
         
         return info_dicts

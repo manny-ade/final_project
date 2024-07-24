@@ -48,55 +48,131 @@
                 
                 var search_content = document.getElementById('search');
                 
-                search_header.style.display = 'none';
-                search_instruction.style.display = 'none';
-                search_tip1.style.display = 'none';
-                search_form.style.display = 'none';
+                if (data === null) {
+                    if (typeof toastr !== 'undefined'){
+                    
+                        if ('status' in data && 'message' in data) {
+                            if(data.status == 'error') {
+                                event.preventDefault();
+                                toastr.error("Error", data.message);
+                            } 
+                        } else {
+                            console.log("Error: toastr not defined");
+                        }
+                    } 
+                } else {
 
-                var resultsHeading = document.createElement('h2');
-                var searchSpacer = document.createElement('br');
-                resultsHeading.textContent = 'Search Results';
-                resultsHeading.style.display = 'block';
-                search_content.appendChild(resultsHeading);
+                    search_header.style.display = 'none';
+                    search_instruction.style.display = 'none';
+                    search_tip1.style.display = 'none';
+                    search_form.style.display = 'none';
 
-                var resultsTable = document.createElement('table');
-                resultsTable.classList.add('table');
-                resultsTable.classList.add('table-striped');
+                    var resultsHeading = document.createElement('h2');
+                    var searchSpacer = document.createElement('br');
+                    resultsHeading.classList.add('search-heading');
+                    searchSpacer.classList.add('search-heading-spacer');
+                    resultsHeading.textContent = 'Search Results';
+                    resultsHeading.style.display = 'block';
+                    search_content.appendChild(resultsHeading);
 
-                if (query_type.value == 'song'){
+                    var resultsTable = document.createElement('table');
+                    resultsTable.classList.add('table');
+                    resultsTable.classList.add('table-striped');
+
+                    if (query_type.value == 'song'){
+                        
+                        var resultsTableHeader= document.createElement('thead');
+                        var resultsTableHeaderRow = document.createElement('tr');
+                        var resultsTableBody = document.createElement('tbody');
+                        var resultsSong = document.createElement('th');
+                        resultsSong.classList.add('text-start');
+                        resultsSong.textContent = 'Song';
+                        resultsTableHeaderRow.appendChild(resultsSong);
+                        var resultsArtist = document.createElement('th');
+                        resultsArtist.classList.add('text-start');
+                        resultsArtist.textContent = 'Artist';
+                        resultsTableHeaderRow.appendChild(resultsArtist);
+                        var resultsAlbum = document.createElement('th');
+                        resultsAlbum.classList.add('text-start');
+                        resultsAlbum.textContent = 'Album';
+                        resultsTableHeaderRow.appendChild(resultsAlbum);
+                        var resultsRelease = document.createElement('th');
+                        resultsRelease.classList.add('text-start');
+                        resultsRelease.textContent = 'Release Date';
+                        resultsTableHeaderRow.appendChild(resultsRelease);
+                        var resultsListen = document.createElement('th');
+                        resultsListen.textContent = 'Listen';
+                        resultsTableHeaderRow.appendChild(resultsListen);
+                        resultsTableHeader.appendChild(resultsTableHeaderRow); 
+                        resultsTable.appendChild(resultsTableHeader); 
+
+                        for (let item of data) {
+                        
+                            var resultsTableRow = document.createElement('tr');
+                            var resultsSongName = document.createElement('td');
+                            resultsSongName.classList.add('text-start');
+                            resultsSongName.textContent = item.song_name;
+                            resultsTableRow.appendChild(resultsSongName);
+                            var resultsArtistName = document.createElement('td');
+                            resultsArtistName.classList.add('text-start');
+                            var resultsArtistLink = document.createElement('a');
+                            resultsArtistLink.href = item.artist_link;
+                            resultsArtistLink.textContent = item.artist_name;
+                            resultsArtistLink.target = '_blank';
+                            resultsArtistName.appendChild(resultsArtistLink);
+                            resultsTableRow.appendChild(resultsArtistName);
+                            var resultsAlbumName = document.createElement('td');
+                            resultsAlbumName.classList.add('text-start');
+                            resultsAlbumName.textContent = item.album_name;
+                            resultsTableRow.appendChild(resultsAlbumName);
+                            var resultsReleaseDate = document.createElement('td');
+                            resultsReleaseDate.classList.add('text-start');
+                            resultsReleaseDate.textContent = item.release_date;
+                            resultsTableRow.appendChild(resultsReleaseDate);
+                            var resultsSongLink = document.createElement('td');
+                            var resultsSongLinkAnchor = document.createElement('a');
+                            resultsSongLinkAnchor.href = item.song_link;
+                            resultsSongLinkAnchor.textContent = 'Link';
+                            resultsSongLinkAnchor.target = '_blank';
+                            resultsSongLink.appendChild(resultsSongLinkAnchor);
+                            resultsTableRow.appendChild(resultsSongLink);
+                            resultsTableBody.appendChild(resultsTableRow); 
+
+                            
+
+                    }
+
+                } else if (query_type.value == 'album'){
                     
                     var resultsTableHeader= document.createElement('thead');
                     var resultsTableHeaderRow = document.createElement('tr');
+                    var resultsAlbum = document.createElement('th');
                     var resultsTableBody = document.createElement('tbody');
-                    var resultsSong = document.createElement('th');
-                    resultsSong.classList.add('text-start');
-                    resultsSong.textContent = 'Song';
-                    resultsTableHeaderRow.appendChild(resultsSong);
+                    resultsAlbum.classList.add('text-start');
+                    resultsAlbum.textContent = 'Album';
+                    resultsTableHeaderRow.appendChild(resultsAlbum);
                     var resultsArtist = document.createElement('th');
                     resultsArtist.classList.add('text-start');
                     resultsArtist.textContent = 'Artist';
                     resultsTableHeaderRow.appendChild(resultsArtist);
-                    var resultsAlbum = document.createElement('th');
-                    resultsAlbum.classList.add('text-start');
-                    resultsAlbum.textContent = 'Album';
-                    resultsTableHeaderRow.appendChild(resultsAlbum);
                     var resultsRelease = document.createElement('th');
                     resultsRelease.classList.add('text-start');
                     resultsRelease.textContent = 'Release Date';
                     resultsTableHeaderRow.appendChild(resultsRelease);
                     var resultsListen = document.createElement('th');
+                    resultsListen.classList.add('text-start');
                     resultsListen.textContent = 'Listen';
                     resultsTableHeaderRow.appendChild(resultsListen);
                     resultsTableHeader.appendChild(resultsTableHeaderRow); 
-                    resultsTable.appendChild(resultsTableHeader); 
+                    resultsTable.appendChild(resultsTableHeader);
 
                     for (let item of data) {
                     
                         var resultsTableRow = document.createElement('tr');
-                        var resultsSongName = document.createElement('td');
-                        resultsSongName.classList.add('text-start');
-                        resultsSongName.textContent = item.song_name;
-                        resultsTableRow.appendChild(resultsSongName);
+                        var resultsAlbumName = document.createElement('td');
+                        resultsAlbumName.textContent = item.album_name;
+                        resultsAlbumName.classList.add('text-start');
+                        resultsTableRow.appendChild(resultsAlbumName);
                         var resultsArtistName = document.createElement('td');
                         resultsArtistName.classList.add('text-start');
                         var resultsArtistLink = document.createElement('a');
@@ -105,80 +181,40 @@
                         resultsArtistLink.target = '_blank';
                         resultsArtistName.appendChild(resultsArtistLink);
                         resultsTableRow.appendChild(resultsArtistName);
-                        var resultsAlbumName = document.createElement('td');
-                        resultsAlbumName.classList.add('text-start');
-                        resultsAlbumName.textContent = item.album_name;
-                        resultsTableRow.appendChild(resultsAlbumName);
                         var resultsReleaseDate = document.createElement('td');
+                        resultsReleaseDate.textContent = item.album_release_date;
                         resultsReleaseDate.classList.add('text-start');
-                        resultsReleaseDate.textContent = item.release_date;
                         resultsTableRow.appendChild(resultsReleaseDate);
-                        var resultsSongLink = document.createElement('td');
-                        var resultsSongLinkAnchor = document.createElement('a');
-                        resultsSongLinkAnchor.href = item.song_link;
-                        resultsSongLinkAnchor.textContent = 'Link';
-                        resultsSongLinkAnchor.target = '_blank';
-                        resultsSongLink.appendChild(resultsSongLinkAnchor);
-                        resultsTableRow.appendChild(resultsSongLink);
-                        resultsTableBody.appendChild(resultsTableRow); 
-
+                        var resultsAlbumLink = document.createElement('td');
+                        var resultsAlbumLinkAnchor = document.createElement('a');
+                        resultsAlbumLink.classList.add('text-start');
+                        resultsAlbumLinkAnchor.href = item.album_link;
+                        resultsAlbumLinkAnchor.textContent = 'Link';
+                        resultsAlbumLinkAnchor.target = '_blank';
+                        resultsAlbumLink.appendChild(resultsAlbumLinkAnchor);
+                        resultsTableRow.appendChild(resultsAlbumLink);
+                        resultsTableBody.appendChild(resultsTableRow);
+                    }
                 }
-
-            } else if (query_type.value == 'album'){
-                
-                var resultsTableHeader= document.createElement('thead');
-                var resultsTableHeaderRow = document.createElement('tr');
-                var resultsAlbum = document.createElement('th');
-                var resultsTableBody = document.createElement('tbody');
-                resultsAlbum.classList.add('text-start');
-                resultsAlbum.textContent = 'Album';
-                resultsTableHeaderRow.appendChild(resultsAlbum);
-                var resultsArtist = document.createElement('th');
-                resultsArtist.classList.add('text-start');
-                resultsArtist.textContent = 'Artist';
-                resultsTableHeaderRow.appendChild(resultsArtist);
-                var resultsRelease = document.createElement('th');
-                resultsRelease.classList.add('text-start');
-                resultsRelease.textContent = 'Release Date';
-                resultsTableHeaderRow.appendChild(resultsRelease);
-                var resultsListen = document.createElement('th');
-                resultsListen.classList.add('text-start');
-                resultsListen.textContent = 'Listen';
-                resultsTableHeaderRow.appendChild(resultsListen);
-                resultsTableHeader.appendChild(resultsTableHeaderRow); 
-                resultsTable.appendChild(resultsTableHeader);
-
-                for (let item of data) {
-                
-                    var resultsTableRow = document.createElement('tr');
-                    var resultsAlbumName = document.createElement('td');
-                    resultsAlbumName.textContent = item.album_name;
-                    resultsAlbumName.classList.add('text-start');
-                    resultsTableRow.appendChild(resultsAlbumName);
-                    var resultsArtistName = document.createElement('td');
-                    resultsArtistName.classList.add('text-start');
-                    var resultsArtistLink = document.createElement('a');
-                    resultsArtistLink.href = item.artist_link;
-                    resultsArtistLink.textContent = item.artist_name;
-                    resultsArtistLink.target = '_blank';
-                    resultsArtistName.appendChild(resultsArtistLink);
-                    resultsTableRow.appendChild(resultsArtistName);
-                    var resultsReleaseDate = document.createElement('td');
-                    resultsReleaseDate.textContent = item.album_release_date;
-                    resultsReleaseDate.classList.add('text-start');
-                    resultsTableRow.appendChild(resultsReleaseDate);
-                    var resultsAlbumLink = document.createElement('td');
-                    var resultsAlbumLinkAnchor = document.createElement('a');
-                    resultsAlbumLink.classList.add('text-start');
-                    resultsAlbumLinkAnchor.href = item.album_link;
-                    resultsAlbumLinkAnchor.textContent = 'Link';
-                    resultsAlbumLinkAnchor.target = '_blank';
-                    resultsAlbumLink.appendChild(resultsAlbumLinkAnchor);
-                    resultsTableRow.appendChild(resultsAlbumLink);
-                    resultsTableBody.appendChild(resultsTableRow);
                 }
-            }
                 
+
+            if (typeof toastr !== 'undefined'){
+                    
+                if ('status' in data && 'message' in data) {
+                    if (data.status == 'success') {
+                        toastr.success("Success", data.message);
+                    } else if(data.status == 'error') {
+                        toastr.error("Error", data.message);
+                    } else if(data.status == 'warning') {
+                        toastr.warning("Warning", data.message);
+                    } else if (data.status == 'info') {
+                        toastr.info("Info", data.message);
+                    }
+                } else {
+                    console.log("Error: toastr not defined");
+                }
+            } 
                 resultsTable.appendChild(resultsTableBody);
                 search_content.appendChild(resultsTable);
                 new_search.style.display = 'block';
@@ -199,6 +235,30 @@
               .catch(error => {
                 // handle any errors here
                 console.log(error);
+                toastr.error("Error", "Internal error. Please try again with a different query.");
+                toastr.info("Info", "Adding the artist's name may help.");
+                new_search.style.display = 'block';
+                new_search.addEventListener('click', () => {
+
+                    new_search.style.display = 'none';
+                    search_form.reset();
+                    search_header.style.display = 'block';
+                    search_instruction.style.display = 'block';
+                    search_tip1.style.display = 'block';
+                    search_form.style.display = 'block';
+                    var searchResultsHeading = document.getElementsByClassName('search-heading');
+                    var searchHeadingSpacer = document.getElementsByClassName('search-heading-spacer');
+
+                    for (let heading of searchResultsHeading) {
+
+                        heading.style.display = 'none';
+                    }
+
+                    for(let spacer of searchHeadingSpacer) {
+
+                        spacer.style.display = 'none';
+                    }
+                })
               });
 
 
@@ -254,258 +314,341 @@ add_form.addEventListener('submit', function(event) {
             .then(data => {
                 // do something with the data
                 console.log(data);
-
-                var add_content = document.getElementById('add');
-
-                add_header.style.display = 'none';
-                add_instruction.style.display = 'none';
-                add_tip1.style.display = 'none';
-                add_form.style.display = 'none';
-
-                var resultsHeading = document.createElement('h2');
-                var heading_spacer = document.createElement('br');
-                resultsHeading.textContent = 'Add Songs/Albums';
-                resultsHeading.style.display = 'block';
-                add_content.appendChild(resultsHeading);
-                add_content.appendChild(heading_spacer);
-
-                var resultsTable = document.createElement('table');
-                resultsTable.classList.add('table');
-                resultsTable.classList.add('table-striped');
-
-                if (add_query_type.value == 'song'){
-
-                    var resultsTableHeader= document.createElement('thead');
-                    var resultsTableHeaderRow = document.createElement('tr');
-                    var resultsTableBody = document.createElement('tbody');
-                    var resultsSong = document.createElement('th');
-                    resultsSong.classList.add('text-start');
-                    resultsSong.textContent = 'Song';
-                    resultsTableHeaderRow.appendChild(resultsSong);
-                    var resultsArtist = document.createElement('th');
-                    resultsArtist.classList.add('text-start');
-                    resultsArtist.textContent = 'Artist';
-                    resultsTableHeaderRow.appendChild(resultsArtist);
-                    var resultsAlbum = document.createElement('th');
-                    resultsAlbum.classList.add('text-start');
-                    resultsAlbum.textContent = 'Album';
-                    resultsTableHeaderRow.appendChild(resultsAlbum);
-                    var resultsRelease = document.createElement('th');
-                    resultsRelease.classList.add('text-start');
-                    resultsRelease.textContent = 'Release Date';
-                    resultsTableHeaderRow.appendChild(resultsRelease);
-                    var resultsListen = document.createElement('th');
-                    resultsListen.textContent = 'Add';
-                    resultsTableHeaderRow.appendChild(resultsListen);
-                    resultsTableHeader.appendChild(resultsTableHeaderRow); 
-                    resultsTable.appendChild(resultsTableHeader);
-                    
-                    for (let item of data) {
                 
-                        var resultsTableRow = document.createElement('tr');
-                        var resultsSongName = document.createElement('td');
-                        resultsSongName.classList.add('text-start');
-                        resultsSongName.textContent = item.song_name;
-                        resultsTableRow.appendChild(resultsSongName);
-                        var resultsArtistName = document.createElement('td');
-                        resultsArtistName.classList.add('text-start');
-                        var resultsArtistLink = document.createElement('a');
-                        resultsArtistLink.href = item.artist_link;
-                        resultsArtistLink.textContent = item.artist_name;
-                        resultsArtistLink.target = '_blank';
-                        resultsArtistName.appendChild(resultsArtistLink);
-                        resultsTableRow.appendChild(resultsArtistName);
-                        var resultsAlbumName = document.createElement('td');
-                        resultsAlbumName.classList.add('text-start');
-                        resultsAlbumName.textContent = item.album_name;
-                        resultsTableRow.appendChild(resultsAlbumName);
-                        var resultsReleaseDate = document.createElement('td');
-                        resultsReleaseDate.classList.add('text-start');
-                        resultsReleaseDate.textContent = item.release_date;
-                        resultsTableRow.appendChild(resultsReleaseDate);
-                        var resultsAdd = document.createElement('td');
-                        var resultsAddButton = document.createElement('button');
-                        resultsAddButton.classList.add('btn');
-                        resultsAddButton.classList.add('btn-primary');
-                        resultsAddButton.textContent = 'Add';
-                        var url = '/add_music?track_id=' + item.track_id + '&query_type=' + add_query_type.value;
-                        resultsAddButton.addEventListener('click', function() {
-                            fetch(url, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    
-                                    track_id: item.track_id,
-                                    query_type: add_query_type.value
-                                })
-                            })
-                            .then(response => response.json()) // parse the response to JSON
-                            .then(data => {
-                                
-                                console.log(data);
-                                if ('status' in data && 'message' in data) {
-                                    
-                                    if (typeof toastr !== 'undefined'){
+                var add_content = document.getElementById('add');
+                if (data === null || data.length === 0) {
 
-                                        if(data.status == 'success'){
+                    event.preventDefault();
+                    toastr.error("Error", "No results found. Please try again.");
+
+                    } else {
+                        
+                        add_header.style.display = 'none';
+                        add_instruction.style.display = 'none';
+                        add_tip1.style.display = 'none';
+                        add_form.style.display = 'none';
+
+                        var resultsHeading = document.createElement('h2');
+                        var heading_spacer = document.createElement('br');
+                        resultsHeading.textContent = 'Add Songs/Albums';
+                        resultsHeading.style.display = 'block';
+                        resultsHeading.classList.add('add-heading');
+                        heading_spacer.classList.add('add-heading-spacer');
+                        add_content.appendChild(resultsHeading);
+                        add_content.appendChild(heading_spacer);
+
+                        var resultsTable = document.createElement('table');
+                        resultsTable.classList.add('table');
+                        resultsTable.classList.add('table-striped');
+
+                        if (add_query_type.value == 'song'){
+
+                            var resultsTableHeader= document.createElement('thead');
+                            var resultsTableHeaderRow = document.createElement('tr');
+                            var resultsTableBody = document.createElement('tbody');
+                            var resultsSong = document.createElement('th');
+                            resultsSong.classList.add('text-start');
+                            resultsSong.textContent = 'Song';
+                            resultsTableHeaderRow.appendChild(resultsSong);
+                            var resultsArtist = document.createElement('th');
+                            resultsArtist.classList.add('text-start');
+                            resultsArtist.textContent = 'Artist';
+                            resultsTableHeaderRow.appendChild(resultsArtist);
+                            var resultsAlbum = document.createElement('th');
+                            resultsAlbum.classList.add('text-start');
+                            resultsAlbum.textContent = 'Album';
+                            resultsTableHeaderRow.appendChild(resultsAlbum);
+                            var resultsRelease = document.createElement('th');
+                            resultsRelease.classList.add('text-start');
+                            resultsRelease.textContent = 'Release Date';
+                            resultsTableHeaderRow.appendChild(resultsRelease);
+                            var resultsListen = document.createElement('th');
+                            resultsListen.textContent = 'Add';
+                            resultsTableHeaderRow.appendChild(resultsListen);
+                            resultsTableHeader.appendChild(resultsTableHeaderRow); 
+                            resultsTable.appendChild(resultsTableHeader);
+                            
+                            for (let item of data) {
+                        
+                                var resultsTableRow = document.createElement('tr');
+                                var resultsSongName = document.createElement('td');
+                                resultsSongName.classList.add('text-start');
+                                resultsSongName.textContent = item.song_name;
+                                resultsTableRow.appendChild(resultsSongName);
+                                var resultsArtistName = document.createElement('td');
+                                resultsArtistName.classList.add('text-start');
+                                var resultsArtistLink = document.createElement('a');
+                                resultsArtistLink.href = item.artist_link;
+                                resultsArtistLink.textContent = item.artist_name;
+                                resultsArtistLink.target = '_blank';
+                                resultsArtistName.appendChild(resultsArtistLink);
+                                resultsTableRow.appendChild(resultsArtistName);
+                                var resultsAlbumName = document.createElement('td');
+                                resultsAlbumName.classList.add('text-start');
+                                resultsAlbumName.textContent = item.album_name;
+                                resultsTableRow.appendChild(resultsAlbumName);
+                                var resultsReleaseDate = document.createElement('td');
+                                resultsReleaseDate.classList.add('text-start');
+                                resultsReleaseDate.textContent = item.release_date;
+                                resultsTableRow.appendChild(resultsReleaseDate);
+                                var resultsAdd = document.createElement('td');
+                                var resultsAddButton = document.createElement('button');
+                                resultsAddButton.classList.add('btn');
+                                resultsAddButton.classList.add('btn-primary');
+                                resultsAddButton.textContent = 'Add';
+                                var url = '/add_music?track_id=' + item.track_id + '&query_type=' + add_query_type.value;
+                                resultsAddButton.addEventListener('click', function() {
+                                    fetch(url, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            
+                                            track_id: item.track_id,
+                                            query_type: add_query_type.value
+                                        })
+                                    })
+                                    .then(response => response.json()) // parse the response to JSON
+                                    .then(data => {
                                         
-                                            toastr.success("Success", data.message);
-    
-                                        } else if(data.status == 'error'){
-    
-                                            toastr.error("Error", data.message);
-                                        } else if(data.status == 'warning'){
-    
-                                            toastr.warning("Warning", data.message);
-                                        } else if (data.status == 'info'){
-    
-                                            toastr.info("Info", data.message);
+                                        console.log(data);
+                                        if ('status' in data && 'message' in data) {
+                                            
+                                            if (typeof toastr !== 'undefined'){
+
+                                                if(data.status == 'success'){
+                                                
+                                                    toastr.success("Success", data.message);
+            
+                                                } else if(data.status == 'error'){
+            
+                                                    toastr.error("Error", data.message);
+                                                } else if(data.status == 'warning'){
+            
+                                                    toastr.warning("Warning", data.message);
+                                                } else if (data.status == 'info'){
+            
+                                                    toastr.info("Info", data.message);
+                                                }
+                                            } else {
+                                                console.log("Error: toastr not defined");
+                                            }
                                         }
+                                    })
+                                    .catch(error => {
+                                        // handle any errors here
+                                        console.log(error);
+                                        toastr.error("Error", "Something went wrong. Please try again with a different query.");
+                                        new_add.style.display = 'block';
+                                        new_add.addEventListener('click', () => {
+                                        
+                                            new_add.style.display = 'none';
+                                            add_form.style.display = 'block';
+                                            add_form.reset();
+                                            add_header.style.display = 'block';
+                                            add_instruction.style.display = 'block';
+                                            add_tip1.style.display = 'block';
+                                            add_form.style.display = 'block';
+                                        
+                                        
+                                        });
+
+                                    });
+                                })
+                                resultsAdd.appendChild(resultsAddButton);
+                                resultsTableRow.appendChild(resultsAdd);
+
+                                resultsTableBody.appendChild(resultsTableRow);
+
+                            }
+
+                    } else if (add_query_type.value == 'album'){
+
+                        var resultsTableHeader= document.createElement('thead');
+                        var resultsTableHeaderRow = document.createElement('tr');
+                        var resultsAlbum = document.createElement('th');
+                        var resultsTableBody = document.createElement('tbody');
+                        resultsAlbum.classList.add('text-start');
+                        resultsAlbum.textContent = 'Album';
+                        resultsTableHeaderRow.appendChild(resultsAlbum);
+                        var resultsArtist = document.createElement('th');
+                        resultsArtist.classList.add('text-start');
+                        resultsArtist.textContent = 'Artist';
+                        resultsTableHeaderRow.appendChild(resultsArtist);
+                        var resultsRelease = document.createElement('th');
+                        resultsRelease.classList.add('text-start');
+                        resultsRelease.textContent = 'Release Date';
+                        resultsTableHeaderRow.appendChild(resultsRelease);
+                        var resultsListen = document.createElement('th');
+                        resultsListen.classList.add('text-start');
+                        resultsListen.textContent = 'Add';
+                        resultsTableHeaderRow.appendChild(resultsListen);
+                        resultsTableHeader.appendChild(resultsTableHeaderRow); 
+                        resultsTable.appendChild(resultsTableHeader);
+
+
+                        for (let item of data) {
+                            var resultsTableRow = document.createElement('tr');
+                            var resultsAlbumName = document.createElement('td');
+                            resultsAlbumName.textContent = item.album_name;
+                            resultsAlbumName.classList.add('text-start');
+                            resultsTableRow.appendChild(resultsAlbumName);
+                            var resultsArtistName = document.createElement('td');
+                            resultsArtistName.classList.add('text-start');
+                            var resultsArtistLink = document.createElement('a');
+                            resultsArtistLink.href = item.artist_link;
+                            resultsArtistLink.textContent = item.artist_name;
+                            resultsArtistLink.target = '_blank';
+                            resultsArtistName.appendChild(resultsArtistLink);
+                            resultsTableRow.appendChild(resultsArtistName);
+                            var resultsReleaseDate = document.createElement('td');
+                            resultsReleaseDate.textContent = item.album_release_date;
+                            resultsReleaseDate.classList.add('text-start');
+                            resultsTableRow.appendChild(resultsReleaseDate);
+                            var resultsAlbumAdd = document.createElement('td');
+                            var resultsAlbumAddButton = document.createElement('button');
+                            resultsAlbumAddButton.classList.add('btn');
+                            resultsAlbumAddButton.classList.add('btn-primary');
+                            resultsAlbumAddButton.textContent = 'Add';
+                            var url = '/add_music?album_id=' + item.album_id + '&query_type=' + add_query_type.value;
+                            resultsAlbumAddButton.addEventListener('click', function() {
+                                fetch(url, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        
+                                        album_id: item.album_id,
+                                        query_type: add_query_type.value
+                                    })
+                                })
+                                .then(response => response.json()) // parse the response to JSON
+                                .then(data => {
+                                    console.log(data);
+                                    if ('status' in data && 'message' in data) {
+
+                                        if (typeof toastr !== 'undefined'){
+
+                                            if(data.status == 'success'){
+                                            
+                                                toastr.success("Success", data.message);
+        
+                                            } else if(data.status == 'error'){
+        
+                                                toastr.error("Error", data.message);
+                                            } else if(data.status == 'warning'){
+        
+                                                toastr.warning("Warning", data.message);
+                                            } else if (data.status == 'info'){
+        
+                                                toastr.info("Info", data.message);
+                                            }
+
                                     } else {
                                         console.log("Error: toastr not defined");
-                                    }
+                                    }                                
                                 }
                             })
-                            .catch(error => {
-                                // handle any errors here
-                                console.log(error);
-                                toastr.error("Error", error);
-                            });
-                        })
-                        resultsAdd.appendChild(resultsAddButton);
-                        resultsTableRow.appendChild(resultsAdd);
-
-                        resultsTableBody.appendChild(resultsTableRow);
-
-                    }
-
-                } else if (add_query_type.value == 'album'){
-
-                    var resultsTableHeader= document.createElement('thead');
-                    var resultsTableHeaderRow = document.createElement('tr');
-                    var resultsAlbum = document.createElement('th');
-                    var resultsTableBody = document.createElement('tbody');
-                    resultsAlbum.classList.add('text-start');
-                    resultsAlbum.textContent = 'Album';
-                    resultsTableHeaderRow.appendChild(resultsAlbum);
-                    var resultsArtist = document.createElement('th');
-                    resultsArtist.classList.add('text-start');
-                    resultsArtist.textContent = 'Artist';
-                    resultsTableHeaderRow.appendChild(resultsArtist);
-                    var resultsRelease = document.createElement('th');
-                    resultsRelease.classList.add('text-start');
-                    resultsRelease.textContent = 'Release Date';
-                    resultsTableHeaderRow.appendChild(resultsRelease);
-                    var resultsListen = document.createElement('th');
-                    resultsListen.classList.add('text-start');
-                    resultsListen.textContent = 'Add';
-                    resultsTableHeaderRow.appendChild(resultsListen);
-                    resultsTableHeader.appendChild(resultsTableHeaderRow); 
-                    resultsTable.appendChild(resultsTableHeader);
-
-
-                    for (let item of data) {
-                        var resultsTableRow = document.createElement('tr');
-                        var resultsAlbumName = document.createElement('td');
-                        resultsAlbumName.textContent = item.album_name;
-                        resultsAlbumName.classList.add('text-start');
-                        resultsTableRow.appendChild(resultsAlbumName);
-                        var resultsArtistName = document.createElement('td');
-                        resultsArtistName.classList.add('text-start');
-                        var resultsArtistLink = document.createElement('a');
-                        resultsArtistLink.href = item.artist_link;
-                        resultsArtistLink.textContent = item.artist_name;
-                        resultsArtistLink.target = '_blank';
-                        resultsArtistName.appendChild(resultsArtistLink);
-                        resultsTableRow.appendChild(resultsArtistName);
-                        var resultsReleaseDate = document.createElement('td');
-                        resultsReleaseDate.textContent = item.album_release_date;
-                        resultsReleaseDate.classList.add('text-start');
-                        resultsTableRow.appendChild(resultsReleaseDate);
-                        var resultsAlbumAdd = document.createElement('td');
-                        var resultsAlbumAddButton = document.createElement('button');
-                        resultsAlbumAddButton.classList.add('btn');
-                        resultsAlbumAddButton.classList.add('btn-primary');
-                        resultsAlbumAddButton.textContent = 'Add';
-                        var url = '/add_music?album_id=' + item.album_id + '&query_type=' + add_query_type.value;
-                        resultsAlbumAddButton.addEventListener('click', function() {
-                            fetch(url, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    
-                                    album_id: item.album_id,
-                                    query_type: add_query_type.value
-                                })
-                            })
-                            .then(response => response.json()) // parse the response to JSON
-                            .then(data => {
-                                console.log(data);
-                                if ('status' in data && 'message' in data) {
-
-                                    if (typeof toastr !== 'undefined'){
-
-                                        if(data.status == 'success'){
+                                .catch(error => {
+                                    // handle any errors here
+                                    console.log(error);
+                                    toastr.error("Error", "Something went wrong. Please try again with a different query.");
+                                        new_add.style.display = 'block';
+                                        new_add.addEventListener('click', () => {
                                         
-                                            toastr.success("Success", data.message);
-    
-                                        } else if(data.status == 'error'){
-    
-                                            toastr.error("Error", data.message);
-                                        } else if(data.status == 'warning'){
-    
-                                            toastr.warning("Warning", data.message);
-                                        } else if (data.status == 'info'){
-    
-                                            toastr.info("Info", data.message);
-                                        }
+                                            new_add.style.display = 'none';
+                                            add_form.style.display = 'block';
+                                            add_form.reset();
+                                            add_header.style.display = 'block';
+                                            add_instruction.style.display = 'block';
+                                            add_tip1.style.display = 'block';
+                                            add_form.style.display = 'block';
+                                        
+                                        });
 
-                                } else {
-                                    console.log("Error: toastr not defined");
-                                }                                
-                            }
-                        })
-                            .catch(error => {
-                                // handle any errors here
-                                console.log(error);
-                            });
-                        })
-                        resultsAlbumAdd.appendChild(resultsAlbumAddButton);
-                        resultsTableRow.appendChild(resultsAlbumAdd);
+                                });
+                            })
+                            resultsAlbumAdd.appendChild(resultsAlbumAddButton);
+                            resultsTableRow.appendChild(resultsAlbumAdd);
 
-                        resultsTableBody.appendChild(resultsTableRow);
+                            resultsTableBody.appendChild(resultsTableRow);
+                        }
                     }
-                }
+                        }
+                    
 
-                    resultsTable.appendChild(resultsTableBody);
-                    add_content.appendChild(resultsTable);
+                    if (typeof toastr !== 'undefined'){
+                        
+                        if ('status' in data && 'message' in data) {
+                            if (data.status == 'success') {
+                                toastr.success("Success", data.message);
+                            } else if(data.status == 'error') {
+                                toastr.error("Error", data.message);
+                            } else if(data.status == 'warning') {
+                                toastr.warning("Warning", data.message);
+                            } else if (data.status == 'info') {
+                                toastr.info("Info", data.message);
+                            }
+                        } else {
+                            console.log("Error: toastr not defined");
+                        }
+                    } 
+
+                        resultsTable.appendChild(resultsTableBody);
+                        add_content.appendChild(resultsTable);
+                        new_add.style.display = 'block';
+                        new_add.addEventListener('click', () => {
+
+                            new_add.style.display = 'none';
+                            resultsHeading.style.display = 'none';
+                            resultsTable.style.display = 'none';
+                            add_form.reset();
+                            add_header.style.display = 'block';
+                            add_instruction.style.display = 'block';
+                            add_tip1.style.display = 'block';
+                            add_form.style.display = 'block';
+
+
+                    })             
+
+                })
+                .catch(error => {
+                    // handle any errors here
+                    console.log(error);
+                    toastr.error("Error", "Something went wrong. Please try again with a different query.");
+                    toastr.info("Info", "Adding the artist's name may help.");
+
                     new_add.style.display = 'block';
                     new_add.addEventListener('click', () => {
-
+                    
                         new_add.style.display = 'none';
-                        resultsHeading.style.display = 'none';
-                        resultsTable.style.display = 'none';
+                        add_form.style.display = 'block';
                         add_form.reset();
                         add_header.style.display = 'block';
                         add_instruction.style.display = 'block';
                         add_tip1.style.display = 'block';
                         add_form.style.display = 'block';
+                        var addresultsHeading = document.getElementsByClassName('add-heading');
+                        var addresultsSpacer = document.getElementsByClassName('add-heading-spacer');
 
+                        for ( let heading of addresultsHeading) {
 
-                })             
+                            heading.style.display = 'none';
+                        }
 
-            })
-            .catch(error => {
-                // handle any errors here
-                console.log(error);
-            });
-        
+                        for ( let spacer of addresultsSpacer) {
 
-    }
+                            spacer.style.display = 'none';
+                        }
+                
+                
+                });
+                });
+            
+
+        }
 
 });
 

@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var album_header = document.getElementById('album_collection_header');
     var modal_buttons = document.getElementsByClassName('modal-button');
     var info_modal = document.getElementById('info_modal');
+    var delete_button = document.getElementById('delete_button');
     var currentId;
     var currentType;
     var currentNoteID;
@@ -325,13 +326,14 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.log(error));
         }
 
-
-
-
-
-
     });
 
 
 });
 
+delete_button.addEventListener('click', (event) => {
+
+    event.preventDefault();
+
+
+});

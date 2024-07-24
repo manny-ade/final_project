@@ -195,38 +195,45 @@ def search():
     """Search for a song or album"""
     if request.method == "POST":
 
-        if not request.args.get("query"):
-            return apology("must provide query", 400)
+        try:
 
-        elif not request.args.get("query_type"):
-            return apology("must provide search type", 400)
-
-        else:
-            query = request.args.get("query")
-            query_type = request.args.get("query_type")
-
-            if query == '' or query == None:
-
+            if not request.args.get("query"):
                 return apology("must provide query", 400)
-            
-            elif query_type == '' or query_type == None:
 
+            elif not request.args.get("query_type"):
                 return apology("must provide search type", 400)
-            
-            elif query_type != "song" and query_type != "album":
-
-                return apology("must provide valid search type", 400)
 
             else:
+                query = request.args.get("query")
+                query_type = request.args.get("query_type")
 
-                print("About to call lookup")
-                query_return = lookup(query, query_type)
+                if query == '' or query == None:
 
-                if query_return != None:
-                    return jsonify(query_return)
+                    return apology("must provide query", 400)
+                
+                elif query_type == '' or query_type == None:
+
+                    return apology("must provide search type", 400)
+                
+                elif query_type != "song" and query_type != "album":
+
+                    return apology("must provide valid search type", 400)
+
                 else:
-                    print(query_return)
-                    return apology("no results found", 400)
+
+                    print("About to call lookup")
+                    query_return = lookup(query, query_type)
+
+                    if query_return != None:
+                        return jsonify(query_return)
+                    else:
+                        if query_return == None:
+                            print(query_return)
+                            return jsonify({"status": "error", "message": "Internal search issue, try a different query."}), 400
+
+        except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError):
+
+            return jsonify({"status": "error", "message": "Internal search issue, please try again."}), 400
 
     if request.method == "GET":
         return render_template("search.html")
@@ -237,12 +244,14 @@ def add():
     """Add a new song or album"""
     if request.method == "POST":
         
-       if not request.args.get("query"):
+       try:
+           if not request.args.get("query"):
             return apology("must provide query", 400)
-       elif not request.args.get("query_type"):
+           
+           elif not request.args.get("query_type"):
             return apology("must provide search type", 400)           
 
-       else:
+           else:
             query = request.args.get("query")
             query_type = request.args.get("query_type")
 
@@ -261,12 +270,17 @@ def add():
             else:
 
                 query_return = lookup(query, query_type)
+                print("Return from lookup: ", query_return)
 
                 if query_return != None:
                     return jsonify(query_return)
                 
                 else:
-                    return apology("no results found", 400)
+                    return jsonify({"status": "error", "message": "No results found, try a different query."})
+                
+       except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError) as error:
+
+            return jsonify({"status": "error", "message": "Internal search issue. Try a different query."}), 400
         
     else:
         if request.method == "GET":
@@ -278,199 +292,215 @@ def add_music():
     """Secondary route to help with adding songs and albums"""
     if request.method == "POST":
         
-        data = request.get_json()
+        try:
         
-        query_type = data["query_type"]
-
-        curation_type = "add"
-
-        if query_type != "song" and query_type != "album":
-
-            return jsonify({"status": "error", "message": "Music type could not be identified. Please try again."})
-        
-        elif query_type == '' or query_type == None:
-
-            return jsonify({"status": "error", "message": "Music type could not be identified. Please try again."})
-        
-        elif query_type == "song":
-
-            track_id = data["track_id"]
-
-            if track_id == "" or track_id == None:
-
-                return jsonify({"status": "error", "message": "Track could not be identified. Please try again."})
+            data = request.get_json()
             
-            else:
+            query_type = data["query_type"]
 
-                track_info = return_track(track_id)
-                add_timestamp = get_current_time()  
+            curation_type = "add"
 
-                if track_info == None:
-                    return jsonify({"status": "error", "message": "Could not add song. Please try again."})
+            if query_type != "song" and query_type != "album":
 
-                else:
-                    artists_artistnames = [row["artist_name"] for row in db.execute("SELECT artist_name FROM artists")]
-                    if track_info["artist"] in artists_artistnames:
-
-                        artist_id = db.execute("SELECT artist_id FROM artists WHERE artist_name = ?", track_info["artist"])[0]["artist_id"]
-                    
-                    else:
-
-                        db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
-                                    track_info["artist"], track_info["genre"], track_info["artist_link"], track_info["artist_image"])
-                        artist_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
-                    
-                    albums_albumnames = [row["album_name"] for row in db.execute("SELECT album_name FROM albums")]
-                    if track_info["album_name"] in albums_albumnames:
-                        
-                        album_id = db.execute("SELECT album_id FROM albums WHERE album_name = ?", track_info["album_name"])[0]["album_id"]
-                    
-                    else:
-
-                        db.execute("INSERT INTO albums(album_name, artist_id, genre, release_date, album_link, album_artwork, add_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                                   track_info["album_name"], artist_id, track_info["genre"], track_info["release_date"], track_info["album_link"],
-                                   track_info["track_artwork"], add_timestamp)
-                        album_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
-
-                    songs_songnames = [row["song_name"]for row in db.execute("SELECT song_name FROM songs")]
-                    if track_info["song_name"] in songs_songnames:
-
-                        song_id = db.execute("SELECT song_id FROM songs WHERE song_name = ?", track_info["song_name"])[0]["song_id"]
-
-                    else:
-
-                        db.execute("INSERT INTO songs(song_name, album_id, artist_id, genre, release_date, song_link, length, explicit_status, song_artwork, add_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                   track_info["song_name"], album_id, artist_id, track_info["genre"], track_info["release_date"], track_info["song_link"],
-                                   track_info["length"], track_info["explicit_status"], track_info["song_artwork"], add_timestamp)
-                        song_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
-                    
-                    user_id = session["user_id"]
-
-                    if user_id is not None and isinstance(user_id, int):
-
-                        if album_id is not None and isinstance(album_id, int):
-                    
-                            albums_users_ids = db.execute("SELECT album_id, user_id FROM albums_users WHERE user_id = ? AND album_id = ?",
-                                                        user_id, album_id)
-                            if albums_users_ids:
-                                return jsonify({"status": "info","message": "album already added"})
-                            else:
-                                db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
-
-
-                            if song_id is not None and isinstance(song_id, int):
-
-                                songs_users_ids = db.execute("SELECT song_id, user_id FROM songs_users WHERE user_id = ? AND song_id = ?",
-                                                            user_id, song_id)
-                                if songs_users_ids:
-                                    return jsonify({"status": "info", "message": "song already added"})
-                                else:
-                                    note_query = ("INSERT INTO notes (user_id, song_id, note_created, most_recent_update)" 
-                                                  "VALUES (?, ?, ?, ?)")
-                                    db.execute(note_query, user_id, song_id, add_timestamp, add_timestamp)
-                                    note_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
-
-                                    songs_users_query = ("INSERT INTO songs_users (user_id, song_id, note_id, listened) VALUES (?, ?, ?, ?) ")
-                                    db.execute(songs_users_query, user_id, song_id, note_id, 0)
-
-                                song_album_ids = db.execute("SELECT song_id, album_id FROM song_album WHERE song_id = ? AND album_id = ?", 
-                                                            song_id, album_id)
-
-                                if song_album_ids:
-                                    pass
-                                else:
-                                    db.execute("INSERT INTO song_album (song_id, album_id) VALUES (?, ?)", song_id, album_id)
-
-                            if artist_id is not None and isinstance(artist_id, int):
-
-                                artists_albums_ids = db.execute("SELECT artist_id, album_id FROM artists_albums WHERE artist_id = ? AND album_id = ?",
-                                                            artist_id, album_id)
-                                if artists_albums_ids:
-                                    pass
-                                else:
-                                    db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
-                                
-                                    db.execute("INSERT INTO history (user_id, song_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                                               user_id, song_id, album_id, artist_id, curation_type, query_type, add_timestamp)
-
-                    else:
-                        return jsonify({"status": "error","message": "user not logged in"})
-    
-            return jsonify({"status": "success", "message": "Song added to library!"})            
-        
-        elif query_type == "album":
-
-            album_id = data["album_id"]
-
-            if album_id == "" or album_id == None:
-
-                return jsonify({"status": "error", "message": "Album could not be found. Please try again."})
+                return jsonify({"status": "error", "message": "Music type could not be identified. Please try again."})
             
-            else:
+            elif query_type == '' or query_type == None:
 
-                album_info = return_album(album_id)
-                add_timestamp = get_current_time()
+                return jsonify({"status": "error", "message": "Music type could not be identified. Please try again."})
+            
+            elif query_type == "song":
+
+                track_id = data["track_id"]
+
+                if track_id == "" or track_id == None:
+
+                    return jsonify({"status": "error", "message": "Track could not be identified. Please try again."})
                 
-                if album_info is None:
+                else:
+
+                    track_info = return_track(track_id)
+                    add_timestamp = get_current_time()  
+
+                    if track_info == None:
+                        return jsonify({"status": "error", "message": "Could not add song. Please try again."})
+
+                    else:
+                        artists_artistnames = [row["artist_name"] for row in db.execute("SELECT artist_name FROM artists")]
+                        if track_info["artist"] in artists_artistnames:
+
+                            artist_id = db.execute("SELECT artist_id FROM artists WHERE artist_name = ?", track_info["artist"])[0]["artist_id"]
+                        
+                        else:
+
+                            db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
+                                        track_info["artist"], track_info["genre"], track_info["artist_link"], track_info["artist_image"])
+                            artist_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+                        
+                        albums_albumnames = [row["album_name"] for row in db.execute("SELECT album_name FROM albums")]
+                        if track_info["album_name"] in albums_albumnames:
+                            
+                            album_id = db.execute("SELECT album_id FROM albums WHERE album_name = ?", track_info["album_name"])[0]["album_id"]
+                        
+                        else:
+
+                            db.execute("INSERT INTO albums(album_name, artist_id, genre, release_date, album_link, album_artwork, add_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                    track_info["album_name"], artist_id, track_info["genre"], track_info["release_date"], track_info["album_link"],
+                                    track_info["track_artwork"], add_timestamp)
+                            album_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+                        songs_songnames = [row["song_name"]for row in db.execute("SELECT song_name FROM songs")]
+                        if track_info["song_name"] in songs_songnames:
+
+                            song_id = db.execute("SELECT song_id FROM songs WHERE song_name = ?", track_info["song_name"])[0]["song_id"]
+
+                        else:
+
+                            db.execute("INSERT INTO songs(song_name, album_id, artist_id, genre, release_date, song_link, length, explicit_status, song_artwork, add_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                    track_info["song_name"], album_id, artist_id, track_info["genre"], track_info["release_date"], track_info["song_link"],
+                                    track_info["length"], track_info["explicit_status"], track_info["song_artwork"], add_timestamp)
+                            song_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+                        
+                        user_id = session["user_id"]
+
+                        if user_id is not None and isinstance(user_id, int):
+
+                            if album_id is not None and isinstance(album_id, int):
+                        
+                                albums_users_ids = db.execute("SELECT album_id, user_id FROM albums_users WHERE user_id = ? AND album_id = ?",
+                                                            user_id, album_id)
+                                if albums_users_ids:
+                                    pass
+                                else:
+                                    
+                                    album_note_query = ("INSERT INTO notes (user_id, album_id, note_created, most_recent_update)"
+                                                    "VALUES (?, ?, ?, ?)")
+                                    db.execute(album_note_query, user_id, album_id, add_timestamp, add_timestamp)
+                                    album_note_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+                                    
+                                    db.execute("INSERT INTO albums_users (user_id, album_id, listened, note_id) VALUES (?, ?, ?, ?)", user_id, album_id, 0, album_note_id)
+
+                                if song_id is not None and isinstance(song_id, int):
+
+                                    songs_users_ids = db.execute("SELECT song_id, user_id FROM songs_users WHERE user_id = ? AND song_id = ?",
+                                                                user_id, song_id)
+                                    if songs_users_ids:
+                                        return jsonify({"status": "info", "message": "song already added"})
+                                    else:
+                                        note_query = ("INSERT INTO notes (user_id, song_id, note_created, most_recent_update)" 
+                                                    "VALUES (?, ?, ?, ?)")
+                                        db.execute(note_query, user_id, song_id, add_timestamp, add_timestamp)
+                                        note_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+                                        songs_users_query = ("INSERT INTO songs_users (user_id, song_id, note_id, listened) VALUES (?, ?, ?, ?) ")
+                                        db.execute(songs_users_query, user_id, song_id, note_id, 0)
+
+                                    song_album_ids = db.execute("SELECT song_id, album_id FROM song_album WHERE song_id = ? AND album_id = ?", 
+                                                                song_id, album_id)
+
+                                    if song_album_ids:
+                                        pass
+                                    else:
+                                        db.execute("INSERT INTO song_album (song_id, album_id) VALUES (?, ?)", song_id, album_id)
+
+                                if artist_id is not None and isinstance(artist_id, int):
+
+                                    artists_albums_ids = db.execute("SELECT artist_id, album_id FROM artists_albums WHERE artist_id = ? AND album_id = ?",
+                                                                artist_id, album_id)
+                                    if artists_albums_ids:
+                                        pass
+                                    else:
+                                        db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
+                                    
+                                        db.execute("INSERT INTO history (user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                                user_id, album_id, artist_id, curation_type, 'album', add_timestamp)
+
+                                        db.execute("INSERT INTO history (user_id, song_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                                                user_id, song_id, album_id, artist_id, curation_type, query_type, add_timestamp)
+                                        
+                        else:
+                            return jsonify({"status": "error","message": "user not logged in"})
+        
+                return jsonify({"status": "success", "message": "Song added to library!"})            
+            
+            elif query_type == "album":
+
+                album_id = data["album_id"]
+
+                if album_id == "" or album_id == None:
+
                     return jsonify({"status": "error", "message": "Album could not be found. Please try again."})
                 
                 else:
-                    artists_artistnames = [row["artist_name"] for row in db.execute("SELECT artist_name FROM artists")]
-                    if album_info["artist"] in artists_artistnames:
 
-                        artist_id = db.execute("SELECT artist_id FROM artists WHERE artist_name = ?", album_info["artist"])[0]["artist_id"]
-
-                    else:
-                        db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
-                                    album_info["artist"], album_info["genre"], album_info["artist_link"], album_info["artist_image"])
-                        artist_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
-
-                    albums_albumnames = [row["album_name"] for row in db.execute("SELECT album_name FROM albums")]
-                    if album_info["album_name"] in albums_albumnames:
-
-                        album_id = db.execute("SELECT album_id FROM albums WHERE album_name = ?", album_info["album_name"])[0]["album_id"]
+                    album_info = return_album(album_id)
+                    add_timestamp = get_current_time()
+                    
+                    if album_info is None:
+                        return jsonify({"status": "error", "message": "Album could not be found. Please try again."})
                     
                     else:
+                        artists_artistnames = [row["artist_name"] for row in db.execute("SELECT artist_name FROM artists")]
+                        if album_info["artist"] in artists_artistnames:
+
+                            artist_id = db.execute("SELECT artist_id FROM artists WHERE artist_name = ?", album_info["artist"])[0]["artist_id"]
+
+                        else:
+                            db.execute("INSERT INTO artists (artist_name, genre, artist_link, artist_image) VALUES (?, ?, ?, ?)",
+                                        album_info["artist"], album_info["genre"], album_info["artist_link"], album_info["artist_image"])
+                            artist_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
+
+                        albums_albumnames = [row["album_name"] for row in db.execute("SELECT album_name FROM albums")]
+                        if album_info["album_name"] in albums_albumnames:
+
+                            album_id = db.execute("SELECT album_id FROM albums WHERE album_name = ?", album_info["album_name"])[0]["album_id"]
                         
-                        db.execute("INSERT INTO albums(album_name, artist_id, genre, release_date, album_link, album_artwork, add_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                                   album_info["album_name"], artist_id, album_info["genre"], album_info["release_date"], album_info["album_link"],
-                                   album_info["album_artwork"], add_timestamp)
-                        album_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]            
+                        else:
+                            
+                            db.execute("INSERT INTO albums(album_name, artist_id, genre, release_date, album_link, album_artwork, add_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                    album_info["album_name"], artist_id, album_info["genre"], album_info["release_date"], album_info["album_link"],
+                                    album_info["album_artwork"], add_timestamp)
+                            album_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]            
 
-                    user_id = session["user_id"]
+                        user_id = session["user_id"]
 
-                    if user_id is not None and isinstance(user_id, int):
+                        if user_id is not None and isinstance(user_id, int):
 
-                        if album_id is not None and isinstance(album_id, int):
+                            if album_id is not None and isinstance(album_id, int):
 
-                            albums_users_ids = db.execute("SELECT album_id, user_id FROM albums_users WHERE user_id = ? AND album_id = ?",
-                                                        user_id, album_id)
-                            if albums_users_ids:
-                                return jsonify({"status": "info","message": "album already added"})
-                            else:
-                                note_query = ("INSERT INTO notes (user_id, album_id, note_created, most_recent_update)" 
-                                                  "VALUES (?, ?, ?, ?)")
-                                db.execute(note_query, user_id, album_id, add_timestamp, add_timestamp)
-                                db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
-
-                                albums_users_query = ("INSERT INTO albums_users (user_id, song_id, note_id, listened) VALUES (?, ?, ?, ?) ")
-                                db.execute(albums_users_query, user_id, album_id, note_id, 0)
-
-                            if artist_id is not None and isinstance(artist_id, int):
-
-                                artists_albums_ids = db.execute("SELECT artist_id, album_id FROM artists_albums WHERE artist_id = ? AND album_id = ?",
-                                                            artist_id, album_id)
-                                if artists_albums_ids:
-                                    pass
+                                albums_users_ids = db.execute("SELECT album_id, user_id FROM albums_users WHERE user_id = ? AND album_id = ?",
+                                                            user_id, album_id)
+                                if albums_users_ids:
+                                    return jsonify({"status": "info","message": "album already added"})
                                 else:
-                                    db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
+                                    note_query = ("INSERT INTO notes (user_id, album_id, note_created, most_recent_update)" 
+                                                    "VALUES (?, ?, ?, ?)")
+                                    db.execute(note_query, user_id, album_id, add_timestamp, add_timestamp)
+                                    db.execute("INSERT INTO albums_users (user_id, album_id) VALUES (?, ?)", user_id, album_id)
 
-                                    db.execute("INSERT INTO history(user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
-                                               user_id, album_id, artist_id, curation_type, query_type, add_timestamp)
-                    else:
-                        return jsonify({"status": "error","message": "user not logged in"})
+                                    albums_users_query = ("INSERT INTO albums_users (user_id, song_id, note_id, listened) VALUES (?, ?, ?, ?) ")
+                                    db.execute(albums_users_query, user_id, album_id, note_id, 0)
 
-            return jsonify({"status": "success", "message": "Album added to library!"})
+                                if artist_id is not None and isinstance(artist_id, int):
+
+                                    artists_albums_ids = db.execute("SELECT artist_id, album_id FROM artists_albums WHERE artist_id = ? AND album_id = ?",
+                                                                artist_id, album_id)
+                                    if artists_albums_ids:
+                                        pass
+                                    else:
+                                        db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
+
+                                        db.execute("INSERT INTO history(user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                                user_id, album_id, artist_id, curation_type, query_type, add_timestamp)
+                        else:
+                            return jsonify({"status": "error","message": "user not logged in"})
+
+                return jsonify({"status": "success", "message": "Album added to library!"})
+
+
+        except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError):
+
+            return jsonify({"status": "error", "message": "Internal search issue. Try a different query."}), 400
+        
     else:    
         if request.method == "GET":
             return render_template("index.html")
