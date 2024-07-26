@@ -348,6 +348,9 @@ def add_music():
                                     track_info["track_artwork"], add_timestamp)
                             album_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
 
+                            db.execute("INSERT INTO history (user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                                session[user_id], album_id, artist_id, curation_type, 'album', add_timestamp)
+
                         songs_songnames = [row["song_name"]for row in db.execute("SELECT song_name FROM songs")]
                         if track_info["song_name"] in songs_songnames:
 
@@ -410,9 +413,6 @@ def add_music():
                                         pass
                                     else:
                                         db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
-                                    
-                                        db.execute("INSERT INTO history (user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
-                                                user_id, album_id, artist_id, curation_type, 'album', add_timestamp)
 
                                         db.execute("INSERT INTO history (user_id, song_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)", 
                                                 user_id, song_id, album_id, artist_id, curation_type, query_type, add_timestamp)
@@ -527,7 +527,120 @@ def history():
 def delete_music():
     """Delete music from library"""
     if request.method == "POST":
-        return apology("TODO")
+
+        try:
+        
+          data = request.get_json()
+          timestamp = get_current_time()
+          user_id = session["user_id"]
+          print(data)
+
+          if data == None:
+
+              return jsonify({"status": "error", "message": "No data received. Try again."}), 400
+          
+          else:
+
+              item_type = data["item_type"]
+
+              if item_type == "song":
+                
+                  song_id = data["song_id"]
+                  note_id = data["note_id"]
+                  print("Song id:", song_id, "Note id:", note_id)
+                  
+                  album_select = ("SELECT album_id FROM song_album WHERE song_id = ?")
+
+                  album_id = db.execute(album_select, song_id)[0]["album_id"]
+                  print("Album id:", album_id)
+                
+                  song_name = db.execute("SELECT song_name FROM songs WHERE song_id = ?", song_id)[0]["song_name"]
+                  album_name = db.execute("SELECT album_name FROM albums WHERE album_id = ?", album_id)[0]["album_name"]
+                  artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
+                  artist_name = db.execute("SELECT artist_name FROM artists WHERE artist_id = ?", artist_id)[0]["artist_name"]
+                  
+                  print(song_name)
+                  print(album_name)
+                  print(artist_id)
+                  print(artist_name)
+
+                  if song_name == album_name:
+
+                    db.execute("INSERT INTO history(user_id, artist_id, album_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                user_id, artist_id, album_id, "delete", "album", timestamp)
+                    db.execute("INSERT INTO history(user_id, artist_id, album_id, song_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                user_id, artist_id, album_id, song_id, "delete", "song", timestamp)
+
+                    
+                    db.execute("DELETE FROM albums_users WHERE album_id = ? AND user_id = ?", album_id, user_id)
+                    db.execute("DELETE FROM songs_users WHERE song_id = ? AND user_id = ?", song_id, user_id)
+                    db.execute("DELETE FROM notes WHERE note_id = ? AND song_id = ? AND user_id = ?", note_id, song_id, user_id)
+                    db.execute("DELETE FROM notes WHERE album_id = ? AND user_id = ?", album_id, user_id)
+                
+                  else:
+                    
+                    db.execute("INSERT INTO history(user_id, artist_id, album_id, song_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                 user_id, artist_id, album_id, song_id, "delete", "song", timestamp)
+
+                    
+                    db.execute("DELETE FROM songs_users WHERE song_id = ? AND user_id = ?", song_id, user_id)
+                    db.execute("DELETE FROM notes WHERE song_id = ? AND user_id = ?", song_id, user_id)
+
+                  return jsonify({"status": "success", "message": "Song deleted."}), 200
+                  
+              
+              elif item_type == "album":
+                             
+                  album_id = data["album_id"]
+                  note_id = data["note_id"]
+                  artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
+                  print(album_id, note_id, artist_id)
+
+                  db.execute("INSERT INTO history(user_id, artist_id, album_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                                            user_id, artist_id, album_id, "delete", "album", timestamp)
+                  
+                  song_id_query = ("SELECT songs_users.song_id FROM songs_users "
+                                   "JOIN song_album ON songs_users.song_id = song_album.song_id "
+                                   "WHERE song_album.album_id = ? "
+                                   "AND songs_users.user_id = ?")
+                  song_ids = db.execute(song_id_query, album_id, user_id)
+                  song_id_list = []
+
+                  print(song_ids)
+
+                  for song in song_ids:
+                      
+                      print("Song id info:", song)
+                      song_id = song["song_id"]
+                      artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
+                      print("Song ID:", song_id)
+                      print(type(song_id))
+                      print(artist_id)
+
+                      song_id_list.append(song_id)
+
+                      history_query = ("INSERT INTO history "
+                                       "(user_id, artist_id, album_id, song_id, curation_type, curation_item, curation_time) " 
+                                       "VALUES (?, ?, ?, ?, ?, ?, ?)")
+                      db.execute(history_query, user_id, artist_id, album_id, song_id, "delete", "song", timestamp)
+                  
+                  print(song_id_list)
+                  db.execute("DELETE FROM songs_users WHERE song_id IN (?) AND user_id = ?", song_id_list, user_id)
+                  
+                  db.execute("DELETE FROM albums_users WHERE album_id = ? AND user_id = ?", album_id, user_id)
+                  db.execute("DELETE FROM notes where song_id IN (?) AND user_id = ?", song_id_list, user_id)
+                  db.execute("DELETE FROM notes WHERE note_id = ? AND album_id = ? AND user_id = ?", note_id, album_id, user_id)
+
+                  return jsonify({"status": "success", "message": "Album deleted."}), 200
+
+        
+              else:
+                  return jsonify({"status": "error", "message": "Invalid item type. Try again."}), 400
+            
+        except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError, TypeError) as e:
+    
+            print(e)
+            return jsonify({"status": "error", "message": "Internal issue. Try again."}), 400
 
 
 @app.route("/login", methods=["GET", "POST"])

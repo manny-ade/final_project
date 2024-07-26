@@ -26,7 +26,7 @@
 
         {% for song in song_collection %}
         
-        <div class="col">
+        <div class="col" id="song-{{ song.song_id }}">
             <div class="card">
                 <img src="{{ song.song_artwork }}" class="card-img-top" alt="artwork for {{ song.song_name }}">
                 <div class="card-body">
@@ -48,7 +48,7 @@
 
         {% for album in album_collection %}
         
-        <div class="col">
+        <div class="col" id="album-{{ album.album_id }}">
             <div class="card">
                 <img src="{{ album.album_artwork }}" class="card-img-top" alt="artwork for {{ album.album_name }}">
                 <div class="card-body">
@@ -105,7 +105,7 @@
                 </form>   
                </div>
                <div class="modal-footer">
-                   <button type="button" class="btn btn-danger" id="delete_button">Delete</button>
+                   <button type="button" class="btn btn-danger delete-button">Delete</button>
                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                </div>
             </div>

@@ -252,11 +252,13 @@
                     for (let heading of searchResultsHeading) {
 
                         heading.style.display = 'none';
+                        heading.remove();
                     }
 
                     for(let spacer of searchHeadingSpacer) {
 
                         spacer.style.display = 'none';
+                        spacer.remove();
                     }
                 })
               });
@@ -636,11 +638,13 @@ add_form.addEventListener('submit', function(event) {
                         for ( let heading of addresultsHeading) {
 
                             heading.style.display = 'none';
+                            add_content.removeChild(heading);
                         }
 
                         for ( let spacer of addresultsSpacer) {
 
                             spacer.style.display = 'none';
+                            add_content.removeChild(spacer);
                         }
                 
                 

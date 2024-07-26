@@ -7,12 +7,13 @@ document.addEventListener('DOMContentLoaded', function() {
     var song_header = document.getElementById('song_collection_header');
     var album_header = document.getElementById('album_collection_header');
     var modal_buttons = document.getElementsByClassName('modal-button');
+    var del_buttons = document.getElementsByClassName('delete-button');
     var info_modal = document.getElementById('info_modal');
-    var delete_button = document.getElementById('delete_button');
     var currentId;
     var currentType;
     var currentNoteID;
     info_modal.style.display = 'none';
+    
     
     song_toggle.addEventListener('click', function() {
 
@@ -34,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("Starting loop...")
     
     let initClickListener = null;
+    let initDeleteListener = null;
 
     for (let button of modal_buttons){
     
@@ -201,9 +203,150 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(error));
             
             }
+
+            for (let del_button of del_buttons) {
+
+                if (initDeleteListener) {
+
+                    del_button.removeEventListener('click', initDeleteListener);
+                }
+
+                initDeleteListener = function(event) {
+
+                    event.preventDefault();
+            
+                    console.log("Delete button clicked!")
+                    if (currentType === 'song') {
+            
+                        if (confirm("Are you sure you want to delete this song?")) {
+            
+                            
+                            console.log("User confirmed deletion.");
+                            console.log("Current type: " + currentType);
+                            console.log("Current id: " + currentId);
+                            console.log("Current note id: " + currentNoteID);
+
+                            fetch('/delete_music', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    'song_id': currentId,
+                                    'item_type': currentType,
+                                    'note_id': currentNoteID
+                                })
+                            })
+                            .then(response => { if (!response.ok)
+                                {
+
+                                    throw new Error(response.statusText);
+                                }
+                            
+                                return response.json(); })
+                            .then(data => {
+                                
+                                console.log(data);
+                                if (typeof toastr !== 'undefined'){
+
+                                    if ('status' in data && 'message' in data) {
+
+                                        if(data.status == 'success'){
+                                            toastr.success("Success", data.message);
+                                        } else if (data.status == 'error') {
+                                            toastr.error("Error", data.message);
+                                        } else if(data.status == 'warning'){
+                                            toastr.warning("Warning", data.message);
+                                        } else if (data.status == 'info'){
+                                            toastr.info("Info", data.message);
+                                        }
+                                    } else {
+                                        console.log("Error: toastr not defined");
+                                    }
+                                }
+                            })
+                            .catch(error => 
+                                
+                                console.log(error)
+                            );
+
+                            cardId = 'song-' + currentId;
+                            songCard = document.getElementById(cardId);
+                            songCard.remove();
+                            $('#info_modal').modal('hide');
+                            
+                        }
+            
+                    } else if (currentType === 'album') {
+            
+                        if (confirm("Are you sure you want to delete this album? If you do, \
+                            all songs in the album will be deleted as well for database consistency.")) {
+            
+                            console.log("User confirmed deletion.");
+                            console.log("Current type: " + currentType);
+                            console.log("Current id: " + currentId);
+                            console.log("Current note id: " + currentNoteID);
+                            
+                            fetch('/delete_music', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    'album_id': currentId,
+                                    'item_type': currentType,
+                                    'note_id': currentNoteID
+                                })
+                            })
+                            .then(response => { if (!response.ok)
+                                {
+
+                                    throw new Error(response.statusText);
+                                }
+                            
+                                return response.json(); })
+                            .then(data => {
+                                
+                                console.log(data);
+                                if (typeof toastr !== 'undefined'){
+
+                                    if ('status' in data && 'message' in data) {
+
+                                        if(data.status == 'success'){
+                                            toastr.success("Success", data.message);
+                                        } else if (data.status == 'error') {
+                                            toastr.error("Error", data.message);
+                                        } else if(data.status == 'warning'){
+                                            toastr.warning("Warning", data.message);
+                                        } else if (data.status == 'info'){
+                                            toastr.info("Info", data.message);
+                                        }
+                                    } else {
+                                        console.log("Error: toastr not defined");
+                                    }
+                                }
+
+                            })
+                            .catch(error => 
+                                
+                                console.log(error)
+                            );
+                            
+                            cardId = 'album-' + currentId;
+                            albumCard = document.getElementById(cardId);
+                            albumCard.remove();
+                            $('#info_modal').modal('hide');
+            
+                        }
+                    }
+                }
+
+                del_button.addEventListener('click', initDeleteListener);
+            }
         }
 
         button.addEventListener('click', initClickListener);
+        
 
     }
 
@@ -327,13 +470,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
     });
-
-
-});
-
-delete_button.addEventListener('click', (event) => {
-
-    event.preventDefault();
 
 
 });

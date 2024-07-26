@@ -47,7 +47,32 @@
                 {% endif %}
 
 
+        {% elif record.curation_type == 'delete' %}
+
+            {% if record.curation_item == 'song' %}
+
+                <tr>
+                    <td class="text-start">{{ record.song_name }}</td>
+                    <td class="text-start">Removed</td>
+                    <td class="text-start">Song</td>
+                    <td class="text-start">{{ record.artist_name }}</td>
+                    <td class="text-end">{{ record.curation_time }}</td>
+                </tr>
+
+
+            {% else %}
+
+            <tr>
+                <td class="text-start">{{ record.album_name }}</td>
+                <td class="text-start">Removed</td>
+                <td class="text-start">Album</td>
+                <td class="text-start">{{ record.artist_name }}</td>
+                <td class="text-end">{{ record.curation_time }}</td>
+            </tr>
+
             {% endif %}
+
+        {% endif %}
 
         {% endfor %}
     </tbody>
