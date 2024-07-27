@@ -49,9 +49,6 @@ def index():
                             " WHERE albums_users.user_id = ?")
             album_collection = db.execute(album_lookup, session["user_id"])
 
-            print(song_collection)
-            print(album_collection)
-
             return render_template("index.html", song_collection=song_collection, album_collection=album_collection)
 
 @app.route("/detail_view", methods=["GET", "POST"])
@@ -96,12 +93,6 @@ def detail_view():
                     note_id = data["note_id"]
 
                     listen_status_code = data["listen_status_code"]
-
-                    print(song_id)
-                    print(updated_note)
-                    print(note_id)
-                    print(listen_status_code)
-
                     song_note_update = ("UPDATE notes " 
                                         "SET note_content = ?, "
                                         "most_recent_update = ? "
@@ -122,12 +113,6 @@ def detail_view():
                     note_id = data["note_id"]
 
                     listen_status_code = data["listen_status_code"]
-
-                    print(album_id)
-                    print(updated_note)
-                    print(note_id)
-                    print(listen_status_code)
-
                     album_note_update = ("UPDATE notes " 
                                         " SET note_content = ?, "
                                         " most_recent_update = ? "
@@ -228,7 +213,6 @@ def search():
                         return jsonify(query_return)
                     else:
                         if query_return == None:
-                            print(query_return)
                             return jsonify({"status": "error", "message": "Internal search issue, try a different query."}), 400
 
         except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError):
@@ -270,7 +254,6 @@ def add():
             else:
 
                 query_return = lookup(query, query_type)
-                print("Return from lookup: ", query_return)
 
                 if query_return != None:
                     return jsonify(query_return)
@@ -299,6 +282,8 @@ def add_music():
             query_type = data["query_type"]
 
             curation_type = "add"
+
+            user_id = session["user_id"]
 
             if query_type != "song" and query_type != "album":
 
@@ -533,7 +518,6 @@ def delete_music():
           data = request.get_json()
           timestamp = get_current_time()
           user_id = session["user_id"]
-          print(data)
 
           if data == None:
 
@@ -547,22 +531,15 @@ def delete_music():
                 
                   song_id = data["song_id"]
                   note_id = data["note_id"]
-                  print("Song id:", song_id, "Note id:", note_id)
                   
                   album_select = ("SELECT album_id FROM song_album WHERE song_id = ?")
 
                   album_id = db.execute(album_select, song_id)[0]["album_id"]
-                  print("Album id:", album_id)
                 
                   song_name = db.execute("SELECT song_name FROM songs WHERE song_id = ?", song_id)[0]["song_name"]
                   album_name = db.execute("SELECT album_name FROM albums WHERE album_id = ?", album_id)[0]["album_name"]
                   artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
                   artist_name = db.execute("SELECT artist_name FROM artists WHERE artist_id = ?", artist_id)[0]["artist_name"]
-                  
-                  print(song_name)
-                  print(album_name)
-                  print(artist_id)
-                  print(artist_name)
 
                   if song_name == album_name:
 
@@ -594,7 +571,6 @@ def delete_music():
                   album_id = data["album_id"]
                   note_id = data["note_id"]
                   artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
-                  print(album_id, note_id, artist_id)
 
                   db.execute("INSERT INTO history(user_id, artist_id, album_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
                                                             user_id, artist_id, album_id, "delete", "album", timestamp)
@@ -606,17 +582,10 @@ def delete_music():
                   song_ids = db.execute(song_id_query, album_id, user_id)
                   song_id_list = []
 
-                  print(song_ids)
-
                   for song in song_ids:
                       
-                      print("Song id info:", song)
                       song_id = song["song_id"]
                       artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
-                      print("Song ID:", song_id)
-                      print(type(song_id))
-                      print(artist_id)
-
                       song_id_list.append(song_id)
 
                       history_query = ("INSERT INTO history "
@@ -624,7 +593,7 @@ def delete_music():
                                        "VALUES (?, ?, ?, ?, ?, ?, ?)")
                       db.execute(history_query, user_id, artist_id, album_id, song_id, "delete", "song", timestamp)
                   
-                  print(song_id_list)
+
                   db.execute("DELETE FROM songs_users WHERE song_id IN (?) AND user_id = ?", song_id_list, user_id)
                   
                   db.execute("DELETE FROM albums_users WHERE album_id = ? AND user_id = ?", album_id, user_id)

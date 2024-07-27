@@ -9239,3 +9239,136 @@ Could i also add a clause to specify that the song_id has to be in the songs_use
 ddb
 Your current query already ensures that the song_id is in the songs_users table. This is because you're selecting song_id from songs_users and joining on song_id with the song_album table. So, only song_ids that exist in both tables will be returned. If a song_id doesn't exist in the songs_users table, it won't be included in the result set. Therefore, there's no need to add an additional clause for this.
 
+you
+I'm still running into an unsupported value error even though according to the code I'm writing, I shouldn't be:
+unsupported value: {'song_id': 9}
+
+ddb
+It seems like you're trying to use a dictionary with a key-value pair where the key is 'song_id' and the value is 9. However, you're encountering an unsupported value error. This error typically occurs when you're trying to use a data type in a way that it's not designed to be used.
+
+Could you provide more context about where and how you're using this dictionary? Are you trying to insert it into a database, use it in a function, or something else? The more information you can provide, the better I can assist you.
+
+you
+I'm not trying to insert the dictionary, but rather the integer value stored in the dictionary.
+this is my code:
+for song in song_ids:
+                      
+                      print(song)
+                      song_id = int(song["song_id"])
+                      artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
+                      print("Song ID:", song_id)
+                      print(artist_id)
+
+                      db.execute("INSERT INTO history(user_id, artist_id, album_id, song_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                user_id, artist_id, album_id, song_id, "delete", "song", timestamp)
+
+ddb
+It seems like you're trying to extract the song_id from the song dictionary and then use it in your SQL query. The error might be due to the way you're accessing the song_id from the dictionary.
+
+When you print the song in your loop, what is the output? Is it the dictionary {'song_id': 9} or is it just the integer 9?
+
+If it's the dictionary, then your current method of accessing the song_id is correct. However, if it's just the integer, then you don't need to use song["song_id"], you can just use song.
+
+Also, are you sure that the song_ids list contains dictionaries and not just integers?
+
+you
+the songs_ids list is supposed to have dictionaries, especially since it's a result of calling db.execute.
+
+ddb
+I see, if song_ids is a result of a db.execute call, it should indeed be a list of dictionaries.
+
+However, the error message you're getting suggests that there might be an issue with the data you're trying to access.
+
+When you print out the song in your loop, what exactly is being printed? This could help us understand if the dictionaries are structured as expected.
+
+Also, are you sure that every dictionary in the song_ids list has a "song_id" key? If even one dictionary doesn't have this key, trying to access it would result in an error.
+
+you
+I'm not trying to insert the dictionary, but rather the integer value stored in the dictionary.
+this is my code:
+for song in song_ids:
+                      
+                      print(song)
+                      song_id = int(song["song_id"])
+                      artist_id = db.execute("SELECT artist_id FROM albums WHERE album_id = ?", album_id)[0]["artist_id"]
+                      print("Song ID:", song_id)
+                      print(artist_id)
+
+                      db.execute("INSERT INTO history(user_id, artist_id, album_id, song_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                user_id, artist_id, album_id, song_id, "delete", "song", timestamp)
+
+ddb
+It seems like you're trying to extract the song_id from the song dictionary and then use it in your SQL query. The error might be due to the way you're accessing the song_id from the dictionary.
+
+When you print the song in your loop, what is the output? Is it the dictionary {'song_id': 9} or is it just the integer 9?
+
+If it's the dictionary, then your current method of accessing the song_id is correct. However, if it's just the integer, then you don't need to use song["song_id"], you can just use song.
+
+Also, are you sure that the song_ids list contains dictionaries and not just integers?
+
+you
+Okay, here's the output:
+{'album_id': '15', 'item_type': 'album', 'note_id': 22}
+15 22 13
+[{'song_id': 9}]
+Song id info: {'song_id': 9}
+Song ID: 9
+<class 'int'>
+13
+unsupported value: {'song_id': 9}
+
+ddb
+It seems like you've implemented the previous advice correctly and the song_id is being correctly extracted as an integer. The error message is a bit puzzling, as it seems to suggest that the dictionary {'song_id': 9} is being inserted somewhere it shouldn't be.
+
+Could you please double-check the SQL query you're executing? Are all the parameters in the correct order and of the correct type? Also, are you sure that the db.execute function can handle all these types of parameters?
+
+you
+This is my query:
+history_query = ("INSERT INTO history "
+                                       "(user_id, artist_id, album_id, song_id, curation_type, curation_item, curation_time) " 
+                                       "VALUES (?, ?, ?, ?, ?, ?, ?)")
+                      db.execute(history_query, user_id, artist_id, album_id, song_id, "delete", "song", timestamp)
+
+ddb
+Your SQL query seems to be correctly structured. The error message you're receiving is quite puzzling, as it seems to suggest that the dictionary {'song_id': 9} is being inserted somewhere it shouldn't be.
+
+Could you please double-check the types of all the variables you're inserting? Are user_id, artist_id, album_id, song_id all integers? Is "delete" a valid value for curation_type in your database? Is "song" a valid value for curation_item? Is timestamp a valid datetime object?
+
+Also, could you please check if there are any constraints on the history table that might be causing this issue? For example, are there any foreign key constraints that might not be satisfied with the data you're trying to insert?
+
+you
+maybe it's in here somewhere?
+db.execute("DELETE FROM songs_users WHERE song_id IN (?) AND user_id = ?", song_ids, user_id)
+                  
+                  db.execute("DELETE FROM albums_users WHERE album_id = ? AND user_id = ?", album_id, user_id)
+                  db.execute("DELETE FROM notes where song_id IN (?) AND user_id = ?", song_ids, user_id)
+                  db.execute("DELETE FROM notes WHERE note_id = ? AND album_id = ? AND user_id = ?", note_id, album_id, user_id)
+
+ddb
+It seems like you're trying to delete certain records from your database. However, the IN (?) clause in your SQL queries might be causing issues. When using IN (?), the question mark is replaced by a single value. If song_ids is a list of dictionaries, this could be causing the error.
+
+Instead of using IN (?), you might need to dynamically generate the placeholders for the IN clause based on the number of song_ids. For example, if there are 3 song_ids, your query would look like IN (?, ?, ?).
+
+Could you try modifying your queries to accommodate this and see if it resolves the issue?
+
+you
+oh so I can't use in to insert the list of ids that are associated with the album?
+
+ddb
+Correct, the IN clause in SQL expects a list of individual values, not a list of dictionaries. If you have a list of dictionaries, you'll need to extract the individual values first before using them in the IN clause.
+
+For example, if song_ids is a list of dictionaries like [{ 'song_id': 1 }, { 'song_id': 2 }, { 'song_id': 3 }], you'll need to extract the song_ids into a list like [1, 2, 3] before using it in the IN clause.
+
+Does this help clarify things?
+
+you
+I see! Thank you so much. so I need to make a new variable and also append that value I'm creating into a list.
+
+ddb
+Yes, that's correct! You can create a new list and append the song_id values to it. Then, you can use this new list in your IN clause. This should help you avoid the error you were encountering. If you have any more questions or run into any issues, feel free to ask!
+
+you
+Okay! I think it worked! I'm gonna test one more time.
+
+ddb
+That sounds great! Please take your time to test your code thoroughly. If you encounter any more issues or have any more questions, don't hesitate to ask. I'm here to help!
