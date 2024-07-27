@@ -16,13 +16,13 @@ This file was one of the most important, as it was the one responsible for pulli
 
 Add Page (search and results)
 
-![Screenshot of add page on the SongDiary app.](final_project/doc_images/Screenshot_26-7-2024_18932_127.0.0.1.jpeg)
-![Screenshot of add results on the SongDiary app.](final_project/doc_images/Screenshot-2024-07-26-235751.jpeg)
+![Screenshot of add page on the SongDiary app.](/final_project/doc_images/Screenshot_26-7-2024_18932_127.0.0.1.jpeg)
+![Screenshot of add results on the SongDiary app.](/final_project/doc_images/Screenshot-2024-07-26-235751.jpeg)
 
 Search Page (search and results)
 
-![Screenshot of search page on the SongDiary app.](final_project/doc_images/Screenshot_26-7-2024_18949_127.0.0.1.jpeg)
-![Screenshot of search results on the SongDiary app.](final_project/doc_images/Screenshot_26-7-2024_235715_127.0.0.1.jpeg)
+![Screenshot of search page on the SongDiary app.](/final_project/doc_images/Screenshot_26-7-2024_18949_127.0.0.1.jpeg)
+![Screenshot of search results on the SongDiary app.](/final_project/doc_images/Screenshot_26-7-2024_235715_127.0.0.1.jpeg)
 
 These HTML files both served as pages to display the results of a search query-- the only difference between the two was that add (as the name suggests) included the ability to add a song or album to the user's library. The next two files were **_essential_** in making sure that the functionality of these pages worked as I intended for them to.
 
@@ -32,12 +32,12 @@ At some point when writing the JavaScript code for the application, I ran into a
 
 #### 4. index.html 
 
-![Screenshot of homepage/index page on the SongDiary app.](final_project/doc_images/Screenshot_26-7-2024_175015_127.0.0.1.jpeg)
+![Screenshot of homepage/index page on the SongDiary app.](/final_project/doc_images/Screenshot_26-7-2024_175015_127.0.0.1.jpeg)
 
 One of the things I was most excited about making work was the index page -- and it happened to be perhaps the most difficult thing. I used Jinja instead of dynamically generating the cards in JavaScript (which turned out to be a much more robust choice anyway!), and I had to consult Bootstrap's card documentation to get it to display four cards for the width of the screen. One of the quirks I'll have to work on in the future may be to figure out how to get the flex to look more elegant when resizing a window but for the most part, the cards worked well! Making the JavaScript to get the modal to show up and allow the features within it to work took a lot of effort and a lot of questions (thanks, Duck 😂), but thankfully I got it to work well and get the functionality for displaying/adding notes and the functionality for deleting a song or album to work too.
 
 #### 5. history.html
-![Screenshot of homepage/index page on the SongDiary app.](final_project/doc_images/Screenshot_26-7-2024_17515_127.0.0.1.jpeg)
+![Screenshot of homepage/index page on the SongDiary app.](/final_project/doc_images/Screenshot_26-7-2024_17515_127.0.0.1.jpeg)
 
 The history page was also something I adapted from my Finance solution -- thankfully the query to obtain a user's history of curating their collection wasn't too bad, but it required me to create a history table in my database that stored the time a song or album was added to a user's library. 
 
@@ -50,18 +50,18 @@ Speaking of databases...
 This is perhaps the most important element of the project -- some of the most time consuming parts of making this all work together was figuring out what tables to create and what queries to craft and execute in order to make sure that data from the API was successfully being entered into the database, and that the appropriate relationships were being formed. Once again, I must thank Duck for suggesting and helping me think through what the structure of the database needed to be, as well as offering help and clarifying things when I needed to pivot or adjust queries in the backend. Namely, the creation of junction tables was **_key_** (ba-dum, tshhh) to making sure that data could be referenced from one place to another, especially so that particular queries could be pulled off and that specifically, each user would have their particular library specified by the songs_users and albums_users tables, respectively. At first I was overthinking how the deletions would work, but since the junction tables existed, I realized I could keep the main records of the songs and albums and not have to delete them, which would have posed issues for the history table. 
 
 Database structure as shown in SQLiteBrowser:
-![Database structure in SQLiteBrowser](final_project/doc_images/Screenshot-2024-07-27-005616.jpeg)
+![Database structure in SQLiteBrowser](/final_project/doc_images/Screenshot-2024-07-27-005616.jpeg)
 
 songs_users junction table:
 
-![Database structure in SQLiteBrowser](final_project/doc_images/Screenshot-2024-07-27-005905.jpeg)
+![Database structure in SQLiteBrowser](/final_project/doc_images/Screenshot-2024-07-27-005905.jpeg)
 
 albums_users junction table:
 
-![Database structure in SQLiteBrowser](final_project/doc_images/Screenshot-2024-07-27-010315.jpeg)
+![Database structure in SQLiteBrowser](/final_project/doc_images/Screenshot-2024-07-27-010315.jpeg)
 
 History table:
-![Database structure in SQLiteBrowser](final_project/doc_images/Screenshot-2024-07-27-010444.jpeg)
+![Database structure in SQLiteBrowser](/final_project/doc_images/Screenshot-2024-07-27-010444.jpeg)
 
 #### 7. app.py (and other miscellaneous)
 
@@ -71,7 +71,7 @@ For other files like styles.css, I used it in case I wanted to override the auto
 
 I also created a favicon for the webapp to add a bit of flair:
 
-![SongDiary favicon; a notepad with a pen on top of a white eighth note against a teal/blue background](final_project/static/favicon_io/android-chrome-192x192.png)
+![SongDiary favicon; a notepad with a pen on top of a white eighth note against a teal/blue background](/final_project/static/favicon_io/android-chrome-192x192.png)
 
 
 ### Conclusion
