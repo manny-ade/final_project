@@ -1,5 +1,5 @@
 # SongDiary
-#### Video Demo:  <URL HERE>
+#### Video Demo:  [SongDiary - CS50x Final Project](https://www.youtube.com/watch?v=edptkjak5bQ)
 #### Description:
 
 SongDiary is a Flask web application that allows someone to keep track of songs or albums and whether or not they’ve listened to them. The application also allows users to make notes about the songs and albums in their collection, as well as see a history of their collection curation. This web app uses the [Spotify Web API](https://developer.spotify.com/documentation/web-api) through the [Spotipy Python library](https://spotipy.readthedocs.io/) for obtaining music and artist data. The main framework of the application is built on Python/Flask, HTML, CSS, and Javascript (the CSS and JavaScript include [Bootstrap](https://getbootstrap.com/docs/5.3/getting-started/introduction/), [jQuery](https://jquery.com/), and [Toastr](https://codeseven.github.io/toastr/)’s libraries).

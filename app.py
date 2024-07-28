@@ -2,7 +2,7 @@ import os
 import sys
 import json
 import requests
-
+import traceback
 
 from cs50 import SQL
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
@@ -42,7 +42,7 @@ def index():
                             "JOIN notes ON songs_users.note_id = notes.note_id "
                             "WHERE songs_users.user_id = ?")
             song_collection = db.execute(song_lookup, session["user_id"])
-            album_lookup = ("SELECT albums.*, artists. artist_name, notes.note_content, notes.note_id, listened FROM albums "
+            album_lookup = ("SELECT albums.*, artists. artist_name, notes.note_content, notes.note_id, albums_users.listened FROM albums "
                             " JOIN artists ON albums.artist_id = artists.artist_id "
                             " JOIN albums_users ON albums.album_id = albums_users.album_id "
                             " JOIN notes ON albums_users.note_id = notes.note_id "
@@ -132,17 +132,19 @@ def detail_view():
 
         if request.method == "GET":
 
-            song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_id, notes.note_content, songs_users.listened FROM songs "  
+            song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_id, notes.note_content, songs_users.listened, history.curation_time FROM songs "  
                             "JOIN artists ON songs.artist_id = artists.artist_id "
                             "JOIN songs_users ON songs.song_id = songs_users.song_id "
                             "JOIN notes ON songs_users.note_id = notes.note_id "
-                            "WHERE songs_users.user_id = ?")
+                            "JOIN history ON songs.song_id = history.song_id "
+                            "WHERE songs_users.user_id = ? AND history.curation_type = 'add'")
             song_collection = db.execute(song_lookup, session["user_id"])
-            album_lookup = ("SELECT albums.*, artists. artist_name, notes.note_id, notes.note_content, listened FROM albums "
+            album_lookup = ("SELECT albums.*, artists. artist_name, notes.note_id, notes.note_content, albums_users.listened, history.curation_time FROM albums "
                             " JOIN artists ON albums.artist_id = artists.artist_id "
                             " JOIN albums_users ON albums.album_id = albums_users.album_id "
                             " JOIN notes ON albums_users.note_id = notes.note_id "
-                            " WHERE albums_users.user_id = ?")
+                            " JOIN history ON albums.album_id = history.album_id "
+                            " WHERE albums_users.user_id = ? AND history.curation_type = 'add'")
             album_collection = db.execute(album_lookup, session["user_id"])
             
 
@@ -310,6 +312,7 @@ def add_music():
                         return jsonify({"status": "error", "message": "Could not add song. Please try again."})
 
                     else:
+                        
                         artists_artistnames = [row["artist_name"] for row in db.execute("SELECT artist_name FROM artists")]
                         if track_info["artist"] in artists_artistnames:
 
@@ -322,6 +325,7 @@ def add_music():
                             artist_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
                         
                         albums_albumnames = [row["album_name"] for row in db.execute("SELECT album_name FROM albums")]
+                        
                         if track_info["album_name"] in albums_albumnames:
                             
                             album_id = db.execute("SELECT album_id FROM albums WHERE album_name = ?", track_info["album_name"])[0]["album_id"]
@@ -333,8 +337,8 @@ def add_music():
                                     track_info["track_artwork"], add_timestamp)
                             album_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
 
-                            db.execute("INSERT INTO history (user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
-                                                session[user_id], album_id, artist_id, curation_type, 'album', add_timestamp)
+                        db.execute("INSERT INTO history(user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                            user_id, album_id, artist_id, curation_type, 'album', add_timestamp)
 
                         songs_songnames = [row["song_name"]for row in db.execute("SELECT song_name FROM songs")]
                         if track_info["song_name"] in songs_songnames:
@@ -348,7 +352,6 @@ def add_music():
                                     track_info["length"], track_info["explicit_status"], track_info["song_artwork"], add_timestamp)
                             song_id = db.execute("SELECT last_insert_rowid()")[0]["last_insert_rowid()"]
                         
-                        user_id = session["user_id"]
 
                         if user_id is not None and isinstance(user_id, int):
 
@@ -397,14 +400,14 @@ def add_music():
                                     if artists_albums_ids:
                                         pass
                                     else:
+                                        print(user_id)
+                                        print(artist_id)
+                                        print(album_id)
+                                        print(song_id)
                                         db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
+                        db.execute("INSERT INTO history (user_id, song_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                                    user_id, song_id, album_id, artist_id, curation_type, query_type, add_timestamp)
 
-                                        db.execute("INSERT INTO history (user_id, song_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-                                                user_id, song_id, album_id, artist_id, curation_type, query_type, add_timestamp)
-                                        
-                        else:
-                            return jsonify({"status": "error","message": "user not logged in"})
-        
                 return jsonify({"status": "success", "message": "Song added to library!"})            
             
             elif query_type == "album":
@@ -474,17 +477,16 @@ def add_music():
                                     else:
                                         db.execute("INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)", artist_id, album_id)
 
-                                        db.execute("INSERT INTO history(user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
-                                                user_id, album_id, artist_id, curation_type, query_type, add_timestamp)
-                        else:
-                            return jsonify({"status": "error","message": "user not logged in"})
+                                    db.execute("INSERT INTO history(user_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?)",
+                                            user_id, album_id, artist_id, curation_type, query_type, add_timestamp)
 
                 return jsonify({"status": "success", "message": "Album added to library!"})
 
 
-        except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError):
-
-            return jsonify({"status": "error", "message": "Internal search issue. Try a different query."}), 400
+        except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError, SyntaxError, TypeError) as e:
+            print(type(e).__name__, str(e))
+            traceback.print_exc()
+            return jsonify({"status": "error", "message": "Internal issue. Try again."}), 400
         
     else:    
         if request.method == "GET":

@@ -9372,3 +9372,250 @@ Okay! I think it worked! I'm gonna test one more time.
 
 ddb
 That sounds great! Please take your time to test your code thoroughly. If you encounter any more issues or have any more questions, don't hesitate to ask. I'm here to help!
+
+you
+Hey Duck -- I'm going back over my code and I realized I have a problem -- any time I'm adding songs/albums with a new user where the album or song exists in the database already, I'm not inserting anything into history. I've tried to write code to fix it but I think it's not working.
+
+ddb
+It sounds like you're having trouble with database operations. When you say "it's not working", could you please be more specific? Are you receiving any error messages? If so, what do they say?
+
+Also, could you explain your current approach to handling this situation? How are you checking if the song or album already exists in the database, and what steps are you taking when it does?
+
+you
+Yeah, I don't get any specific error messages, but there may be another error happening since the except block gets triggered.
+
+ddb
+I see. It sounds like you're having trouble with error handling in your code. When you say the "except block gets triggered", it suggests that an exception is being raised somewhere in your code.
+
+Could you show me the part of your code where you're trying to insert into the history? Remember to exclude any sensitive information like database credentials. This will help me understand your approach and guide you better.
+
+you
+This happens inside a check where I look to see if the artist has already been linked with an album. I tried moving this insertion outside that check but maybe I needed to move it a bit further.
+db.execute("INSERT INTO history (user_id, song_id, album_id, artist_id, curation_type, curation_item, curation_time) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                                                user_id, song_id, album_id, artist_id, curation_type, query_type, add_timestamp)
+
+ddb
+It seems like you're trying to insert a record into the history table. If the INSERT statement is causing an exception, it could be due to a few reasons.
+
+One of the values you're trying to insert might not be of the correct data type. For example, if user_id is supposed to be an integer, but you're trying to insert a string, that would cause an error.
+
+There might be a constraint violation. For example, if user_id is a foreign key and you're trying to insert a value that doesn't exist in the referenced table, that would cause an error.
+
+There might be a unique constraint on one of the columns you're trying to insert into. If you're trying to insert a value that already exists in that column, that would cause an error.
+
+To debug this, you could try printing out the values you're trying to insert right before the INSERT statement to make sure they're what you expect. You could also try executing the INSERT statement directly in your database with some test values to see if it works. If it doesn't, the error message you get might give you more information about what's going wrong.
+
+you
+all I'm getting back is "4" when printing the error.
+
+ddb
+It seems like you're getting an error code, but not a descriptive error message. In SQLite, an error code of "4" corresponds to "SQLITE_TOOBIG", which means a string or BLOB was too large.
+
+Are any of the values you're trying to insert particularly large? For example, are you trying to insert a string that's longer than the maximum length allowed for that column?
+
+You might want to check the data types and constraints of your history table to make sure all the data you're trying to insert fits within those constraints.
+
+you
+hmm...I don't believe I am. I'm testing out whether or not I can add a song to a different user's library if its info is already in the central tables of the database for songs and albums respectively.
+
+ddb
+I see. It sounds like you're trying to add a song to a different user's library, and the song already exists in the central tables.
+
+If you're not inserting any particularly large values, then the error might be coming from somewhere else.
+
+Are you sure the error is being caused by the INSERT statement? You might want to double-check that by adding some print statements before and after the INSERT statement to see if they both get printed.
+
+Also, are you catching and handling the exception correctly? If you're using a try/except block, you might want to print out the exception itself to get more information about the error.
+
+you
+I do print out the exception but I just get 4
+
+ddb
+I see. If you're only getting '4' as the output, it might be that you're printing the exception code, but not the exception message. In Python, you can get more information about an exception by using str(e) where e is the exception object. This will give you a string representation of the exception, which often includes a more descriptive error message.
+
+Try modifying your exception handling code to something like this:
+
+try:
+    # Your INSERT statement here
+except Exception as e:
+    print(str(e))
+This should give you a more descriptive error message that can help you figure out what's going wrong.
+
+you
+Ohh right! I forgot.
+
+ddb
+No problem at all! If you have any more questions or run into any other issues, feel free to ask. I'm here to help!
+
+you
+This is what I have:
+except(KeyError, IndexError, requests.RequestException, ValueError, RuntimeError, SyntaxError, TypeError) as e:
+            print(str(e))
+            return jsonify({"status": "error", "message": "Internal issue. Try again."}), 400
+
+ddb
+It seems like you're trying to catch a variety of exceptions and return a generic error message when any of them occur. This is a good practice for handling unexpected errors in your code.
+
+However, if you're trying to debug an issue, it might be helpful to print out more specific information about the exception. For example, you could modify your code to print out the type of the exception in addition to its message:
+
+except (KeyError, IndexError, requests.RequestException, ValueError, RuntimeError, SyntaxError, TypeError) as e:
+    print(type(e).__name__, str(e))
+    return jsonify({"status": "error", "message": "Internal issue. Try again."}), 400
+This will tell you which exception is being raised, which might help you figure out what's going wrong.
+
+you
+Okay, so apparently it's a KeyError.
+
+ddb
+A KeyError typically occurs when you're trying to access a dictionary key that doesn't exist. It might be helpful to check the places where you're accessing dictionary keys and ensure that the keys you're trying to access do indeed exist in the dictionary. If you're not sure which key is causing the problem, you could print out the dictionary right before the line where the error occurs to see what keys are available.
+
+you
+so basically I know the main dictionary that I work with is one that gets created as a result of calling a helper function.
+
+ddb
+It sounds like you're on the right track. If the KeyError is occurring when you're trying to access a key in the dictionary returned by the helper function, you might want to check that function to make sure it's returning the dictionary you expect.
+
+You could also add some error checking in your main function to handle the case where the expected key isn't in the dictionary. For example, you could use the dict.get(key) method, which returns None if the key isn't in the dictionary, instead of dict[key], which raises a KeyError.
+
+Remember, the goal is to understand why the KeyError is happening and fix the underlying issue, not just to prevent the error message.
+
+you
+might it be better to reconstruct my add function?
+
+ddb
+It could be beneficial to revisit your add function if you believe it's causing the KeyError. However, before you start from scratch, try to understand what's currently not working.
+
+Are you sure the function is returning what you expect? Are there any edge cases you might not have considered?
+
+Remember, it's often more efficient to debug and improve existing code than to rewrite everything. But if you're confident that starting over will lead to better code, then go for it! Just make sure you understand what went wrong the first time to avoid making the same mistakes.
+
+you
+You're right --I just don't know where to start in terms of looking for where things are going wrong.
+
+ddb
+I understand that debugging can be overwhelming, especially when you're not sure where to start. Here are some general steps you can follow:
+
+Understand the problem: Make sure you understand what your code is supposed to do and what it's actually doing. You've already identified that a KeyError is being thrown, which is a great start.
+
+Isolate the problem: Try to narrow down where in your code the problem is occurring. You mentioned that the error is likely coming from your add function. Can you identify the specific line where the error occurs?
+
+Test: Once you've isolated the problem, create a test case that reproduces the error. This could be as simple as calling your function with a specific set of inputs that you know will cause the error.
+
+Debug: Now that you have a test case, you can start debugging. This might involve adding print statements to your code to check the values of variables, or it might involve stepping through your code with a debugger.
+
+Fix: Once you've identified the cause of the problem, you can start working on a fix. This might involve changing how you're accessing your dictionary to avoid the KeyError.
+
+Remember, the goal is to understand why the error is happening, not just to make it go away. If you're still stuck after trying these steps, don't hesitate to ask for more help!
+
+you
+is there a way to see the line causing the problem when printing the error/exception?
+
+ddb
+Yes, there is a way to see the line causing the problem when printing the error/exception. Python's traceback module can help with this. Here's a simple example:
+
+import traceback
+
+try:
+    # some code that raises an exception
+except Exception as e:
+    print("Exception occurred: ", e)
+    traceback.print_exc()
+The traceback.print_exc() function prints detailed information about the exception, including the line number where the exception occurred. This can be very helpful for debugging.
+
+you
+So apparently this line is causing the problem:
+session[user_id], album_id, artist_id, curation_type, 'album', add_timestamp)
+
+ddb
+It seems like you're trying to access the key user_id in the dictionary session. If this line is causing a KeyError, it means that user_id is not in session at the time this line is executed.
+
+You might want to check the following:
+
+Are you sure session is the correct dictionary to use here?
+Are you sure user_id is the correct key?
+Is there a chance that user_id could be removed from session before this line is executed?
+Remember, you can use the dict.get(key) method to safely access a dictionary key. This method returns None if the key is not in the dictionary, instead of raising a KeyError. However, this is just a way to avoid the error message, and you should still try to understand why user_id is not in session when you expect it to be.
+
+you
+4 is the user_id for the current user account I'm using for testing.
+
+ddb
+It's good that you have a specific user_id for testing. If user_id is not in session when you're trying to access it, you might want to check where and how session is being updated. Is it possible that session is being modified somewhere else in your code before this line is executed? Or perhaps session is not being initialized with user_id as you expected? Try to trace back in your code to see where session is being manipulated.
+
+you
+LOL -- I realized I didn't have quotes around 'user_id'.
+
+ddb
+Ah, that would do it! Without the quotes, Python was interpreting user_id as a variable name instead of a string. I'm glad you were able to figure it out! Remember, in Python, dictionary keys are often strings, so you'll need to use quotes around them. Keep going, you're doing great!
+
+you
+Okay, so the problem now is that in the modal -- I'm showing when the song was added to the main database instead of the timestamp that's in the history table for that particular user. I think I need to adjust my queries for getting that data and join the history table.
+
+ddb
+It sounds like you're on the right track! Joining tables in your query can be a powerful way to pull together related data from different tables.
+
+When you construct your JOIN, you'll want to make sure you're joining on the correct fields. In this case, it sounds like you'll want to join on the user_id field, and possibly also on the song_id field, if such a field exists in both tables.
+
+Remember, the goal of a JOIN is to create a result set that includes fields from multiple tables where the join condition is true. So you'll want to think carefully about what fields you need in your result set, and what condition will give you the correct data.
+
+Does that help clarify things? Or do you have more specific questions about how to construct your query?
+
+you
+so I think I would join the history table on the user_id field and SELECT curation time where the curation_type is "add", for both the songs and albums queries.
+
+ddb
+That sounds like a good approach! By joining the history table on the user_id field and selecting the curation_time where curation_type is "add", you should be able to get the timestamp from the history table for that particular user. Just make sure that your JOIN condition correctly matches the records from both tables. If you encounter any issues or have more questions, feel free to ask!
+
+you
+This is the original query I have -- should I add another line to the select where I do history.curation_time?
+ song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_content, notes.note_id, songs_users.listened FROM songs "  
+                            "JOIN artists ON songs.artist_id = artists.artist_id "
+                            "JOIN songs_users ON songs.song_id = songs_users.song_id "
+                            "JOIN notes ON songs_users.note_id = notes.note_id "
+                            "WHERE songs_users.user_id = ?")
+
+ddb
+Yes, you're on the right track! If you want to include the curation_time from the history table, you would need to join that table and then select the curation_time field.
+
+However, you'll need to make sure you're joining the history table correctly. You mentioned earlier that you want to join on the user_id field, but you might also need to join on another field if there's another common field between the tables.
+
+Also, remember to include a condition in your WHERE clause to filter for curation_type being "add", as you mentioned earlier.
+
+Does this help you move forward with modifying your query?
+
+you
+I think so -- here's what I've got:
+            song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_content, notes.note_id, songs_users.listened, history.curation_time FROM songs "  
+                            "JOIN artists ON songs.artist_id = artists.artist_id "
+                            "JOIN songs_users ON songs.song_id = songs_users.song_id "
+                            "JOIN notes ON songs_users.note_id = notes.note_id "
+                            "JOIN history ON songs.song_id = history.song_id "
+                            "WHERE history.curation_type = 'add' "
+                            "WHERE songs_users.user_id = ?")
+
+ddb
+Your query is almost correct, but there's a small mistake. In SQL, if you want to use multiple conditions in the WHERE clause, you should use the AND or OR operator to combine these conditions.
+
+In your case, you have two WHERE clauses. You should combine them with the AND operator like this:
+
+"WHERE history.curation_type = 'add' AND songs_users.user_id = ?"
+Try this modification and see if it works for your needs.
+
+you
+Okay, here's the change:
+song_lookup = ("SELECT songs.*, artists.artist_name, notes.note_content, notes.note_id, songs_users.listened, history.curation_time FROM songs "  
+                            "JOIN artists ON songs.artist_id = artists.artist_id "
+                            "JOIN songs_users ON songs.song_id = songs_users.song_id "
+                            "JOIN notes ON songs_users.note_id = notes.note_id "
+                            "JOIN history ON songs.song_id = history.song_id "
+                            "WHERE songs_users.user_id = ? AND history.curation_type = 'add'")
+
+ddb
+Your updated query looks good! It correctly joins the necessary tables and selects the appropriate fields. The WHERE clause also correctly filters for the user_id and the 'add' curation_type. If you run this query and pass in the correct user_id, it should return the expected results. If you encounter any issues, feel free to ask for further assistance.
+
+you
+Okay -- I think it worked.
+
+ddb
+That's great to hear! If you have any more questions or run into any other issues, feel free to ask. Keep up the good work!
+

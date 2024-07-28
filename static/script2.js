@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     modal_info_artist.textContent = fetchedData.artist_name;
                     modal_info_genre.textContent = fetchedData.genre;
                     modal_info_date.textContent = fetchedData.release_date;
-                    modal_info_added.textContent = fetchedData.add_time;
+                    modal_info_added.textContent = fetchedData.curation_time;
                     
                     if (fetchedData.listened === 0) {
         
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 modal_info_artist.textContent = fetchedData.artist_name;
                 modal_info_genre.textContent = fetchedData.genre;
                 modal_info_date.textContent = fetchedData.release_date;
-                modal_info_added.textContent = fetchedData.add_time;
+                modal_info_added.textContent = fetchedData.curation_time;
             
                 if (fetchedData.listened === 0) {
         
